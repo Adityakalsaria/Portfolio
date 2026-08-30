@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
-import { metaOf } from "@/lib/format";
 import RowTable, { type TableGroup } from "./RowTable";
 
 /** How long each image holds before the next fades up. */
@@ -83,7 +82,6 @@ export default function WorkList() {
       ? cat.projects.map((p) => ({
           key: p.slug,
           title: p.title,
-          meta: metaOf(p),
           href: `/work/${p.slug}`,
         }))
       : [{ key: cat.id, title: "Awaiting export", quiet: true }],

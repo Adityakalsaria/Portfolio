@@ -1,5 +1,5 @@
 import WorkList from "@/components/WorkList";
-import PortraitReveal from "@/components/PortraitReveal";
+import Portrait from "@/components/Portrait";
 import RowTable from "@/components/RowTable";
 import Timeline from "@/components/Timeline";
 import { PROFILE, CLIENTS, byYear, type Entry } from "@/lib/cv";
@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="doc">
       <header>
-        <PortraitReveal alt={`Photograph of ${PROFILE.name}`} />
+        <Portrait alt={`Photograph of ${PROFILE.name}`} />
         <p>{PROFILE.name}</p>
         <p className="sub">{PROFILE.role}</p>
       </header>

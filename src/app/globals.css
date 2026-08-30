@@ -214,6 +214,9 @@ a { color: inherit; }
 .tl-title,
 .tl-dates { font-weight: 500; }
 
+.tl-label.is-right { text-align: right; }
+.tl-label.is-right .tl-avatars { justify-content: flex-end; }
+
 .tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.1; }
 /* Scoped to .tl-label so it outranks the global `.doc p + p` rule, which
    otherwise puts a full 1.05rem paragraph gap under the company name. */
@@ -388,9 +391,7 @@ a { color: inherit; }
   margin-top: 0.6rem;
 }
 
-/* Portrait above the name, in the flow. Wider than a plain headshot would
-   need to be: the reveal draws on a 24-cell grid, which is unreadable at
-   112px. */
+/* Portrait above the name, in the flow. */
 .portrait {
   position: relative;
   display: block;
@@ -399,36 +400,10 @@ a { color: inherit; }
   margin-bottom: 1.15rem;
   border-radius: 12px;
   overflow: hidden;
-  background: var(--style-bg, var(--surface));
-  /* The same lean the card had when it lifted in on hover, plus the 3D tilt
-     the engine reports each frame. */
-  transform: perspective(680px) rotate(-2.5deg) rotateX(var(--tilt-x, 0deg))
-    rotateY(var(--tilt-y, 0deg));
+  background: var(--surface);
+  /* The same lean the card had when it lifted in on hover. */
+  transform: rotate(-2.5deg);
   transform-origin: bottom left;
-  transition: background-color 0.4s linear;
-  will-change: transform;
-}
-
-.portrait-gl { position: absolute; inset: 0; }
-
-/* Cursor-following glow, tinted by whichever style is showing. */
-.portrait-glow {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: var(--glow-i, 0);
-  background: radial-gradient(
-    38% 38% at var(--glow-x, 50%) var(--glow-y, 50%),
-    var(--glow-c, transparent) 0%,
-    transparent 70%
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .portrait { transform: rotate(-2.5deg); }
-  .portrait-glow { display: none; }
 }
 
 .sr-only {
