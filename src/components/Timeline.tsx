@@ -74,11 +74,14 @@ export default function Timeline() {
     return () => window.removeEventListener("resize", syncLabel);
   }, [syncLabel]);
 
-  const roleAt = (month: string): Entry | undefined =>
-    EXPERIENCE.find((e) => e.from && e.to && month >= e.from && month <= e.to);
+  /** All roles covering a month — two were held concurrently in 2020-21, so
+   *  taking only the first would have hidden one of them entirely. */
+  const rolesAt = (month: string): Entry[] =>
+    EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
 
   const month = months[index];
-  const active = roleAt(month);
+  const roles = rolesAt(month);
+  const active = roles[0];
 
   const onMove = (e: React.PointerEvent) => {
     // Measured against the track, not the viewport window onto it — the
@@ -99,18 +102,21 @@ export default function Timeline() {
         {/* Height is held whether or not a mark exists, so scrubbing past a
             role without one does not jump the readout. */}
         <div className="tl-avatars">
-          {active?.logo && (
-            <span className="tl-avatar tl-avatar-logo">
-              {/* Marks are already sized and centred; a plain img keeps the
-                  optimiser from rasterising an SVG. */}
-              <img src={active.logo} alt="" />
-            </span>
+          {roles.map(
+            (r) =>
+              r.logo && (
+                <span key={r.title} className="tl-avatar tl-avatar-logo">
+                  {/* Marks are already sized and centred; a plain img keeps
+                      the optimiser from rasterising an SVG. */}
+                  <img src={r.logo} alt="" />
+                </span>
+              )
           )}
         </div>
 
-        {/* Company only. Where the employer is unconfirmed the role stands in,
-            since that is all the resume actually establishes. */}
-        <p className="tl-title">{active?.company || active?.title || "—"}</p>
+        <p className="tl-title">
+          {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
+        </p>
         <p className="tl-dates">{span(active) ?? label(month)}</p>
       </div>
 
@@ -124,8 +130,9 @@ export default function Timeline() {
         >
         <div ref={track} className="tl-track">
           {months.map((m, i) => {
-            const inRole =
-              active && m >= (active.from ?? "") && m <= (active.to ?? "");
+            const inRole = roles.some(
+              (r) => m >= (r.from ?? "") && m <= (r.to ?? "")
+            );
             return (
               <span
                 key={m}

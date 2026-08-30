@@ -25,12 +25,13 @@ export type Entry = {
 
 export const EXPERIENCE: Entry[] = [
   { year: "2025", title: "Product & Brand Designer", company: "KOSH", period: "Sep — Now", from: "2025-09", to: "2026-08", logo: "/logos/kosh.svg" },
-  { year: "2025", title: "Senior UI/UX Designer", company: "", period: "Mar — Aug", from: "2025-03", to: "2025-08" },
-  { year: "2024", title: "Senior Brand & Product Designer", company: "", period: "Oct — Feb 25", from: "2024-10", to: "2025-02" },
-  { year: "2023", title: "Lead Visual & Brand Designer", company: "", period: "Feb — Oct 24", from: "2023-02", to: "2024-09" },
-  { year: "2022", title: "UI Designer", company: "", period: "Aug — Feb 23", from: "2022-08", to: "2023-01" },
-  { year: "2021", title: "Visual Designer", company: "", period: "Sep — Aug 22", from: "2021-09", to: "2022-07" },
-  { year: "2020", title: "Visual Designer / Design Generalist", company: "", period: "Sep — Sep 21", from: "2020-09", to: "2021-08" },
+  { year: "2025", title: "Senior UI/UX Designer", company: "BullX", logo: "/logos/bullx.svg", period: "Mar — Aug", from: "2025-03", to: "2025-08" },
+  { year: "2024", title: "Senior Brand & Product Designer", company: "Stackr", logo: "/logos/stackr.svg", period: "Oct — Feb 25", from: "2024-10", to: "2025-02" },
+  { year: "2023", title: "Lead Visual & Brand Designer", company: "Socket / Bungee", logo: "/logos/socket.svg", period: "Feb — Oct 24", from: "2023-02", to: "2024-09" },
+  { year: "2022", title: "UI Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Aug — Feb 23", from: "2022-08", to: "2023-01" },
+  { year: "2021", title: "Visual Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Sep — Aug 22", from: "2021-09", to: "2022-07" },
+  { year: "2020", title: "Visual Designer", company: "IconScout", logo: "/logos/iconscout.svg", period: "Sep — Sep 21", from: "2020-09", to: "2021-08" },
+  { year: "2020", title: "Design Generalist", company: "GeeksLab", logo: "/logos/geekslab.png", period: "Sep — Sep 21", from: "2020-09", to: "2021-08" },
 ];
 
 export const CLIENTS: Entry[] = [

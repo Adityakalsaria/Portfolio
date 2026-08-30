@@ -151,6 +151,7 @@ a { color: inherit; }
 /* Employer mark alone — a square tile above the readout. */
 .tl-avatars {
   display: flex;
+  gap: 0.4rem;
   margin-bottom: 0.9rem;
   height: 2.75rem;
 }
@@ -167,7 +168,7 @@ a { color: inherit; }
   display: grid;
   place-items: center;
 }
-.tl-avatar-logo img { width: 62%; height: 62%; object-fit: contain; }
+.tl-avatar-logo img { width: 66%; height: 66%; object-fit: contain; }
 
 /* Caption, headline and dates share a weight — they differ by colour and
    size only, so the block reads as one voice. */
