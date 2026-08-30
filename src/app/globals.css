@@ -328,6 +328,9 @@ a { color: inherit; }
   text-underline-offset: 0.18em;
 }
 
+/* Gallery images carry the same hairline edge as the preview. */
+.shot { box-shadow: inset 0 0 0 0.2px rgb(0 0 0 / 0.15); }
+
 /* Hover preview, parked beside the hovered row. */
 .work-preview {
   position: fixed;
@@ -339,7 +342,13 @@ a { color: inherit; }
   background: var(--surface);
   pointer-events: none;
   transform: translateY(-50%);
-  /* Glides between rows and fades at the ends on one shared curve. */
+  /* A hairline edge, so a light image still reads against the page. */
+  box-shadow: inset 0 0 0 0.2px rgb(0 0 0 / 0.15);
+  /* Fades on first appearance; position only animates once placed. */
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.work-preview.is-placed {
   transition:
     top 0.55s cubic-bezier(0.16, 1, 0.3, 1),
     left 0.55s cubic-bezier(0.16, 1, 0.3, 1),

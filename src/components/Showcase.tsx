@@ -46,7 +46,7 @@ export default function Showcase({
           {shots.map((s, i) => (
             <Reveal key={s.src} y={28}>
               <figure
-                className="relative w-full overflow-hidden bg-surface"
+                className="shot relative w-full overflow-hidden bg-surface"
                 style={{ aspectRatio: `${s.width} / ${s.height}` }}
               >
                 <Image

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
 import RowTable, { type TableGroup } from "./RowTable";
@@ -24,6 +24,9 @@ export default function WorkList() {
   const [active, setActive] = useState<string | null>(null);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [frame, setFrame] = useState(0);
+  /** Gates the position transition until the card has been placed once. */
+  const [placed, setPlaced] = useState(false);
+  const placedOnce = useRef(false);
 
   const onActive = useCallback((key: string | null, row?: HTMLElement) => {
     if (!key || !row) {
@@ -51,6 +54,20 @@ export default function WorkList() {
     setSpot({ top: (top + bottom) / 2, left });
     setActive(key);
     setFrame(0);
+
+    // The card sits at 0,0 until the first hover, with its position transition
+    // already live — so that first hover would glide it in from the top-left
+    // corner. Enable the transition one frame after it has been placed.
+    if (!placedOnce.current) {
+      placedOnce.current = true;
+      // Two frames, not one: a single rAF runs before the next paint, so the
+      // transition would switch on in the same frame the position lands and
+      // the browser would still interpolate it from 0,0. The second frame
+      // guarantees the placed position has actually been painted.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => setPlaced(true))
+      );
+    }
   }, []);
 
   const activeProject = ALL_PROJECTS.find((p) => p.slug === active);
@@ -94,7 +111,7 @@ export default function WorkList() {
       {HAS_WORK && (
         <div
           aria-hidden
-          className="work-preview"
+          className={placed ? "work-preview is-placed" : "work-preview"}
           style={{
             top: spot?.top ?? 0,
             left: spot?.left ?? 0,
