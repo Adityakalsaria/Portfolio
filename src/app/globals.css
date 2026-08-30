@@ -286,9 +286,12 @@ a { color: inherit; }
 @media (min-width: 74rem) {
   .pnav {
     position: fixed;
-    top: 11rem;
-    /* Column is 36rem centred; park the rail clear of its left edge. */
-    left: calc(50% - 18rem - 13rem);
+    /* Matches .doc's top padding, so the rail's first line sits on the same
+       baseline as the title rather than 88px below it. */
+    top: 5.5rem;
+    /* Out in the left margin near the window edge, not tucked against the
+       column. Scales with the viewport but never crowds a narrow one. */
+    left: clamp(1.5rem, 5vw, 7rem);
     width: 11rem;
     margin: 0;
     padding-top: 0;
