@@ -179,32 +179,28 @@ a { color: inherit; }
 .tl-dates { color: var(--muted); font-size: 0.8125rem; margin-top: 0.4rem; }
 
 .tl-ruler {
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
   /* Tall enough to be an easy hover target; a thin band is hard to hold. */
   padding: 1rem 0;
-  touch-action: pan-x;
 }
-.tl-ruler::-webkit-scrollbar { display: none; }
 
+/* Every month is on screen at once. Scrolling the strip meant the early
+   roles sat outside the viewport with no cue they were there, so they were
+   simply unreachable. space-between distributes all 72 ticks across
+   whatever width there is, so it holds down to narrow screens too. */
 .tl-track {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
   height: 4.5rem;
-  /* No end padding: at either extreme it would leave half the strip empty,
-     and the readout is driven by hover, not by a fixed centre playhead. */
-  padding: 0 1.5rem;
-  width: max-content;
+  width: 100%;
 }
 
 .tick {
   width: 2px;
+  flex-shrink: 0;
   height: 2.5rem;
   border-radius: 2px;
   background: var(--line);
-  flex-shrink: 0;
   transition: height 0.2s ease, background-color 0.2s ease;
 }
 .tick-role { background: #c4c1bb; height: 3rem; }
@@ -212,27 +208,6 @@ a { color: inherit; }
   width: 3px;
   height: 4.25rem;
   background: var(--ink);
-}
-
-/* Feathered ends. pointer-events:none so they never block the scrub. */
-.tl-ruler-wrap { position: relative; }
-.tl-ruler-wrap::before,
-.tl-ruler-wrap::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 4.5rem;
-  pointer-events: none;
-  z-index: 1;
-}
-.tl-ruler-wrap::before {
-  left: 0;
-  background: linear-gradient(to right, var(--paper) 20%, transparent);
-}
-.tl-ruler-wrap::after {
-  right: 0;
-  background: linear-gradient(to left, var(--paper) 20%, transparent);
 }
 
 /* ── Project nav ─────────────────────────────────────────────────

@@ -61,13 +61,6 @@ export default function Timeline() {
     setLabelX(Math.max(0, Math.min(box.width - LABEL_WIDTH, x)));
   }, [index]);
 
-  // Open on the present, which sits at the far right of the strip.
-  useEffect(() => {
-    const el = ruler.current;
-    if (el) el.scrollLeft = el.scrollWidth - el.clientWidth;
-    syncLabel();
-  }, [syncLabel]);
-
   useEffect(() => {
     syncLabel();
     window.addEventListener("resize", syncLabel);
@@ -125,7 +118,6 @@ export default function Timeline() {
           ref={ruler}
           className="tl-ruler"
           onPointerMove={onMove}
-          onScroll={syncLabel}
           role="presentation"
         >
         <div ref={track} className="tl-track">
