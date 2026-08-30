@@ -66,16 +66,22 @@ export default function Timeline() {
 
   /**
    * Park the readout over the active tick, measured from the tick element so
-   * it stays right on first paint before any pointer has moved. The clamp uses
-   * the label's real width rather than a constant duplicated from the CSS.
+   * it stays right on first paint before any pointer has moved.
+   *
+   * The anchor slides along the card instead of being clamped: at the left of
+   * the strip the card's left edge sits on the tick, at the right its right
+   * edge does, and it eases between the two. A hard clamp pinned the card at
+   * `width - cardWidth`, so it stopped following the pointer entirely across
+   * the last stretch of the strip.
    */
   const syncLabel = useCallback(() => {
     const tick = track.current?.children[index] as HTMLElement | undefined;
     const box = wrap.current?.getBoundingClientRect();
     const w = labelEl.current?.offsetWidth ?? 0;
-    if (!tick || !box) return;
-    const t = tick.getBoundingClientRect();
-    setLabelX(Math.max(0, Math.min(box.width - w, t.left - box.left)));
+    if (!tick || !box || !box.width) return;
+    const x = tick.getBoundingClientRect().left - box.left;
+    const anchored = x - w * (x / box.width);
+    setLabelX(Math.max(0, Math.min(box.width - w, anchored)));
   }, [index]);
 
   useEffect(() => {

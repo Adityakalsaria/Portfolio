@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ALL_PROJECTS, findProject, type Shot } from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import Reveal from "@/components/Reveal";
+import Showcase from "@/components/Showcase";
 import ProjectNav from "@/components/ProjectNav";
 import { PROFILE } from "@/lib/cv";
 
@@ -28,27 +28,6 @@ export async function generateMetadata({
 }
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-
-function Figure({ shot, alt }: { shot: Shot; alt: string }) {
-  return (
-    <Reveal y={28}>
-      <figure>
-        <div
-          className="relative w-full overflow-hidden bg-surface"
-          style={{ aspectRatio: `${shot.width} / ${shot.height}` }}
-        >
-          <Image
-            src={shot.src}
-            alt={alt}
-            fill
-            sizes="(max-width: 60rem) 100vw, 36rem"
-            className="object-cover"
-          />
-        </div>
-      </figure>
-    </Reveal>
-  );
-}
 
 export default async function ProjectPage({
   params,
@@ -86,27 +65,11 @@ export default async function ProjectPage({
           sections.map((section) => (
             <section key={section.title} id={slugify(section.title)}>
               <h2 className="sec-head">{section.title}</h2>
-              <div className="flex flex-col gap-3">
-                {section.shots.map((shot, i) => (
-                  <Figure
-                    key={shot.src}
-                    shot={shot}
-                    alt={`${project.title} — ${section.title}, ${i + 1}`}
-                  />
-                ))}
-              </div>
+              <Showcase shots={section.shots} title={`${project.title} — ${section.title}`} />
             </section>
           ))
         ) : (
-          <div className="mt-10 flex flex-col gap-3">
-            {flat.map((shot, i) => (
-              <Figure
-                key={shot.src}
-                shot={shot}
-                alt={`${project.title}, ${i + 1} of ${flat.length}`}
-              />
-            ))}
-          </div>
+          <Showcase shots={flat} title={project.title} />
         )}
 
         {next && next.slug !== project.slug && (

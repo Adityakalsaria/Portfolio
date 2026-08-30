@@ -304,6 +304,25 @@ a { color: inherit; }
   background: var(--line);
 }
 
+/* View switch on a project page. */
+.mode-switch {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.mode-btn {
+  color: var(--muted);
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+.mode-btn:hover { color: var(--ink); }
+.mode-btn.is-on {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
 .shot-caption {
   color: var(--muted);
   text-align: center;
