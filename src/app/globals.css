@@ -368,16 +368,47 @@ a { color: inherit; }
   margin-top: 0.6rem;
 }
 
-/* Portrait above the name, in the flow. */
+/* Portrait above the name, in the flow. Wider than a plain headshot would
+   need to be: the reveal draws on a 24-cell grid, which is unreadable at
+   112px. */
 .portrait {
   position: relative;
   display: block;
-  width: 7rem;
+  width: 11rem;
   aspect-ratio: 1;
-  margin-bottom: 1rem;
+  margin-bottom: 1.15rem;
+  border-radius: 12px;
   overflow: hidden;
-  border-radius: 10px;
-  background: var(--surface);
+  background: var(--style-bg, var(--surface));
+  /* The same lean the card had when it lifted in on hover, plus the 3D tilt
+     the engine reports each frame. */
+  transform: perspective(680px) rotate(-2.5deg) rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transform-origin: bottom left;
+  transition: background-color 0.4s linear;
+  will-change: transform;
+}
+
+.portrait-gl { position: absolute; inset: 0; }
+
+/* Cursor-following glow, tinted by whichever style is showing. */
+.portrait-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: var(--glow-i, 0);
+  background: radial-gradient(
+    38% 38% at var(--glow-x, 50%) var(--glow-y, 50%),
+    var(--glow-c, transparent) 0%,
+    transparent 70%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait { transform: rotate(-2.5deg); }
+  .portrait-glow { display: none; }
 }
 
 .sr-only {

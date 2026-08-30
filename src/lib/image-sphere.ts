@@ -23,7 +23,7 @@ const BACKDROP_DIM = 0.16;
  * plain MeshBasicMaterial.
  */
 const CORNER_PX = 4;
-const BORDER_PX = 1.5;
+const BORDER_PX = 0.2;
 const BORDER_ALPHA = 0.15;
 /** Roughly how tall an unfocused plane renders: 50 units at ~2.7px per unit. */
 const PLANE_SCREEN_PX = 134;
