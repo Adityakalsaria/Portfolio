@@ -9,7 +9,7 @@ export default function Portrait({ alt }: { alt: string }) {
         src="/portrait.webp"
         alt={alt}
         fill
-        sizes="176px"
+        sizes="112px"
         className="object-cover"
         priority
       />
