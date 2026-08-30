@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* ── Design tokens ───────────────────────────────────────────────
+   Monochrome by intent: the work supplies the colour, the chrome
+   stays out of its way. Warm off-white keeps it from going clinical. */
+:root {
+  --ink:      #08080a;
+  --surface:  #101013;
+  --line:     #1e1e24;
+  --text:     #f2f0ee;
+  --muted:    #7c7c87;
+  --dim:      #4a4a54;
+
+  /* Motion — "Premium" archetype: no overshoot, long decelerations */
+  --e-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --e-io:   cubic-bezier(0.65, 0, 0.35, 1);
+  --e-in:   cubic-bezier(0.7, 0, 0.84, 0);
+  --d-fast: 0.24s;
+  --d-base: 0.6s;
+  --d-slow: 1.1s;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-dim: var(--dim);
+  --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Zodiak", ui-serif, Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv01";
+  overflow-x: hidden;
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+::selection { background: var(--text); color: var(--ink); }
+
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Fluid display scale — tuned so the hero never wraps mid-word */
+.u-display {
+  font-size: clamp(2.75rem, 11vw, 12rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+}
+.u-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Line-reveal primitive: each line sits in an overflow-hidden mask */
+.line-mask { overflow: hidden; display: block; }
+.line-inner { display: block; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .line-inner { transform: none !important; }
+}
