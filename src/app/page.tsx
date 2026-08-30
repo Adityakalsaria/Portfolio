@@ -1,6 +1,7 @@
 import WorkList from "@/components/WorkList";
 import HoverPhoto from "@/components/HoverPhoto";
 import RowTable from "@/components/RowTable";
+import Timeline from "@/components/Timeline";
 import { PROFILE, EXPERIENCE, CLIENTS, byYear } from "@/lib/cv";
 
 const X = `https://x.com/${PROFILE.x}`;
@@ -65,7 +66,8 @@ export default function Home() {
       </section>
 
       <section>
-        <RowTable label="Experience" groups={toGroups(EXPERIENCE)} />
+        <p className="label">Experience</p>
+        <Timeline />
       </section>
 
       <section>

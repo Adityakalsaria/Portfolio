@@ -20,6 +20,7 @@
 html { -webkit-font-smoothing: antialiased; }
 
 body {
+  overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
   font-size: 15px;
@@ -121,6 +122,99 @@ a { color: inherit; }
 
 @media (max-width: 34rem) {
   .table { grid-template-columns: 6.5rem 1fr auto; }
+}
+
+/* ── Scrub timeline ──────────────────────────────────────────────
+   Breaks out of the column to the full viewport, with the page colour
+   feathered over both ends so the ruler reads as continuing past them. */
+.tl {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+/* A fixed centred readout rather than one that tracks the tick: it stays
+   balanced at both extremes, where a tracking label would be pinned against
+   an edge with the whole strip empty beside it. */
+.tl-label {
+  width: min(100% - 3rem, 30rem);
+  margin: 0 auto 1.75rem;
+  text-align: center;
+  pointer-events: none;
+  min-height: 9rem;
+}
+
+/* Portrait and employer mark, overlapped so they read as one unit. */
+.tl-avatars {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+  height: 2.75rem;
+}
+.tl-avatar {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.tl-avatar-me { border-radius: 999px; }
+.tl-avatar-logo {
+  border-radius: 0.75rem;
+  margin-left: -0.7rem;
+  background: var(--paper);
+  box-shadow: 0 0 0 3px var(--paper);
+  display: grid;
+  place-items: center;
+}
+.tl-avatar-logo img { width: 62%; height: 62%; object-fit: contain; }
+
+.tl-role { color: var(--muted); }
+.tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.2; }
+.tl-dates { color: var(--muted); font-size: 0.8125rem; margin-top: 0.35rem; }
+
+.tl-ruler {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 3rem;
+  padding: 0 1.5rem;
+  touch-action: pan-y;
+}
+
+.tick {
+  width: 1px;
+  height: 1.6rem;
+  background: var(--line);
+  transition: height 0.25s ease, background-color 0.25s ease;
+}
+.tick-role { background: #c4c1bb; height: 2rem; }
+.tick-on {
+  width: 2px;
+  height: 2.9rem;
+  background: var(--ink);
+}
+
+/* Feathered ends. pointer-events:none so they never block the scrub. */
+.tl::before,
+.tl::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 16%;
+  height: 3rem;
+  pointer-events: none;
+  z-index: 1;
+}
+.tl::before {
+  left: 0;
+  background: linear-gradient(to right, var(--paper), transparent);
+}
+.tl::after {
+  right: 0;
+  background: linear-gradient(to left, var(--paper), transparent);
 }
 
 /* ── Project nav ─────────────────────────────────────────────────
