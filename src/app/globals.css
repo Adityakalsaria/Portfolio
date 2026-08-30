@@ -180,8 +180,12 @@ a { color: inherit; }
      the ticks. 6.5rem is the ruler's own height (4.5rem track + 1rem x2). */
   bottom: calc(6.5rem + 0.5rem);
   left: 0;
-  width: 260px;
-  /* Left edge sits on the tick, as in the reference — not centred on it. */
+  /* Shrink-to-fit rather than a fixed box. The anchor slides from the card's
+     left edge to its right across the strip, so at the right end the card's
+     end is the text's end — the content stays left-aligned and still finishes
+     on the tick, instead of stopping short inside a wider box. */
+  width: max-content;
+  max-width: min(20rem, 70vw);
   text-align: left;
   pointer-events: none;
   transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -213,9 +217,6 @@ a { color: inherit; }
    size only, so the block reads as one voice. */
 .tl-title,
 .tl-dates { font-weight: 500; }
-
-.tl-label.is-right { text-align: right; }
-.tl-label.is-right .tl-avatars { justify-content: flex-end; }
 
 .tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.1; }
 /* Scoped to .tl-label so it outranks the global `.doc p + p` rule, which

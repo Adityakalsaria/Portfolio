@@ -51,11 +51,6 @@ export default function Timeline() {
 
   // Clamped at read time, so a resize that changes tick sampling cannot leave
   // the index out of range — no state write needed to correct it.
-  // The card's anchor slides from its left edge to its right across the
-  // strip, so its text has to follow — left-aligned text at the right end
-  // leaves the block ending well short of the tick it belongs to.
-  const alignRight = ticks.length > 1 && index / (ticks.length - 1) > 0.5;
-
   const month = ticks[Math.min(index, ticks.length - 1)] ?? months[0];
   const roles = rolesAt(month);
   const active = roles[0];
@@ -112,7 +107,7 @@ export default function Timeline() {
     <div className="tl">
       <div
         ref={labelEl}
-        className={alignRight ? "tl-label is-right" : "tl-label"}
+        className="tl-label"
         style={labelX === null ? undefined : { left: `${labelX}px` }}
       >
         {/* Height is held whether or not a mark exists, so scrubbing past a
