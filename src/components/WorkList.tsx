@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
 import { aspectOf, formatOf } from "@/lib/format";
+import RowTable, { type TableGroup } from "./RowTable";
 
 /**
- * Work is a table: category in the left gutter, project, format on the right.
- * The preview is the one flourish — it appears where the pointer already is,
- * damped so it trails, and never on touch, where there is no hover to earn it.
+ * Work uses the same table as the timeline, with the category in the gutter
+ * where the year would be. The preview is the one flourish: it appears where
+ * the pointer already is, damped so it trails, and never on touch.
  */
 export default function WorkList() {
   const host = useRef<HTMLDivElement>(null);
@@ -56,42 +56,23 @@ export default function WorkList() {
     };
   }, []);
 
+  const groups: TableGroup[] = CATEGORIES.map((cat) => ({
+    name: cat.name,
+    items: cat.projects.length
+      ? cat.projects.map((p) => ({
+          key: p.slug,
+          title: p.title,
+          meta: formatOf(p),
+          href: `/work/${p.slug}`,
+        }))
+      : [{ key: cat.id, title: "Awaiting export", quiet: true }],
+  }));
+
   const activeProject = ALL_PROJECTS.find((p) => p.slug === active);
 
   return (
     <div ref={host}>
-      <div className="rows">
-        {CATEGORIES.map((cat) =>
-          cat.projects.length === 0 ? (
-            <div key={cat.id} className="contents">
-              <span className="row-group">{cat.name}</span>
-              <span className="row-title sub">Awaiting export</span>
-              <span className="row-meta" />
-            </div>
-          ) : (
-            cat.projects.map((p, i) => (
-              <Link
-                key={p.slug}
-                href={`/work/${p.slug}`}
-                className="row-link contents"
-                onPointerEnter={() => setActive(p.slug)}
-                onPointerLeave={() =>
-                  setActive((cur) => (cur === p.slug ? null : cur))
-                }
-                onFocus={() => setActive(p.slug)}
-                onBlur={() => setActive((cur) => (cur === p.slug ? null : cur))}
-              >
-                {/* The category is named once per group, as a heading would be. */}
-                <span className="row-group">{i === 0 ? cat.name : ""}</span>
-                <span className="row-title">
-                  <span className="link">{p.title}</span>
-                </span>
-                <span className="row-meta">{formatOf(p)}</span>
-              </Link>
-            ))
-          )
-        )}
-      </div>
+      <RowTable label="Work" groups={groups} onActive={setActive} />
 
       {HAS_WORK && (
         <div

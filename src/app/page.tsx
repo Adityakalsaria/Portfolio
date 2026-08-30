@@ -1,9 +1,20 @@
 import WorkList from "@/components/WorkList";
-import { PROFILE } from "@/lib/cv";
+import RowTable from "@/components/RowTable";
+import { PROFILE, EXPERIENCE, CLIENTS, byYear } from "@/lib/cv";
 
 const X = `https://x.com/${PROFILE.x}`;
 const DRIBBBLE = `https://dribbble.com/${PROFILE.dribbble}`;
 const LINKEDIN = `https://www.linkedin.com/in/${PROFILE.linkedin}`;
+
+const toGroups = (entries: typeof EXPERIENCE) =>
+  byYear(entries).map((g) => ({
+    name: g.name,
+    items: g.items.map((e) => ({
+      key: e.title + e.year + e.period,
+      title: e.company ? `${e.title}, ${e.company}` : e.title,
+      meta: e.period,
+    })),
+  }));
 
 export default function Home() {
   return (
@@ -13,7 +24,6 @@ export default function Home() {
         <p className="sub">{PROFILE.role}</p>
       </header>
 
-      {/* The career reads as prose. Only the work itself gets a table. */}
       <section>
         <p>
           I&rsquo;m a self-taught designer working across visual design, 3D,
@@ -23,16 +33,6 @@ export default function Home() {
           I currently work at KOSH, formerly Copperx, as a product and brand
           designer. I led the rebrand, and I design the exchange, the mobile app
           and the campaigns around them.
-        </p>
-        <p>
-          Before that I spent five years on brand and product design across
-          crypto — a brand refresh for Bungee protocol, rebrand work on the
-          Polygon wallet suite and helpdesk, and campaign identities for BuidlIT,
-          Polygon Ignite, Jampad and Connect.
-        </p>
-        <p>
-          I&rsquo;ve also worked with BoomFi, Superfluid, Devfolio, MahaDAO,
-          Timeswap, Polytrade, Flame.Live and Dacoit.design.
         </p>
         <p>
           You can find me on{" "}
@@ -56,8 +56,15 @@ export default function Home() {
       </section>
 
       <section>
-        <p className="label">Work</p>
         <WorkList />
+      </section>
+
+      <section>
+        <RowTable label="Experience" groups={toGroups(EXPERIENCE)} />
+      </section>
+
+      <section>
+        <RowTable label="Freelance" groups={toGroups(CLIENTS)} />
       </section>
     </main>
   );

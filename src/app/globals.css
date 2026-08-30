@@ -66,32 +66,53 @@ a { color: inherit; }
 .link:hover { text-decoration-color: var(--ink); }
 
 /* ── Row table ───────────────────────────────────────────────────
-   Group label sits in a gutter to the left of the rule, so the rules
-   read as belonging to the entries rather than to the whole block. */
-.rows { display: grid; grid-template-columns: 9rem 1fr auto; }
+   Group name sits in a left gutter and is printed once per group. */
+.table {
+  display: grid;
+  grid-template-columns: 9rem 1fr auto;
+}
 
-.row-group,
-.row-title,
-.row-meta { padding: 0.55rem 0; }
+.trow { display: contents; color: inherit; }
 
-/* Gutter needs its own trailing space; the grid track is exactly as
-   wide as the longest label, so the columns would otherwise touch. */
-.row-group { color: var(--muted); padding-right: 1.25rem; }
+.table-label {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+}
 
-.row-title,
-.row-meta { border-bottom: 1px solid var(--line); }
+.cell { padding: 0.5rem 0; }
 
-.row-meta {
+/* Rule weight carries the grouping: full width at a group boundary,
+   indented to the title column within a group, absent after the last row. */
+.rule-full  { border-top: 1px solid var(--line); }
+.rule-on    { border-top: 1px solid var(--line); }
+.rule-indent,
+.rule-none  { border-top: 1px solid transparent; }
+
+.cell-group {
+  color: var(--muted);
+  padding-right: 1.25rem;
+}
+
+.cell-meta {
   color: var(--muted);
   text-align: right;
   padding-left: 1.5rem;
   font-variant-numeric: tabular-nums;
 }
 
-.row-link:hover .row-title span { text-decoration-color: var(--ink); }
+/* Hovering one row quiets the others, so the list resolves to a single
+   line of attention rather than staying uniformly loud. */
+.table:has(.trow:hover) .cell-title,
+.table:has(.trow:hover) .cell-meta { color: var(--muted); }
+.trow:hover .cell-title { color: var(--ink); }
+.trow:hover .cell-meta { color: var(--muted); }
+.cell-title,
+.cell-meta { transition: color 0.25s ease; }
 
 @media (max-width: 34rem) {
-  .rows { grid-template-columns: 6.5rem 1fr auto; }
+  .table { grid-template-columns: 6.5rem 1fr auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
