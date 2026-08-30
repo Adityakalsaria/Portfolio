@@ -20,7 +20,6 @@
 html { -webkit-font-smoothing: antialiased; }
 
 body {
-  overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
   font-size: 15px;
@@ -125,29 +124,33 @@ a { color: inherit; }
 }
 
 /* ── Scrub timeline ──────────────────────────────────────────────
-   Breaks out of the column to the full viewport, with the page colour
-   feathered over both ends so the ruler reads as continuing past them. */
-.tl {
-  position: relative;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-}
+   Sits in the page column, not full bleed. 72 months do not fit at a
+   readable tick pitch, so the strip scrolls horizontally and the page
+   colour is feathered over both ends to show it continues. */
+.tl { position: relative; padding-top: 9rem; }
 
 /* A fixed centred readout rather than one that tracks the tick: it stays
-   balanced at both extremes, where a tracking label would be pinned against
-   an edge with the whole strip empty beside it. */
+   balanced at both extremes, where a tracking label would be pinned
+   against an edge with the whole strip empty beside it. */
+/* Rides above the active tick. Width is mirrored in LABEL_WIDTH so the
+   clamp that keeps it on screen matches what is actually rendered. */
 .tl-label {
-  width: min(100% - 3rem, 30rem);
-  margin: 0 auto 1.75rem;
-  text-align: center;
+  position: absolute;
+  /* Anchored above the ruler and growing upward. Anchored at the top it grew
+     downward, and a title that wrapped to two lines pushed the dates into
+     the ticks. 6.5rem is the ruler's own height (4.5rem track + 1rem x2). */
+  bottom: calc(6.5rem + 0.5rem);
+  left: 0;
+  width: 260px;
+  /* Left edge sits on the tick, as in the reference — not centred on it. */
+  text-align: left;
   pointer-events: none;
-  min-height: 9rem;
+  transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Employer mark alone — a square tile above the readout. */
 .tl-avatars {
   display: flex;
-  justify-content: center;
   margin-bottom: 0.9rem;
   height: 2.75rem;
 }
@@ -156,7 +159,6 @@ a { color: inherit; }
   width: 2.75rem;
   height: 2.75rem;
   overflow: hidden;
-  background: var(--surface);
   flex-shrink: 0;
 }
 .tl-avatar-logo {
@@ -167,51 +169,69 @@ a { color: inherit; }
 }
 .tl-avatar-logo img { width: 62%; height: 62%; object-fit: contain; }
 
-.tl-role { color: var(--muted); }
-.tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.2; }
-.tl-dates { color: var(--muted); font-size: 0.8125rem; margin-top: 0.35rem; }
+/* Caption, headline and dates share a weight — they differ by colour and
+   size only, so the block reads as one voice. */
+.tl-title,
+.tl-dates { font-weight: 500; }
+
+.tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.25; }
+.tl-dates { color: var(--muted); font-size: 0.8125rem; margin-top: 0.4rem; }
 
 .tl-ruler {
-  position: relative;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* Tall enough to be an easy hover target; a thin band is hard to hold. */
+  padding: 1rem 0;
+  touch-action: pan-x;
+}
+.tl-ruler::-webkit-scrollbar { display: none; }
+
+.tl-track {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  height: 3rem;
+  align-items: center;
+  gap: 12px;
+  height: 4.5rem;
+  /* No end padding: at either extreme it would leave half the strip empty,
+     and the readout is driven by hover, not by a fixed centre playhead. */
   padding: 0 1.5rem;
-  touch-action: pan-y;
+  width: max-content;
 }
 
 .tick {
-  width: 1px;
-  height: 1.6rem;
-  background: var(--line);
-  transition: height 0.25s ease, background-color 0.25s ease;
-}
-.tick-role { background: #c4c1bb; height: 2rem; }
-.tick-on {
   width: 2px;
-  height: 2.9rem;
+  height: 2.5rem;
+  border-radius: 2px;
+  background: var(--line);
+  flex-shrink: 0;
+  transition: height 0.2s ease, background-color 0.2s ease;
+}
+.tick-role { background: #c4c1bb; height: 3rem; }
+.tick-on {
+  width: 3px;
+  height: 4.25rem;
   background: var(--ink);
 }
 
 /* Feathered ends. pointer-events:none so they never block the scrub. */
-.tl::before,
-.tl::after {
+.tl-ruler-wrap { position: relative; }
+.tl-ruler-wrap::before,
+.tl-ruler-wrap::after {
   content: "";
   position: absolute;
+  top: 0;
   bottom: 0;
-  width: 16%;
-  height: 3rem;
+  width: 4.5rem;
   pointer-events: none;
   z-index: 1;
 }
-.tl::before {
+.tl-ruler-wrap::before {
   left: 0;
-  background: linear-gradient(to right, var(--paper), transparent);
+  background: linear-gradient(to right, var(--paper) 20%, transparent);
 }
-.tl::after {
+.tl-ruler-wrap::after {
   right: 0;
-  background: linear-gradient(to left, var(--paper), transparent);
+  background: linear-gradient(to left, var(--paper) 20%, transparent);
 }
 
 /* ── Project nav ─────────────────────────────────────────────────
