@@ -1,24 +1,19 @@
 @import "tailwindcss";
 
 /* ── Design tokens ───────────────────────────────────────────────
-   Paper-light and monochrome by intent: the work supplies the colour,
-   the chrome stays out of its way. The ground is barely warm — enough
-   to avoid clinical white, short of cream. */
+   A document, not a gallery. Near-white paper, one text face, and
+   hierarchy carried by size and italics rather than scale or colour. */
 :root {
-  --paper:    #f5f4f2;
-  --surface:  #eae8e4;
-  --line:     #dedbd6;
-  --ink:      #131316;
-  --muted:    #6b6b72;
-  --dim:      #a5a29c;
+  --paper:    #fdfcfa;
+  --surface:  #efece6;
+  --line:     #e4e1db;
+  --ink:      #1a1a18;
+  --muted:    #6f6d67;
+  --dim:      #a8a49c;
 
-  /* Motion — "Premium" archetype: no overshoot, long decelerations */
+  /* Motion — long, quiet decelerations. No overshoot anywhere. */
   --e-out:  cubic-bezier(0.16, 1, 0.3, 1);
   --e-io:   cubic-bezier(0.65, 0, 0.35, 1);
-  --e-in:   cubic-bezier(0.7, 0, 0.84, 0);
-  --d-fast: 0.24s;
-  --d-base: 0.6s;
-  --d-slow: 1.1s;
 }
 
 @theme inline {
@@ -28,68 +23,96 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-dim: var(--dim);
-  --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
-html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+html { -webkit-font-smoothing: antialiased; }
 
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv01";
+  font-size: 17px;
+  line-height: 1.55;
   overflow-x: hidden;
 }
 
 /* Lenis */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-stopped { overflow: hidden; }
 
 ::selection { background: var(--ink); color: var(--paper); }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 1.5px solid var(--ink);
   outline-offset: 3px;
-  border-radius: 2px;
 }
 
-/* Fluid display scale — tuned so the hero never wraps mid-word */
-.u-display {
-  font-size: clamp(2.75rem, 11vw, 12rem);
-  line-height: 0.86;
-  letter-spacing: -0.045em;
-  font-weight: 500;
+/* ── Document ────────────────────────────────────────────────────
+   One measure for everything. Reading width is the whole layout. */
+.doc {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(4rem, 12vh, 9rem) 1.5rem clamp(5rem, 14vh, 10rem);
 }
-.u-label {
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+@media (min-width: 60rem) {
+  .doc { margin: 0 0 0 max(8vw, calc(50vw - 32rem)); }
+}
+
+.doc p { max-width: 34rem; }
+
+/* Sections are separated by space, not rules or headings. The first section
+   follows the intro block rather than another section, so this cannot use a
+   sibling combinator — that left "Work" butted against the bio. */
+.doc section { margin-top: clamp(3.5rem, 9vh, 6rem); }
+
+/* Section label: italic and grey, so it reads as an aside to the content. */
+.eyebrow {
+  font-size: 0.9375rem;
+  font-style: italic;
   color: var(--muted);
+  margin-bottom: 1.25rem;
 }
 
-/* Line-reveal primitive: each line sits in an overflow-hidden mask */
-.line-mask { overflow: hidden; display: block; }
-.line-inner { display: block; will-change: transform; }
+/* Category label sits one level below a section label, so it takes the
+   opposite treatment — upright and in ink — rather than repeating it. */
+.group-label {
+  font-size: 0.9375rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+/* A row: name on the left, date on the right, hairline between rows. */
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.row:first-child { border-top: 1px solid var(--line); }
+.row-meta {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+a { color: inherit; text-decoration: none; }
+.link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--dim);
+  transition: text-decoration-color 0.25s ease;
+}
+.link:hover { text-decoration-color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
   }
-  .line-inner { transform: none !important; }
-}
-
-/* Ambient layer: a status dot that breathes rather than pings. */
-@keyframes breathe {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.35; transform: scale(0.82); }
-}
-.dot-breathe {
-  display: inline-block;
-  animation: breathe 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* Page transition curtain. Declarative so it never depends on a JS frame
@@ -105,7 +128,7 @@ html.lenis, html.lenis body { height: auto; }
   pointer-events: none;
   background: var(--ink);
   transform-origin: top;
-  animation: wipe-up 0.85s cubic-bezier(0.87, 0, 0.13, 1) forwards;
+  animation: wipe-up 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-wipe { display: none; }

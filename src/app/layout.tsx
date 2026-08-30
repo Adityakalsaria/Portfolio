@@ -1,35 +1,29 @@
 import type { Metadata } from "next";
+import { Newsreader } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import Cursor from "@/components/Cursor";
+import { PROFILE } from "@/lib/cv";
+
+/** One face for the whole document; hierarchy comes from size and italics. */
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Aditya Kalsariya — Product Designer",
+  title: `${PROFILE.name} — ${PROFILE.role}`,
   description:
-    "Product designer working across landing pages, marketing assets, product and UI. Currently designing at Copperx.",
-  openGraph: {
-    title: "Aditya Kalsariya — Product Designer",
-    description:
-      "Product designer working across landing pages, marketing assets, product and UI.",
-    type: "website",
-  },
+    "Self-taught designer working across visual design, 3D, motion, icons and art direction. Currently at KOSH.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://api.fontshare.com" />
-        <link
-          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={newsreader.className}>
       <body>
         <SmoothScroll />
-        <Cursor />
         {children}
       </body>
     </html>
