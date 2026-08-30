@@ -323,6 +323,22 @@ a { color: inherit; }
   text-underline-offset: 0.18em;
 }
 
+/* The sphere engine appends an absolutely positioned canvas, so the host has
+   to be positioned and carry a real height of its own. */
+.sphere { margin: 1.5rem 0 0; }
+.sphere-host {
+  position: relative;
+  width: 100%;
+  height: min(70vh, 560px);
+  /* Vertical panning stays with the page; horizontal drags spin the sphere. */
+  touch-action: pan-y;
+}
+.sphere-hint {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
 .shot-caption {
   color: var(--muted);
   text-align: center;
