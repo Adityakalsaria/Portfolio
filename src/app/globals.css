@@ -336,7 +336,11 @@ a { color: inherit; }
 .sphere-host {
   position: relative;
   width: 100%;
-  height: min(88vh, 900px);
+  /* A full viewport height, so once scrolled into view the canvas centre and
+     the window centre coincide — that is where a focused plane lands. svh
+     keeps it honest on phones where the URL bar comes and goes. */
+  height: 100vh;
+  height: 100svh;
   /* Vertical panning stays with the page; horizontal drags spin the sphere. */
   touch-action: pan-y;
 }
