@@ -352,8 +352,11 @@ export class ImageSphere {
     const anyFocused = this.focused !== null;
 
     this.centerPos.set(0, 0, this.camera.position.z - FOCUS_DISTANCE);
+    // Fit the focused plane to both axes. Scaling by height alone overflowed
+    // a phone held upright, where 62% of a tall viewport is far wider than
+    // the screen.
     const viewH = 2 * FOCUS_DISTANCE * Math.tan((this.camera.fov * Math.PI) / 360);
-    const focusScale = (viewH * FOCUS_FILL) / PLANE_SIZE;
+    const viewW = viewH * this.camera.aspect;
 
     this.invQuat.copy(this.group.quaternion).invert();
     for (const plane of this.planes) {
@@ -376,6 +379,14 @@ export class ImageSphere {
 
       plane.getWorldPosition(this.worldPos);
       const depth = this.worldPos.z;
+
+      // Each plane is PLANE_SIZE tall and PLANE_SIZE * aspect wide, so the
+      // limiting axis differs per image.
+      const aspect = (plane.userData.aspect as number) || 1;
+      const focusScale = Math.min(
+        (viewH * FOCUS_FILL) / PLANE_SIZE,
+        (viewW * FOCUS_FILL) / (PLANE_SIZE * aspect)
+      );
 
       const zScale = 0.8 + depth / 2000;
       let target = plane.userData.isHovered ? zScale * HOVER_SCALE : zScale;
