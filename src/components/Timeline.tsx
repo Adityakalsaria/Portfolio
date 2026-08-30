@@ -68,6 +68,8 @@ export default function Timeline() {
   const month = months[index];
   const roles = rolesAt(month);
   const active = roles[0];
+  // Falls back to ink so a role with no sampled colour still reads.
+  const brand = active?.color ?? "var(--ink)";
 
   const onMove = (e: React.PointerEvent) => {
     // Measured against the track, not the viewport window onto it — the
@@ -118,6 +120,16 @@ export default function Timeline() {
             const inRole = roles.some(
               (r) => m >= (r.from ?? "") && m <= (r.to ?? "")
             );
+            // The hovered month takes the brand colour outright; the rest of
+            // that role's span takes a 20% tint of it, mixed toward the page
+            // rather than made translucent so it stays a flat, even grey-out.
+            const background =
+              i === index
+                ? brand
+                : inRole
+                  ? `color-mix(in srgb, ${brand} 20%, var(--paper))`
+                  : undefined;
+
             return (
               <span
                 key={m}
@@ -128,6 +140,7 @@ export default function Timeline() {
                       ? "tick tick-role"
                       : "tick"
                 }
+                style={background ? { background } : undefined}
               />
             );
             })}
