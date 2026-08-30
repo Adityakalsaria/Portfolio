@@ -19,19 +19,19 @@ export default function Hero() {
           ".hero-line",
           { yPercent: 108 },
           { yPercent: 0, duration: 1.4, stagger: 0.09 },
-          0.15
+          0.45
         )
         .fromTo(
           ".hero-meta",
           { y: 18, opacity: 0 },
           { y: 0, opacity: 1, duration: 1, stagger: 0.07 },
-          0.65
+          0.95
         )
         .fromTo(
           ".hero-rule",
           { scaleX: 0 },
           { scaleX: 1, duration: 1.3, ease: "power3.inOut" },
-          0.55
+          0.85
         );
     }, root);
 
@@ -44,10 +44,7 @@ export default function Hero() {
       className="relative flex min-h-svh flex-col justify-between px-5 pb-8 pt-28 md:px-10 md:pb-10"
     >
       <div className="hero-meta flex items-center gap-2">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-text opacity-60" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-text" />
-        </span>
+        <span className="dot-breathe h-1.5 w-1.5 rounded-full bg-text" />
         <span className="u-label">Open to new work — 2026</span>
       </div>
 

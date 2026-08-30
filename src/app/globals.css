@@ -81,3 +81,32 @@ html.lenis, html.lenis body { height: auto; }
   }
   .line-inner { transform: none !important; }
 }
+
+/* Ambient layer: a status dot that breathes rather than pings. */
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.82); }
+}
+.dot-breathe {
+  display: inline-block;
+  animation: breathe 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Page transition curtain. Declarative so it never depends on a JS frame
+   loop to get out of the way; the element is unmounted on a timer anyway. */
+@keyframes wipe-up {
+  from { transform: scaleY(1); }
+  to   { transform: scaleY(0); }
+}
+.page-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: var(--surface);
+  transform-origin: top;
+  animation: wipe-up 0.85s cubic-bezier(0.87, 0, 0.13, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-wipe { display: none; }
+}

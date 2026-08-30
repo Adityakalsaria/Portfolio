@@ -21,9 +21,18 @@ export default function Cursor() {
     const pos = { ...target };
     let scale = 1;
     let scaleTarget = 1;
+    let seen = false;
     let frame = 0;
 
     const onMove = (e: PointerEvent) => {
+      if (!seen) {
+        // Snap to first contact, then fade in — otherwise the dot sits parked
+        // mid-screen before the pointer has ever moved.
+        seen = true;
+        pos.x = target.x = e.clientX;
+        pos.y = target.y = e.clientY;
+        el.style.opacity = "1";
+      }
       target.x = e.clientX;
       target.y = e.clientY;
       const hit = (e.target as HTMLElement)?.closest?.("[data-cursor]");
@@ -52,6 +61,7 @@ export default function Cursor() {
     <div
       ref={dot}
       aria-hidden
+      style={{ opacity: 0, transition: "opacity 0.3s ease-out" }}
       className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-3 w-3 rounded-full bg-text mix-blend-difference md:block"
     />
   );
