@@ -38,7 +38,7 @@ html.lenis, html.lenis body { height: auto; }
 .doc {
   width: min(100% - 2.5rem, 36rem);
   margin: 0 auto;
-  padding: 5.5rem 0 7rem;
+  padding: 10rem 0 7rem;
 }
 
 .doc p + p { margin-top: 1.05rem; }
@@ -121,6 +121,61 @@ a { color: inherit; }
 
 @media (max-width: 34rem) {
   .table { grid-template-columns: 6.5rem 1fr auto; }
+}
+
+/* ── Hover photo ─────────────────────────────────────────────────
+   A card that lifts above the text it belongs to. */
+.hphoto {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+}
+
+.hphoto-card {
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  left: -0.25rem;
+  width: 7rem;
+  aspect-ratio: 122 / 155;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow:
+    0 14px 30px rgb(0 0 0 / 0.16),
+    0 2px 6px rgb(0 0 0 / 0.08);
+  /* Never intercept the hover it depends on. */
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(10px) scale(0.94) rotate(-3deg);
+  transform-origin: bottom left;
+  transition:
+    opacity 0.22s ease,
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hphoto:hover .hphoto-card,
+.hphoto:focus-visible .hphoto-card {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(-2.5deg);
+}
+
+/* The name holds ink while the rest of the block quiets, same as the tables. */
+.dimmable:has(.hphoto:hover) { color: var(--muted); }
+.dimmable:has(.hphoto:hover) .hphoto:hover .hphoto-text { color: var(--ink); }
+.dimmable, .hphoto-text { transition: color 0.2s ease; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hphoto-card { transform: none; }
+  .hphoto:hover .hphoto-card { transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

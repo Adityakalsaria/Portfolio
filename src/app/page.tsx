@@ -1,4 +1,5 @@
 import WorkList from "@/components/WorkList";
+import HoverPhoto from "@/components/HoverPhoto";
 import RowTable from "@/components/RowTable";
 import { PROFILE, EXPERIENCE, CLIENTS, byYear } from "@/lib/cv";
 
@@ -19,8 +20,12 @@ const toGroups = (entries: typeof EXPERIENCE) =>
 export default function Home() {
   return (
     <main className="doc">
-      <header>
-        <p>{PROFILE.name}</p>
+      <header className="dimmable">
+        <p>
+          <HoverPhoto src="/portrait.jpg" alt={`Photograph of ${PROFILE.name}`}>
+            {PROFILE.name}
+          </HoverPhoto>
+        </p>
         <p className="sub">{PROFILE.role}</p>
       </header>
 
