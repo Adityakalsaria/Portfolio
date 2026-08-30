@@ -56,7 +56,21 @@ export default function SmoothScroll() {
 
     document.addEventListener("click", onClick);
 
+    /**
+     * Lenis drives scrolling programmatically, which sails straight past
+     * `overflow: hidden` — the only way to freeze the page is to stop Lenis
+     * itself. A custom event keeps the instance private to this component
+     * rather than hanging it off window.
+     */
+    const onLock = (e: Event) => {
+      const locked = (e as CustomEvent<boolean>).detail;
+      if (locked) lenis.stop();
+      else lenis.start();
+    };
+    window.addEventListener("scroll-lock", onLock);
+
     return () => {
+      window.removeEventListener("scroll-lock", onLock);
       clearTimeout(settle);
       window.removeEventListener("load", refresh);
       document.removeEventListener("click", onClick);

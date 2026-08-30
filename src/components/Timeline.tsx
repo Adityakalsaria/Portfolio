@@ -126,10 +126,12 @@ export default function Timeline() {
           )}
         </div>
 
-        <p className="tl-title">
-          {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
-        </p>
-        <p className="tl-dates">{active?.period ?? label(month)}</p>
+        <div className="tl-text">
+          <p className="tl-title">
+            {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
+          </p>
+          <p className="tl-dates">{active?.period ?? label(month)}</p>
+        </div>
       </div>
 
       <div className="tl-ruler-wrap" ref={wrap}>

@@ -29,15 +29,7 @@ export default function ImageSphereView({
     const sphere = new ImageSphere(
       el,
       shots.map((s) => s.src),
-      {
-        distance: 620,
-        fov: 32,
-        // The focused plane centres in the canvas, not the window. Bring the
-        // canvas to the middle of the viewport so the two coincide.
-        onFocusChange: (focused) => {
-          if (focused) el.scrollIntoView({ block: "center", behavior: "smooth" });
-        },
-      }
+      { distance: 620, fov: 32 }
     );
 
     // Under reduced motion the planes still load and render, but nothing
