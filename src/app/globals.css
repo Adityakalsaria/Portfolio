@@ -103,13 +103,21 @@ a { color: inherit; }
 }
 
 /* Hovering one row quiets the others, so the list resolves to a single
-   line of attention rather than staying uniformly loud. */
+   line of attention rather than staying uniformly loud.
+   
+   The hovered rule must out-specify the quieting rule. :has() takes the
+   specificity of its argument, so `.table:has(.trow:hover) .cell-title`
+   scores (0,4,0) and a bare `.trow:hover .cell-title` at (0,3,0) loses —
+   which faded the hovered row along with every other. Repeating the :has()
+   on the winning selector puts it clearly ahead. */
 .table:has(.trow:hover) .cell-title,
 .table:has(.trow:hover) .cell-meta { color: var(--muted); }
-.trow:hover .cell-title { color: var(--ink); }
-.trow:hover .cell-meta { color: var(--muted); }
+
+.table:has(.trow:hover) .trow:hover .cell-title,
+.table:has(.trow:hover) .trow:hover .cell-meta { color: var(--ink); }
+
 .cell-title,
-.cell-meta { transition: color 0.25s ease; }
+.cell-meta { transition: color 0.2s ease; }
 
 @media (max-width: 34rem) {
   .table { grid-template-columns: 6.5rem 1fr auto; }
