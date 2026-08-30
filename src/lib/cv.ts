@@ -5,7 +5,7 @@ export const PROFILE = {
   role: "UI/Brand Designer",
   email: "nvsadityakalsaria@gmail.com",
   x: "AdityaKalsaria",
-  linkedin: "aditya-kalsaria",
+  linkedin: "aditya-kalsaria-036279184",
   dribbble: "adi_kalsaria_",
 };
 

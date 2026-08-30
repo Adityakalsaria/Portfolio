@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import Haptics from "@/components/Haptics";
 import { PROFILE } from "@/lib/cv";
 
 /**
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en" className={saans.className}>
       <body>
         <SmoothScroll />
+        <Haptics />
         {children}
       </body>
     </html>

@@ -416,9 +416,17 @@ a { color: inherit; }
   border-radius: 10px;
   overflow: hidden;
   background: var(--surface);
-  /* The same lean the card had when it lifted in on hover. */
-  transform: rotate(-2.5deg);
-  transform-origin: bottom left;
+  /* Its resting lean, plus a tilt toward the cursor. Perspective lives on
+     the same transform so the card turns in depth rather than skewing. */
+  transform: perspective(620px) rotate(-2.5deg) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg)) scale(calc(1 + 0.03 * var(--lift, 0)));
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait { transform: rotate(-2.5deg); transition: none; }
 }
 
 .sr-only {
