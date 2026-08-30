@@ -144,7 +144,7 @@ a { color: inherit; }
   min-height: 9rem;
 }
 
-/* Portrait and employer mark, overlapped so they read as one unit. */
+/* Employer mark alone — a square tile above the readout. */
 .tl-avatars {
   display: flex;
   justify-content: center;
@@ -159,12 +159,9 @@ a { color: inherit; }
   background: var(--surface);
   flex-shrink: 0;
 }
-.tl-avatar-me { border-radius: 999px; }
 .tl-avatar-logo {
   border-radius: 0.75rem;
-  margin-left: -0.7rem;
-  background: var(--paper);
-  box-shadow: 0 0 0 3px var(--paper);
+  background: var(--surface);
   display: grid;
   place-items: center;
 }

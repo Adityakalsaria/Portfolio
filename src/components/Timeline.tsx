@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import {
   EXPERIENCE,
   TIMELINE_FROM,
@@ -58,21 +57,13 @@ export default function Timeline() {
   return (
     <div className="tl">
       <div className="tl-label">
+        {/* Height is held whether or not a mark exists, so scrubbing past a
+            role without one does not jump the readout. */}
         <div className="tl-avatars">
-          <span className="tl-avatar tl-avatar-me">
-            <Image
-              src="/portrait.jpg"
-              alt=""
-              fill
-              sizes="44px"
-              className="object-cover"
-              style={{ objectPosition: "50% 18%" }}
-            />
-          </span>
           {active?.logo && (
             <span className="tl-avatar tl-avatar-logo">
-              {/* Marks are already sized and centred; plain img avoids the
-                  optimiser rasterising an SVG. */}
+              {/* Marks are already sized and centred; a plain img keeps the
+                  optimiser from rasterising an SVG. */}
               <img src={active.logo} alt="" />
             </span>
           )}
