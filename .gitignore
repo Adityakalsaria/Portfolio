@@ -6,3 +6,9 @@ out
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# Trial font binaries — licensed for evaluation, not redistribution.
+src/fonts/*.woff2
+src/fonts/*.woff
+src/fonts/*.otf
+src/fonts/*.ttf

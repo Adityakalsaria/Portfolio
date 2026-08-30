@@ -27,6 +27,23 @@ an "awaiting export" note.
 Editorial copy for each category lives in `NOTES` in `src/lib/work.ts` — keyed
 by the page's slug, so renaming a Figma page means updating the key there.
 
+## Fonts
+
+The site is set in **Saans** (Displaay). The files in `src/fonts/` are the
+free TRIAL cut and are **not committed** — this repo is public, and the trial
+does not cover redistributing them. A fresh clone will therefore fail to build
+until they are restored:
+
+```bash
+mkdir -p src/fonts
+cp ~/Downloads/DP_saans_TRIAL/Saans-TRIAL-{Regular,RegularItalic,Medium}.woff2 src/fonts/
+```
+
+Before deploying anywhere public, buy a Saans web licence and swap the trial
+files for the licensed ones (same filenames, or update the `src` array in
+`src/app/layout.tsx`). The fallback stack is Inter, then system sans, so the
+page stays readable if a face fails to load.
+
 ## Visual checks
 
 ```bash
