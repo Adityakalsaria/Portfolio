@@ -73,8 +73,13 @@ export default function WorkList() {
     return () => clearInterval(id);
   }, [active, shots]);
 
-  const shot = shots?.length ? shots[frame % shots.length] : null;
-  const src = shot?.src ?? activeProject?.cover;
+  const frames = shots?.length
+    ? shots.map((s) => s.src)
+    : activeProject
+      ? [activeProject.cover]
+      : [];
+  const step = frames.length ? frame % frames.length : 0;
+  const shot = shots?.length ? shots[step] : null;
   const ratio = shot
     ? `${shot.width} / ${shot.height}`
     : activeProject?.width && activeProject.height
@@ -113,21 +118,24 @@ export default function WorkList() {
           className="pointer-events-none fixed left-0 top-0 z-50 hidden w-[14rem] overflow-hidden bg-surface md:block"
           style={{
             aspectRatio: ratio,
-            opacity: src ? 1 : 0,
+            opacity: frames.length ? 1 : 0,
             transition: "opacity 0.35s cubic-bezier(0.16,1,0.3,1)",
           }}
         >
-          {src && (
-            // Keyed on src so each image mounts fresh and replays the pop.
+          {/* Every frame stays mounted and the current one fades up. Swapping
+              a single <img> made each step wait on its own fetch, so the first
+              run through a project looked frozen on image one. */}
+          {frames.map((f, i) => (
             <Image
-              key={src}
-              src={src}
+              key={f}
+              src={f}
               alt=""
               fill
               sizes="224px"
               className="preview-frame object-cover"
+              style={{ opacity: i === step ? 1 : 0 }}
             />
-          )}
+          ))}
         </div>
       )}
     </div>

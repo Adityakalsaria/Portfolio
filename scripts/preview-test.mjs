@@ -19,10 +19,12 @@ const seen = [];
 for (let i = 0; i < 8; i++) {
   await new Promise((r) => setTimeout(r, 480));
   const src = await page.evaluate(() => {
-    const img = document.querySelector('[aria-hidden="true"] img.preview-frame');
+    // Every frame is mounted now; the visible one is the opaque one.
+    const imgs = [...document.querySelectorAll("img.preview-frame")];
+    const img = imgs.find((el) => Number(getComputedStyle(el).opacity) > 0.5);
     if (!img) return null;
     const s = img.getAttribute("src") || "";
-    const m = s.match(/kosh-(\d+)/);
+    const m = decodeURIComponent(s).match(/kosh-(\d+)/);
     return m ? `kosh-${m[1]}` : s.slice(-24);
   });
   seen.push(src);
