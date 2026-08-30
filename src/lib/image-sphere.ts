@@ -17,11 +17,18 @@ const FOCUS_DISTANCE = 300;
 const FOCUS_FILL = 0.62;
 const BACKDROP_DIM = 0.16;
 
-/** Scrim drawn behind the focused plane and over the rest of the cloud. */
-const SCRIM_COLOR = 0x0e0e10;
-const SCRIM_OPACITY = 0.82;
-/** Sits just behind the focused plane, in front of the whole sphere. */
-const SCRIM_OFFSET = 24;
+/**
+ * Corner radius and border, in screen pixels at the sphere's resting scale.
+ * Baked into each texture rather than drawn with a shader, so the planes stay
+ * plain MeshBasicMaterial.
+ */
+const CORNER_PX = 4;
+const BORDER_PX = 1.5;
+const BORDER_ALPHA = 0.15;
+/** Roughly how tall an unfocused plane renders: 50 units at ~2.7px per unit. */
+const PLANE_SCREEN_PX = 134;
+/** Cap the baked texture so 21 of them do not flood GPU memory. */
+const MAX_TEXTURE_PX = 1024;
 
 export interface ImageSphereOptions {
   distance?: number;
@@ -39,7 +46,6 @@ export class ImageSphere {
   private camera: THREE.PerspectiveCamera;
   private group = new THREE.Group();
   private planes: PlaneMesh[] = [];
-  private scrim: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
   private onFocusChange?: (focused: boolean) => void;
   private lastFocused: PlaneMesh | null = null;
 
@@ -103,42 +109,75 @@ export class ImageSphere {
 
     this.onFocusChange = opts.onFocusChange;
 
-    // Backdrop for the focused image. It lives in the scene rather than the
-    // group so it never rotates, and draws between the cloud and the focused
-    // plane: depthTest off with an explicit renderOrder, since every material
-    // here is transparent with depthWrite disabled.
-    this.scrim = new THREE.Mesh(
-      new THREE.PlaneGeometry(1, 1),
-      new THREE.MeshBasicMaterial({
-        color: SCRIM_COLOR,
-        transparent: true,
-        opacity: 0,
-        depthTest: false,
-        depthWrite: false,
-      })
-    );
-    this.scrim.renderOrder = 0.5;
-    this.scrim.visible = false;
-    this.scrim.position.z = this.camera.position.z - FOCUS_DISTANCE - SCRIM_OFFSET;
-    this.scene.add(this.scrim);
-    this.sizeScrim();
 
     this.loadPlanes(imageUrls);
     this.bindEvents();
+  }
+
+  /**
+   * Redraws an image onto a canvas clipped to a rounded rectangle, with a
+   * hairline border stroked inside it. Radius and border are given in screen
+   * pixels and scaled by how many texture pixels cover one screen pixel.
+   */
+  private decorate(image: HTMLImageElement): THREE.CanvasTexture {
+    const w = image.width || 1;
+    const h = image.height || 1;
+    const fit = Math.min(1, MAX_TEXTURE_PX / Math.max(w, h));
+    const cw = Math.max(2, Math.round(w * fit));
+    const ch = Math.max(2, Math.round(h * fit));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = cw;
+    canvas.height = ch;
+    const ctx = canvas.getContext("2d")!;
+
+    const perScreenPx = ch / PLANE_SCREEN_PX;
+    const radius = CORNER_PX * perScreenPx;
+    const border = BORDER_PX * perScreenPx;
+
+    const path = (inset: number, r: number) => {
+      const x = inset;
+      const y = inset;
+      const rw = cw - inset * 2;
+      const rh = ch - inset * 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, rw, rh, Math.max(0, r));
+    };
+
+    ctx.save();
+    path(0, radius);
+    ctx.clip();
+    ctx.drawImage(image, 0, 0, cw, ch);
+    ctx.restore();
+
+    // Stroked half a line-width in, so the whole border sits inside the shape.
+    ctx.strokeStyle = `rgba(0, 0, 0, ${BORDER_ALPHA})`;
+    ctx.lineWidth = border;
+    path(border / 2, radius - border / 2);
+    ctx.stroke();
+
+    return new THREE.CanvasTexture(canvas);
   }
 
   private loadPlanes(urls: string[]) {
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = "anonymous";
     urls.forEach((url) => {
-      loader.load(url, (tex) => {
+      loader.load(url, (loaded) => {
         if (this.disposed) return;
+
+        const image = loaded.image as HTMLImageElement;
+        const aspect = (image.width || 1) / (image.height || 1);
+        // The source texture only carried the pixels; the baked one replaces it.
+        const tex = this.decorate(image);
+        loaded.dispose();
+
         tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
         tex.minFilter = THREE.LinearMipMapLinearFilter;
         tex.magFilter = THREE.LinearFilter;
         tex.colorSpace = THREE.SRGBColorSpace;
+        tex.generateMipmaps = true;
 
-        const aspect = (tex.image.width || 1) / (tex.image.height || 1);
         const geo = new THREE.PlaneGeometry(PLANE_SIZE * aspect, PLANE_SIZE);
         const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
 
@@ -253,14 +292,6 @@ export class ImageSphere {
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.sizeScrim();
-  }
-
-  /** Cover the frame at the scrim's depth, with margin for any rounding. */
-  private sizeScrim() {
-    const dist = this.camera.position.z - this.scrim.position.z;
-    const height = 2 * dist * Math.tan((this.camera.fov * Math.PI) / 360);
-    this.scrim.scale.set(height * this.camera.aspect * 1.2, height * 1.2, 1);
   }
 
   private pick(): PlaneMesh | null {
@@ -319,7 +350,6 @@ export class ImageSphere {
       this.onFocusChange?.(this.focused !== null);
     }
     const anyFocused = this.focused !== null;
-    let maxFocus = 0;
 
     this.centerPos.set(0, 0, this.camera.position.z - FOCUS_DISTANCE);
     const viewH = 2 * FOCUS_DISTANCE * Math.tan((this.camera.fov * Math.PI) / 360);
@@ -332,7 +362,6 @@ export class ImageSphere {
       const focusTarget = plane === this.focused ? 1 : 0;
       const f = plane.userData.focus + (focusTarget - plane.userData.focus) * FOCUS_EASE;
       plane.userData.focus = f;
-      if (f > maxFocus) maxFocus = f;
 
       if (f > 0.0005) {
         this.tmpPos.copy(this.centerPos);
@@ -363,9 +392,6 @@ export class ImageSphere {
       plane.renderOrder = f > 0.5 ? 1 : 0;
     }
 
-    this.scrim.material.opacity = maxFocus * SCRIM_OPACITY;
-    this.scrim.visible = this.scrim.material.opacity > 0.002;
-
     this.renderer.render(this.scene, this.camera);
     this.raf = requestAnimationFrame(this.loop);
   };
@@ -394,8 +420,6 @@ export class ImageSphere {
       mat.map?.dispose();
       mat.dispose();
     }
-    this.scrim.geometry.dispose();
-    this.scrim.material.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss?.();
     const canvas = this.renderer.domElement;

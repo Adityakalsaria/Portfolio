@@ -6,8 +6,10 @@ import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import RowTable, { type TableGroup } from "./RowTable";
 
-/** How long each image holds before the next one pops in. */
-const FRAME_MS = 460;
+/** How long each image holds before the next pops in. At 21 images this runs
+ *  the whole set in about six seconds, which is short enough to actually see
+ *  it happen on a single hover. */
+const FRAME_MS = 280;
 
 /**
  * Work reads as a list first. Hovering a row runs through that project's
