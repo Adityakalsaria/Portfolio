@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ImageSphere } from "@/lib/image-sphere";
+import { useHaptics } from "@/lib/haptics";
 import type { Shot } from "@/lib/work";
 
 /**
@@ -19,6 +20,7 @@ export default function ImageSphereView({
   title: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
+  const haptic = useHaptics();
 
   useEffect(() => {
     const el = host.current;
@@ -35,6 +37,7 @@ export default function ImageSphereView({
         // The focused plane centres in the canvas, not the window. Bring the
         // canvas to the middle of the viewport so the two coincide.
         onFocusChange: (focused) => {
+          haptic(focused ? "nudge" : 30);
           if (focused) el.scrollIntoView({ block: "center", behavior: "smooth" });
         },
       }
@@ -46,7 +49,7 @@ export default function ImageSphereView({
     if (!still) sphere.start();
 
     return () => sphere.destroy();
-  }, [shots]);
+  }, [shots, haptic]);
 
   return (
     <figure className="sphere" aria-label={`${title}: ${shots.length} images`}>

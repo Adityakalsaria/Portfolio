@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useHaptics } from "@/lib/haptics";
 import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
@@ -24,6 +25,7 @@ export default function Showcase({
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
+  const haptic = useHaptics();
 
   return (
     <>
@@ -32,7 +34,10 @@ export default function Showcase({
           <button
             key={m}
             type="button"
-            onClick={() => setMode(m)}
+            onClick={() => {
+              if (m !== mode) haptic(30);
+              setMode(m);
+            }}
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
           >

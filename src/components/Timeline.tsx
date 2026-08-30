@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useHaptics } from "@/lib/haptics";
 import {
   EXPERIENCE,
   TIMELINE_FROM,
@@ -45,6 +46,8 @@ export default function Timeline() {
 
   const [index, setIndex] = useState(ticks.length - 1);
   const [labelX, setLabelX] = useState<number | null>(null);
+  const haptic = useHaptics();
+  const lastRole = useRef<string | null>(null);
 
   const rolesAt = (month: string): Entry[] =>
     EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
@@ -99,8 +102,19 @@ export default function Timeline() {
     const box = track.current?.getBoundingClientRect();
     if (!box) return;
     const ratio = (e.clientX - box.left) / box.width;
-    const next = Math.round(ratio * (ticks.length - 1));
-    setIndex(Math.max(0, Math.min(ticks.length - 1, next)));
+    const next = Math.max(
+      0,
+      Math.min(ticks.length - 1, Math.round(ratio * (ticks.length - 1)))
+    );
+    setIndex(next);
+
+    // One tap per role crossed, not per tick — 84 of those would be a buzz,
+    // not a detent. Touch only; a mouse has nothing to feel it with.
+    const role = rolesAt(ticks[next])[0]?.company ?? null;
+    if (e.pointerType === "touch" && role !== lastRole.current) {
+      if (lastRole.current !== null) haptic("nudge");
+      lastRole.current = role;
+    }
   };
 
   return (
