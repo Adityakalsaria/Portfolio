@@ -328,8 +328,10 @@ a { color: inherit; }
   text-underline-offset: 0.18em;
 }
 
-/* Gallery images carry the same hairline edge as the preview. */
-.shot { box-shadow: inset 0 0 0 0.2px rgb(0 0 0 / 0.15); }
+/* Gallery images carry the same hairline edge as the preview. Drawn outside
+   the box rather than inset, so it rings the image instead of overlapping
+   its first row of pixels. */
+.shot { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15); }
 
 /* Hover preview, parked beside the hovered row. */
 .work-preview {
@@ -342,8 +344,9 @@ a { color: inherit; }
   background: var(--surface);
   pointer-events: none;
   transform: translateY(-50%);
-  /* A hairline edge, so a light image still reads against the page. */
-  box-shadow: inset 0 0 0 0.2px rgb(0 0 0 / 0.15);
+  /* A hairline edge outside the box, so a light image still reads against
+     the page without the ring covering any of it. */
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15);
   /* Fades on first appearance; position only animates once placed. */
   transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
