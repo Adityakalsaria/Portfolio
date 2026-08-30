@@ -21,6 +21,7 @@
 html { -webkit-font-smoothing: antialiased; }
 
 body {
+  overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
   font-size: 15px;
@@ -323,13 +324,19 @@ a { color: inherit; }
   text-underline-offset: 0.18em;
 }
 
-/* The sphere engine appends an absolutely positioned canvas, so the host has
-   to be positioned and carry a real height of its own. */
-.sphere { margin: 1.5rem 0 0; }
+/* ── Image sphere ────────────────────────────────────────────────
+   Breaks out of the text column to the full viewport width: at 36rem the
+   planes crowd each other and most of the set sits outside the frame.
+   The engine appends an absolutely positioned canvas and reads the host's
+   box at construction, so the host is positioned and has a real height. */
+.sphere {
+  width: 100vw;
+  margin: 1.5rem 0 0 calc(50% - 50vw);
+}
 .sphere-host {
   position: relative;
   width: 100%;
-  height: min(70vh, 560px);
+  height: min(88vh, 900px);
   /* Vertical panning stays with the page; horizontal drags spin the sphere. */
   touch-action: pan-y;
 }

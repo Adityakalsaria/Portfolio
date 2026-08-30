@@ -11,6 +11,10 @@ type Mode = "scroll" | "sphere";
 /**
  * Two ways through a project's images: the stacked scroll, and a cloud of them
  * orbiting an invisible sphere.
+ *
+ * The sphere breaks out to the full viewport width in place. At the 36rem
+ * column the planes crowd each other and most of the set sits off to the
+ * sides; it stays on the page rather than opening as a separate view.
  */
 export default function Showcase({
   shots,

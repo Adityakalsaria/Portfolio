@@ -24,9 +24,12 @@ export default function ImageSphereView({
     const el = host.current;
     if (!el) return;
 
+    // Wider field than the default so the whole cloud sits inside the frame
+    // instead of the nearest planes running off the edges.
     const sphere = new ImageSphere(
       el,
-      shots.map((s) => s.src)
+      shots.map((s) => s.src),
+      { distance: 620, fov: 32 }
     );
 
     // Under reduced motion the planes still load and render, but nothing
