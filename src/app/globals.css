@@ -176,8 +176,15 @@ a { color: inherit; }
 .tl-title,
 .tl-dates { font-weight: 500; }
 
-.tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.15; }
-.tl-dates { color: var(--muted); font-size: 0.8125rem; line-height: 1.3; margin-top: 0.45rem; }
+.tl-title { font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.1; }
+/* Scoped to .tl-label so it outranks the global `.doc p + p` rule, which
+   otherwise puts a full 1.05rem paragraph gap under the company name. */
+.tl-label .tl-dates {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  margin-top: 0.35rem;
+}
 
 .tl-ruler {
   /* Tall enough to be an easy hover target; a thin band is hard to hold. */
