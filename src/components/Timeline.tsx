@@ -108,10 +108,11 @@ export default function Timeline() {
     );
     setIndex(next);
 
-    // One tap per role crossed, not per tick — 84 of those would be a buzz,
-    // not a detent. Touch only; a mouse has nothing to feel it with.
+    // One tap per role crossed, not per tick — 84 of those would be a buzz
+    // rather than a detent. Pointer type is not checked here; useHaptics
+    // decides where firing is appropriate.
     const role = rolesAt(ticks[next])[0]?.company ?? null;
-    if (e.pointerType === "touch" && role !== lastRole.current) {
+    if (role !== lastRole.current) {
       if (lastRole.current !== null) haptic("nudge");
       lastRole.current = role;
     }
