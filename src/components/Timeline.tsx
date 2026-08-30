@@ -14,13 +14,6 @@ const LABEL_WIDTH = 260;
 
 const MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
 
-/** "Sep 2025 — Now" for the role covering the hovered month. */
-function span(role?: Entry) {
-  if (!role?.from || !role.to) return null;
-  const end = role.to === TIMELINE_TO ? "Now" : label(role.to);
-  return `${label(role.from)} — ${end}`;
-}
-
 function label(month: string) {
   const [y, m] = month.split("-").map(Number);
   return `${MONTH_NAMES[m - 1]} ${y}`;
@@ -110,7 +103,7 @@ export default function Timeline() {
         <p className="tl-title">
           {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
         </p>
-        <p className="tl-dates">{span(active) ?? label(month)}</p>
+        <p className="tl-dates">{active?.period ?? label(month)}</p>
       </div>
 
       <div className="tl-ruler-wrap" ref={wrap}>

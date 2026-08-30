@@ -2,13 +2,13 @@ import WorkList from "@/components/WorkList";
 import HoverPhoto from "@/components/HoverPhoto";
 import RowTable from "@/components/RowTable";
 import Timeline from "@/components/Timeline";
-import { PROFILE, EXPERIENCE, CLIENTS, byYear } from "@/lib/cv";
+import { PROFILE, CLIENTS, byYear, type Entry } from "@/lib/cv";
 
 const X = `https://x.com/${PROFILE.x}`;
 const DRIBBBLE = `https://dribbble.com/${PROFILE.dribbble}`;
 const LINKEDIN = `https://www.linkedin.com/in/${PROFILE.linkedin}`;
 
-const toGroups = (entries: typeof EXPERIENCE) =>
+const toGroups = (entries: Entry[]) =>
   byYear(entries).map((g) => ({
     name: g.name,
     items: g.items.map((e) => ({

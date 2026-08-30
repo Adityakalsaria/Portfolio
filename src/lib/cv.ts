@@ -16,7 +16,10 @@ export type Entry = {
   /** Empty where the resume shows a logo rather than a name. */
   company: string;
   period: string;
-  /** Inclusive month bounds, "YYYY-MM", for the scrub timeline. */
+  /** Human range shown in the timeline readout — authored, not derived, so
+   *  it reads exactly as the resume does. `from`/`to` below are the tick
+   *  bounds and are kept non-overlapping, which is not always the same span. */
+  /** Inclusive month bounds, "YYYY-MM", driving which ticks belong to a role. */
   from?: string;
   to?: string;
   /** Path under /logos. Only set where the employer is confirmed. */
@@ -24,14 +27,14 @@ export type Entry = {
 };
 
 export const EXPERIENCE: Entry[] = [
-  { year: "2025", title: "Product & Brand Designer", company: "KOSH", period: "Sep — Now", from: "2025-09", to: "2026-08", logo: "/logos/kosh.svg" },
-  { year: "2025", title: "Senior UI/UX Designer", company: "BullX", logo: "/logos/bullx.svg", period: "Mar — Aug", from: "2025-03", to: "2025-08" },
-  { year: "2024", title: "Senior Brand & Product Designer", company: "Stackr", logo: "/logos/stackr.svg", period: "Oct — Feb 25", from: "2024-10", to: "2025-02" },
-  { year: "2023", title: "Lead Visual & Brand Designer", company: "Socket / Bungee", logo: "/logos/socket.svg", period: "Feb — Oct 24", from: "2023-02", to: "2024-09" },
-  { year: "2022", title: "UI Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Aug — Feb 23", from: "2022-08", to: "2023-01" },
-  { year: "2021", title: "Visual Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Sep — Aug 22", from: "2021-09", to: "2022-07" },
-  { year: "2020", title: "Visual Designer", company: "IconScout", logo: "/logos/iconscout.svg", period: "Sep — Sep 21", from: "2020-09", to: "2021-08" },
-  { year: "2020", title: "Design Generalist", company: "GeeksLab", logo: "/logos/geekslab.png", period: "Sep — Sep 21", from: "2020-09", to: "2021-08" },
+  { year: "2025", title: "Product & Brand Designer", company: "KOSH", logo: "/logos/kosh.svg", period: "Sep 2025 — Now", from: "2025-09", to: "2026-08" },
+  { year: "2025", title: "Senior UI/UX Designer", company: "BullX", logo: "/logos/bullx.svg", period: "Mar 2025 — Aug 2025", from: "2025-03", to: "2025-08" },
+  { year: "2024", title: "Senior Brand & Product Designer", company: "Stackr", logo: "/logos/stackr.svg", period: "Oct 2024 — Feb 2025", from: "2024-10", to: "2025-02" },
+  { year: "2023", title: "Lead Visual & Brand Designer", company: "Socket / Bungee", logo: "/logos/socket.svg", period: "Feb 2023 — Oct 2024", from: "2023-02", to: "2024-09" },
+  { year: "2022", title: "UI Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Aug 2022 — Feb 2023", from: "2022-08", to: "2023-01" },
+  { year: "2021", title: "Visual Designer", company: "Polygon", logo: "/logos/polygon.png", period: "Sep 2021 — Aug 2022", from: "2021-09", to: "2022-07" },
+  { year: "2020", title: "Visual Designer", company: "IconScout", logo: "/logos/iconscout.svg", period: "Sep 2020 — Sep 2021", from: "2020-09", to: "2021-08" },
+  { year: "2019", title: "Design Generalist", company: "GeeksLab", logo: "/logos/geekslab.png", period: "Sep 2019 — Sep 2020", from: "2019-09", to: "2020-08" },
 ];
 
 export const CLIENTS: Entry[] = [
@@ -70,5 +73,5 @@ export function monthsBetween(from: string, to: string): string[] {
   return out;
 }
 
-export const TIMELINE_FROM = "2020-09";
+export const TIMELINE_FROM = "2019-09";
 export const TIMELINE_TO = "2026-08";
