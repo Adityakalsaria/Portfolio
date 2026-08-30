@@ -286,6 +286,9 @@ a { color: inherit; }
 @media (min-width: 74rem) {
   .pnav {
     position: fixed;
+    /* Above the sphere. Its canvas is full-bleed and scrolls up under the
+       fixed rail, which otherwise swallows every click on the index. */
+    z-index: 60;
     /* Matches .doc's top padding, so the rail's first line sits on the same
        baseline as the title rather than 88px below it. */
     top: 5.5rem;
