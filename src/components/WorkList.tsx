@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
-import { aspectOf } from "@/lib/format";
+import { aspectOf, formatOf } from "@/lib/format";
 
 /**
- * Work reads as a list first. The preview is the one indulgence: it appears
- * where the pointer already is, damped so it trails rather than snaps, and it
- * never appears on touch — there is no hover to justify it there.
+ * Work is a table: category in the left gutter, project, format on the right.
+ * The preview is the one flourish — it appears where the pointer already is,
+ * damped so it trails, and never on touch, where there is no hover to earn it.
  */
 export default function WorkList() {
   const host = useRef<HTMLDivElement>(null);
@@ -41,9 +41,9 @@ export default function WorkList() {
     };
 
     const tick = () => {
-      pos.x += (target.x - pos.x) * 0.11;
-      pos.y += (target.y - pos.y) * 0.11;
-      el.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) translate(24px, -50%)`;
+      pos.x += (target.x - pos.x) * 0.12;
+      pos.y += (target.y - pos.y) * 0.12;
+      el.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) translate(28px, -50%)`;
       frame = requestAnimationFrame(tick);
     };
 
@@ -60,46 +60,48 @@ export default function WorkList() {
 
   return (
     <div ref={host}>
-      {CATEGORIES.map((cat) => (
-        <div key={cat.id} className="mb-8 last:mb-0">
-          <p className="group-label">{cat.name}</p>
-
-          {cat.projects.length === 0 ? (
-            <p className="text-[0.9375rem] text-dim">Awaiting export from Figma.</p>
-          ) : (
-            <div>
-              {cat.projects.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/work/${p.slug}`}
-                  className="row"
-                  onPointerEnter={() => setActive(p.slug)}
-                  onPointerLeave={() =>
-                    setActive((cur) => (cur === p.slug ? null : cur))
-                  }
-                  onFocus={() => setActive(p.slug)}
-                  onBlur={() =>
-                    setActive((cur) => (cur === p.slug ? null : cur))
-                  }
-                >
-                  <span className="link truncate">{p.title}</span>
-                  <span className="row-meta">View</span>
-                </Link>
-              ))}
+      <div className="rows">
+        {CATEGORIES.map((cat) =>
+          cat.projects.length === 0 ? (
+            <div key={cat.id} className="contents">
+              <span className="row-group">{cat.name}</span>
+              <span className="row-title sub">Awaiting export</span>
+              <span className="row-meta" />
             </div>
-          )}
-        </div>
-      ))}
+          ) : (
+            cat.projects.map((p, i) => (
+              <Link
+                key={p.slug}
+                href={`/work/${p.slug}`}
+                className="row-link contents"
+                onPointerEnter={() => setActive(p.slug)}
+                onPointerLeave={() =>
+                  setActive((cur) => (cur === p.slug ? null : cur))
+                }
+                onFocus={() => setActive(p.slug)}
+                onBlur={() => setActive((cur) => (cur === p.slug ? null : cur))}
+              >
+                {/* The category is named once per group, as a heading would be. */}
+                <span className="row-group">{i === 0 ? cat.name : ""}</span>
+                <span className="row-title">
+                  <span className="link">{p.title}</span>
+                </span>
+                <span className="row-meta">{formatOf(p)}</span>
+              </Link>
+            ))
+          )
+        )}
+      </div>
 
       {HAS_WORK && (
         <div
           ref={preview}
           aria-hidden
-          className="pointer-events-none fixed left-0 top-0 z-50 hidden w-[15rem] overflow-hidden bg-surface md:block"
+          className="pointer-events-none fixed left-0 top-0 z-50 hidden w-[14rem] overflow-hidden bg-surface md:block"
           style={{
             aspectRatio: activeProject ? aspectOf(activeProject) : "4 / 3",
             opacity: activeProject ? 1 : 0,
-            transition: "opacity 0.4s var(--e-out)",
+            transition: "opacity 0.35s cubic-bezier(0.16,1,0.3,1)",
           }}
         >
           {activeProject && (
@@ -107,7 +109,7 @@ export default function WorkList() {
               src={activeProject.cover}
               alt=""
               fill
-              sizes="240px"
+              sizes="224px"
               className="object-cover"
             />
           )}

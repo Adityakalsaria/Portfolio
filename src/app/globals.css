@@ -1,28 +1,19 @@
 @import "tailwindcss";
 
-/* ── Design tokens ───────────────────────────────────────────────
-   A document, not a gallery. Near-white paper, one text face, and
-   hierarchy carried by size and italics rather than scale or colour. */
 :root {
-  --paper:    #fdfcfa;
-  --surface:  #efece6;
-  --line:     #e4e1db;
-  --ink:      #1a1a18;
-  --muted:    #6f6d67;
-  --dim:      #a8a49c;
-
-  /* Motion — long, quiet decelerations. No overshoot anywhere. */
-  --e-out:  cubic-bezier(0.16, 1, 0.3, 1);
-  --e-io:   cubic-bezier(0.65, 0, 0.35, 1);
+  --paper:  #ffffff;
+  --ink:    #1a1a1a;
+  --muted:  #8e8e8e;
+  --line:   #e8e8e8;
+  --surface:#f4f4f4;
 }
 
 @theme inline {
   --color-paper: var(--paper);
-  --color-surface: var(--surface);
-  --color-line: var(--line);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-dim: var(--dim);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
 }
 
 * { box-sizing: border-box; }
@@ -31,105 +22,81 @@ html { -webkit-font-smoothing: antialiased; }
 body {
   background: var(--paper);
   color: var(--ink);
-  font-size: 17px;
-  line-height: 1.55;
-  overflow-x: hidden;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
-/* Lenis */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
 ::selection { background: var(--ink); color: var(--paper); }
-
-:focus-visible {
-  outline: 1.5px solid var(--ink);
-  outline-offset: 3px;
-}
+:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
 
 /* ── Document ────────────────────────────────────────────────────
-   One measure for everything. Reading width is the whole layout. */
+   One narrow centred measure. Everything — prose, labels, tables —
+   lines up on its left edge. */
 .doc {
-  max-width: 40rem;
+  width: min(100% - 2.5rem, 36rem);
   margin: 0 auto;
-  padding: clamp(4rem, 12vh, 9rem) 1.5rem clamp(5rem, 14vh, 10rem);
-}
-@media (min-width: 60rem) {
-  .doc { margin: 0 0 0 max(8vw, calc(50vw - 32rem)); }
+  padding: 5.5rem 0 7rem;
 }
 
-.doc p { max-width: 34rem; }
+.doc p + p { margin-top: 1.05rem; }
+.doc header p + p { margin-top: 0; }
+.doc header + section { margin-top: 2.6rem; }
 
-/* Sections are separated by space, not rules or headings. The first section
-   follows the intro block rather than another section, so this cannot use a
-   sibling combinator — that left "Work" butted against the bio. */
-.doc section { margin-top: clamp(3.5rem, 9vh, 6rem); }
+/* Sections sit a little further apart than paragraphs, nothing more. */
+.doc section { margin-top: 3rem; }
 
-/* Section label: italic and grey, so it reads as an aside to the content. */
-.eyebrow {
-  font-size: 0.9375rem;
-  font-style: italic;
+.sub { color: var(--muted); }
+
+.label {
   color: var(--muted);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
-/* Category label sits one level below a section label, so it takes the
-   opposite treatment — upright and in ink — rather than repeating it. */
-.group-label {
-  font-size: 0.9375rem;
-  color: var(--ink);
-  margin-bottom: 0.5rem;
-}
-
-/* A row: name on the left, date on the right, hairline between rows. */
-.row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid var(--line);
-}
-.row:first-child { border-top: 1px solid var(--line); }
-.row-meta {
-  flex-shrink: 0;
-  font-size: 0.9375rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-a { color: inherit; text-decoration: none; }
+a { color: inherit; }
 .link {
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: var(--dim);
-  transition: text-decoration-color 0.25s ease;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+  transition: text-decoration-color 0.2s ease;
 }
 .link:hover { text-decoration-color: var(--ink); }
+
+/* ── Row table ───────────────────────────────────────────────────
+   Group label sits in a gutter to the left of the rule, so the rules
+   read as belonging to the entries rather than to the whole block. */
+.rows { display: grid; grid-template-columns: 9rem 1fr auto; }
+
+.row-group,
+.row-title,
+.row-meta { padding: 0.55rem 0; }
+
+/* Gutter needs its own trailing space; the grid track is exactly as
+   wide as the longest label, so the columns would otherwise touch. */
+.row-group { color: var(--muted); padding-right: 1.25rem; }
+
+.row-title,
+.row-meta { border-bottom: 1px solid var(--line); }
+
+.row-meta {
+  color: var(--muted);
+  text-align: right;
+  padding-left: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.row-link:hover .row-title span { text-decoration-color: var(--ink); }
+
+@media (max-width: 34rem) {
+  .rows { grid-template-columns: 6.5rem 1fr auto; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Page transition curtain. Declarative so it never depends on a JS frame
-   loop to get out of the way; the element is unmounted on a timer anyway. */
-@keyframes wipe-up {
-  from { transform: scaleY(1); }
-  to   { transform: scaleY(0); }
-}
-.page-wipe {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-  background: var(--ink);
-  transform-origin: top;
-  animation: wipe-up 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .page-wipe { display: none; }
 }
