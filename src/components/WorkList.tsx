@@ -1,66 +1,57 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import RowTable, { type TableGroup } from "./RowTable";
 
-/** How long each image holds before the next pops in. At 21 images this runs
- *  the whole set in about six seconds, which is short enough to actually see
- *  it happen on a single hover. */
-const FRAME_MS = 280;
+/** How long each image holds before the next fades up. */
+const FRAME_MS = 900;
+/** Matches the .work-preview width in CSS. */
+const PREVIEW_W = 224;
+/** Space between the table's edge and the preview. */
+const GAP = 28;
+
+type Spot = { top: number; left: number };
 
 /**
  * Work reads as a list first. Hovering a row runs through that project's
- * images at the cursor — one at a time rather than a single fixed cover, so a
- * set of 21 shows what it actually contains. Never on touch, where there is
- * no hover to earn it.
+ * images beside it — parked against the row rather than trailing the cursor,
+ * so the image holds still long enough to be read. Never on touch, where
+ * there is no hover to earn it.
  */
 export default function WorkList() {
-  const host = useRef<HTMLDivElement>(null);
-  const preview = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string | null>(null);
+  const [spot, setSpot] = useState<Spot | null>(null);
   const [frame, setFrame] = useState(0);
 
-  useEffect(() => {
+  const onActive = useCallback((key: string | null, row?: HTMLElement) => {
+    if (!key || !row) {
+      setActive(null);
+      return;
+    }
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const el = preview.current;
-    const root = host.current;
-    if (!el || !root) return;
+    // The row is display:contents, so it has no layout box of its own and
+    // getBoundingClientRect() returns zeros. Measure its cells instead.
+    const cells = [...row.children].map((c) => c.getBoundingClientRect());
+    if (!cells.length) return;
+    const top = Math.min(...cells.map((c) => c.top));
+    const bottom = Math.max(...cells.map((c) => c.bottom));
+    const rowLeft = Math.min(...cells.map((c) => c.left));
+    const rowRight = Math.max(...cells.map((c) => c.right));
 
-    const target = { x: 0, y: 0 };
-    const pos = { x: 0, y: 0 };
-    let seeded = false;
-    let raf = 0;
+    // Sit to the right of the row; fall to its left if that would run off.
+    const right = rowRight + GAP;
+    const left =
+      right + PREVIEW_W > window.innerWidth - 16
+        ? Math.max(16, rowLeft - GAP - PREVIEW_W)
+        : right;
 
-    const onMove = (e: PointerEvent) => {
-      target.x = e.clientX;
-      target.y = e.clientY;
-      // Without seeding, the first hover flies the preview in from 0,0.
-      if (!seeded) {
-        seeded = true;
-        pos.x = target.x;
-        pos.y = target.y;
-      }
-    };
-
-    const tick = () => {
-      pos.x += (target.x - pos.x) * 0.12;
-      pos.y += (target.y - pos.y) * 0.12;
-      el.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) translate(28px, -50%)`;
-      raf = requestAnimationFrame(tick);
-    };
-
-    root.addEventListener("pointermove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      root.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
-    };
+    setSpot({ top: (top + bottom) / 2, left });
+    setActive(key);
+    setFrame(0);
   }, []);
 
   const activeProject = ALL_PROJECTS.find((p) => p.slug === active);
@@ -99,32 +90,23 @@ export default function WorkList() {
   }));
 
   return (
-    <div ref={host}>
-      <RowTable
-        label="Work"
-        groups={groups}
-        onActive={(key) => {
-          // Restart the run from the first image. Done here rather than in an
-          // effect on `active`: this is the event that changes it.
-          setActive(key);
-          setFrame(0);
-        }}
-      />
+    <div>
+      <RowTable label="Work" groups={groups} onActive={onActive} />
 
       {HAS_WORK && (
         <div
-          ref={preview}
           aria-hidden
-          className="pointer-events-none fixed left-0 top-0 z-50 hidden w-[14rem] overflow-hidden bg-surface md:block"
+          className="work-preview"
           style={{
+            top: spot?.top ?? 0,
+            left: spot?.left ?? 0,
             aspectRatio: ratio,
-            opacity: frames.length ? 1 : 0,
-            transition: "opacity 0.35s cubic-bezier(0.16,1,0.3,1)",
+            opacity: frames.length && spot ? 1 : 0,
           }}
         >
-          {/* Every frame stays mounted and the current one fades up. Swapping
-              a single <img> made each step wait on its own fetch, so the first
-              run through a project looked frozen on image one. */}
+          {/* Every frame stays mounted and the current one fades up. Swapping a
+              single <img> made each step wait on its own fetch, so the first
+              run through a project stalled on image one. */}
           {frames.map((f, i) => (
             <Image
               key={f}

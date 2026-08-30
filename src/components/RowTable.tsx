@@ -20,8 +20,8 @@ export type TableGroup = {
 type Props = {
   label: string;
   groups: TableGroup[];
-  /** Called with an item key on pointer enter, null on leave. */
-  onActive?: (key: string | null) => void;
+  /** Called with an item key and its row element on enter, null on leave. */
+  onActive?: (key: string | null, row?: HTMLElement) => void;
 };
 
 /**
@@ -78,9 +78,9 @@ export default function RowTable({ label, groups, onActive }: Props) {
             key={row.key}
             href={row.href}
             className="trow"
-            onPointerEnter={() => onActive?.(row.key)}
+            onPointerEnter={(e) => onActive?.(row.key, e.currentTarget)}
             onPointerLeave={() => onActive?.(null)}
-            onFocus={() => onActive?.(row.key)}
+            onFocus={(e) => onActive?.(row.key, e.currentTarget)}
             onBlur={() => onActive?.(null)}
           >
             {cells}
