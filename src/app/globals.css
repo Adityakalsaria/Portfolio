@@ -38,7 +38,7 @@ html.lenis, html.lenis body { height: auto; }
 .doc {
   width: min(100% - 2.5rem, 36rem);
   margin: 0 auto;
-  padding: 10rem 0 7rem;
+  padding: 11rem 0 7rem;
 }
 
 .doc p + p { margin-top: 1.05rem; }
@@ -123,6 +123,47 @@ a { color: inherit; }
   .table { grid-template-columns: 6.5rem 1fr auto; }
 }
 
+/* ── Project nav ─────────────────────────────────────────────────
+   Parked in the left margin beside the column. Below the breakpoint the
+   margin no longer exists, so it returns to the flow above the content
+   rather than covering it. */
+.pnav { margin-bottom: 2.5rem; }
+.pnav-index { display: inline-block; }
+.pnav-list { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.pnav-item { color: var(--muted); transition: color 0.2s ease; }
+.pnav-item:hover { color: var(--ink); }
+
+@media (min-width: 74rem) {
+  .pnav {
+    position: fixed;
+    top: 11rem;
+    /* Column is 36rem centred; park the rail clear of its left edge. */
+    left: calc(50% - 18rem - 13rem);
+    width: 11rem;
+    margin-bottom: 0;
+  }
+}
+
+/* Section heading, with the rule running out to the column edge. */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 3rem 0 1.25rem;
+}
+.sec-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.shot-caption {
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.6rem;
+}
+
 /* ── Hover photo ─────────────────────────────────────────────────
    A card that lifts above the text it belongs to. */
 .hphoto {
@@ -136,7 +177,7 @@ a { color: inherit; }
   bottom: calc(100% + 0.35rem);
   left: -0.25rem;
   width: 7rem;
-  aspect-ratio: 122 / 155;
+  aspect-ratio: 1;
   overflow: hidden;
   border-radius: 10px;
   background: var(--surface);

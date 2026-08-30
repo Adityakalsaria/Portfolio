@@ -16,3 +16,9 @@ export function aspectOf(p: Project): string {
   if (!p.width || !p.height) return "4 / 3";
   return `${p.width} / ${p.height}`;
 }
+
+/** What the row's right-hand column says about a project. */
+export function metaOf(p: Project): string {
+  if (p.shots?.length) return `${p.shots.length} images`;
+  return formatOf(p);
+}

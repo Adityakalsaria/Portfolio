@@ -19,7 +19,8 @@ export default function HoverPhoto({ src, alt, children }: Props) {
   return (
     <span className="hphoto" tabIndex={0}>
       <span className="hphoto-card" aria-hidden>
-        <Image src={src} alt="" fill sizes="112px" className="object-cover" />
+        <Image src={src} alt="" fill sizes="112px" className="object-cover"
+          style={{ objectPosition: "50% 18%" }} />
       </span>
       <span className="hphoto-text">{children}</span>
       <span className="sr-only">{alt}</span>

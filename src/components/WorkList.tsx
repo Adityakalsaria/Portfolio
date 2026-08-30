@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
-import { aspectOf, formatOf } from "@/lib/format";
+import { aspectOf, metaOf } from "@/lib/format";
 import RowTable, { type TableGroup } from "./RowTable";
 
 /**
@@ -62,7 +62,7 @@ export default function WorkList() {
       ? cat.projects.map((p) => ({
           key: p.slug,
           title: p.title,
-          meta: formatOf(p),
+          meta: metaOf(p),
           href: `/work/${p.slug}`,
         }))
       : [{ key: cat.id, title: "Awaiting export", quiet: true }],
