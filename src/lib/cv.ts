@@ -29,7 +29,7 @@ export type Entry = {
 };
 
 export const EXPERIENCE: Entry[] = [
-  { year: "2025", title: "Product & Brand Designer", company: "KOSH", color: "#131316", logo: "/logos/kosh.svg", period: "Sep 2025 — Now", from: "2025-09", to: "2026-08" },
+  { year: "2025", title: "Product & Brand Designer", company: "KOSH", color: "#131316", logo: "/logos/kosh.png", period: "Sep 2025 — Now", from: "2025-09", to: "2026-08" },
   { year: "2025", title: "Senior UI/UX Designer", company: "BullX", color: "#58C88D", logo: "/logos/bullx.png", period: "Mar 2025 — Aug 2025", from: "2025-03", to: "2025-08" },
   { year: "2024", title: "Senior Brand & Product Designer", company: "Stackr", color: "#222E3E", logo: "/logos/stackr.png", period: "Oct 2024 — Feb 2025", from: "2024-10", to: "2025-02" },
   { year: "2023", title: "Lead Visual & Brand Designer", company: "Socket / Bungee", color: "#38E768", logo: "/logos/socket.png", period: "Feb 2023 — Oct 2024", from: "2023-02", to: "2024-09" },
