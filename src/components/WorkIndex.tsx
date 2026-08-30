@@ -81,7 +81,7 @@ export default function WorkIndex() {
         {CATEGORIES.map((cat) => (
           <div key={cat.id}>
             <Reveal className="mb-6 md:mb-8" stagger={0.06}>
-              <h3 className="font-display text-3xl italic tracking-tight md:text-5xl">
+              <h3 className="text-3xl font-medium tracking-[-0.03em] md:text-5xl">
                 {cat.name}
               </h3>
               {cat.note && (

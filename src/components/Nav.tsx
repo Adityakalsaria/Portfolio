@@ -1,7 +1,7 @@
 export default function Nav() {
   return (
     <nav className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-5 py-5 mix-blend-difference md:px-10">
-      <a href="#top" data-cursor className="text-sm font-medium tracking-tight">
+      <a href="#top" data-cursor className="text-sm font-medium tracking-tight text-white">
         Aditya Kalsariya
       </a>
       <ul className="flex gap-6">
@@ -14,7 +14,7 @@ export default function Nav() {
             <a
               href={href}
               data-cursor
-              className="text-sm text-muted transition-colors duration-200 hover:text-text"
+              className="text-sm text-white/65 transition-colors duration-200 hover:text-white"
             >
               {label}
             </a>

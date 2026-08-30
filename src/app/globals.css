@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 /* ── Design tokens ───────────────────────────────────────────────
-   Monochrome by intent: the work supplies the colour, the chrome
-   stays out of its way. Warm off-white keeps it from going clinical. */
+   Paper-light and monochrome by intent: the work supplies the colour,
+   the chrome stays out of its way. The ground is barely warm — enough
+   to avoid clinical white, short of cream. */
 :root {
-  --ink:      #08080a;
-  --surface:  #101013;
-  --line:     #1e1e24;
-  --text:     #f2f0ee;
-  --muted:    #7c7c87;
-  --dim:      #4a4a54;
+  --paper:    #f5f4f2;
+  --surface:  #eae8e4;
+  --line:     #dedbd6;
+  --ink:      #131316;
+  --muted:    #6b6b72;
+  --dim:      #a5a29c;
 
   /* Motion — "Premium" archetype: no overshoot, long decelerations */
   --e-out:  cubic-bezier(0.16, 1, 0.3, 1);
@@ -21,22 +22,21 @@
 }
 
 @theme inline {
-  --color-ink: var(--ink);
+  --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-line: var(--line);
-  --color-text: var(--text);
+  --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-dim: var(--dim);
   --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Zodiak", ui-serif, Georgia, serif;
 }
 
 * { box-sizing: border-box; }
 html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
 body {
-  background: var(--ink);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-feature-settings: "ss01", "cv01";
   overflow-x: hidden;
@@ -47,10 +47,10 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-::selection { background: var(--text); color: var(--ink); }
+::selection { background: var(--ink); color: var(--paper); }
 
 :focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -103,7 +103,7 @@ html.lenis, html.lenis body { height: auto; }
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  background: var(--surface);
+  background: var(--ink);
   transform-origin: top;
   animation: wipe-up 0.85s cubic-bezier(0.87, 0, 0.13, 1) forwards;
 }

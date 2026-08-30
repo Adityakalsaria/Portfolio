@@ -44,7 +44,7 @@ export default function Hero() {
       className="relative flex min-h-svh flex-col justify-between px-5 pb-8 pt-28 md:px-10 md:pb-10"
     >
       <div className="hero-meta flex items-center gap-2">
-        <span className="dot-breathe h-1.5 w-1.5 rounded-full bg-text" />
+        <span className="dot-breathe h-1.5 w-1.5 rounded-full bg-ink" />
         <span className="u-label">Open to new work — 2026</span>
       </div>
 
@@ -64,7 +64,7 @@ export default function Hero() {
           <p className="hero-meta max-w-prose text-balance text-lg leading-snug text-muted md:col-span-5 md:text-xl">
             I design the surfaces where products get understood — landing pages,
             campaigns, product flows and the interface itself. Currently at{" "}
-            <span className="text-text">Copperx</span>.
+            <span className="text-ink">Copperx</span>.
           </p>
           <p className="hero-meta u-label md:col-span-4 md:justify-self-end">
             Scroll to see the work

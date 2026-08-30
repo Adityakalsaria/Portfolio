@@ -62,7 +62,7 @@ export default function Cursor() {
       ref={dot}
       aria-hidden
       style={{ opacity: 0, transition: "opacity 0.3s ease-out" }}
-      className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-3 w-3 rounded-full bg-text mix-blend-difference md:block"
+      className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-3 w-3 rounded-full bg-white mix-blend-difference md:block"
     />
   );
 }
