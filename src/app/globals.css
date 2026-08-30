@@ -120,8 +120,45 @@ a { color: inherit; }
 .cell-title,
 .cell-meta { transition: color 0.2s ease; }
 
+/* ── Narrow screens ──────────────────────────────────────────────
+   A three-column table cannot hold "Marketing Assets" and a date range
+   side by side at phone width — every row wrapped. Below this the group
+   label becomes its own line and the entry sits under it. */
 @media (max-width: 34rem) {
-  .table { grid-template-columns: 6.5rem 1fr auto; }
+  .table { display: block; }
+
+  .trow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0 0.75rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--line);
+  }
+  /* The label carries its own bottom rule, so the first row needs none. */
+  .table-label + .trow { border-top: 0; }
+
+  .cell { padding: 0; border-top: 0; }
+
+  .cell-group {
+    width: 100%;
+    padding-right: 0;
+    font-size: 0.8125rem;
+  }
+  /* Continuation rows render an empty gutter cell; without this it would
+     add a blank line to every row after the first in a group. */
+  .cell-group:empty { display: none; }
+
+  .cell-title { flex: 1 1 auto; min-width: 0; }
+  .cell-meta { padding-left: 0; white-space: nowrap; }
+
+  /* The hover-photo card cannot be triggered on touch, so the headroom it
+     needs is dead space here. */
+  .doc { padding-top: 4.5rem; }
+
+  .tl-label { width: 200px; }
+  .tl-title { font-size: 1.25rem; }
 }
 
 /* ── Scrub timeline ──────────────────────────────────────────────
@@ -189,6 +226,9 @@ a { color: inherit; }
 .tl-ruler {
   /* Tall enough to be an easy hover target; a thin band is hard to hold. */
   padding: 1rem 0;
+  /* Leaves vertical panning to the browser and hands us horizontal drags,
+     which is the only way to scrub where there is no hover. */
+  touch-action: pan-y;
 }
 
 /* Every month is on screen at once. Scrolling the strip meant the early
@@ -219,11 +259,24 @@ a { color: inherit; }
    Parked in the left margin beside the column. Below the breakpoint the
    margin no longer exists, so it returns to the flow above the content
    rather than covering it. */
-.pnav { margin-bottom: 2.5rem; }
+/* In the flow it has to bring its own column alignment and headroom — it
+   sits outside .doc, so it inherits neither. */
+.pnav {
+  width: min(100% - 2.5rem, 36rem);
+  margin: 0 auto 2rem;
+  padding-top: 4.5rem;
+}
 .pnav-index { display: inline-block; }
 .pnav-list { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0.3rem; }
 .pnav-item { color: var(--muted); transition: color 0.2s ease; }
 .pnav-item:hover { color: var(--ink); }
+
+/* Below the breakpoint the rail is in the flow and supplies the page's top
+   spacing, so .doc must not add its own on top. Scoped to that case: on
+   desktop the rail is fixed and .doc still needs its full headroom. */
+@media (max-width: 73.9375rem) {
+  .pnav + .doc { padding-top: 0; }
+}
 
 @media (min-width: 74rem) {
   .pnav {
@@ -232,7 +285,8 @@ a { color: inherit; }
     /* Column is 36rem centred; park the rail clear of its left edge. */
     left: calc(50% - 18rem - 13rem);
     width: 11rem;
-    margin-bottom: 0;
+    margin: 0;
+    padding-top: 0;
   }
 }
 

@@ -9,10 +9,10 @@ import {
   type Entry,
 } from "@/lib/cv";
 
-/** Must match .tl-label width in CSS. */
-const LABEL_WIDTH = 260;
-
 const MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+
+/** Below this, ticks stop being separable and read as a grey smear. */
+const MIN_PITCH = 9;
 
 function label(month: string) {
   const [y, m] = month.split("-").map(Number);
@@ -20,70 +20,88 @@ function label(month: string) {
 }
 
 /**
- * A ruler of one tick per month. Moving across it scrubs the career; the tick
- * under the pointer is marked and the role covering that month is named above.
+ * A ruler of ticks across the career. Moving across it scrubs: the tick under
+ * the pointer is marked, the months belonging to that role are tinted with the
+ * employer's brand colour, and the readout above names it.
  *
- * Pointer position maps to a tick by ratio rather than by hit-testing each
- * tick, so the whole strip stays responsive with no per-tick listeners.
+ * Pointer position maps to a tick by ratio against the track's box rather than
+ * by hit-testing each tick, so there are no per-tick listeners and touch drags
+ * work through the same path as a mouse.
  */
 export default function Timeline() {
-  const months = useMemo(
-    () => monthsBetween(TIMELINE_FROM, TIMELINE_TO),
-    []
-  );
+  const months = useMemo(() => monthsBetween(TIMELINE_FROM, TIMELINE_TO), []);
 
-  // Opens on the present, which is the entry most people are looking for.
-  const [index, setIndex] = useState(months.length - 1);
   const ruler = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
+  const labelEl = useRef<HTMLDivElement>(null);
+
+  // Sample every nth month when the strip is too narrow to draw them all.
+  const [step, setStep] = useState(1);
+  const ticks = useMemo(
+    () => months.filter((_, i) => i % step === 0),
+    [months, step]
+  );
+
+  const [index, setIndex] = useState(ticks.length - 1);
   const [labelX, setLabelX] = useState<number | null>(null);
 
+  // Keep pointing at the present when the sampling changes under a resize.
+  useEffect(() => setIndex(ticks.length - 1), [ticks.length]);
+
+  const rolesAt = (month: string): Entry[] =>
+    EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
+
+  const month = ticks[Math.min(index, ticks.length - 1)] ?? months[0];
+  const roles = rolesAt(month);
+  const active = roles[0];
+  const brand = active?.color ?? "var(--ink)";
+
+  const fit = useCallback(() => {
+    const width = ruler.current?.clientWidth ?? 0;
+    if (!width) return;
+    const maxTicks = Math.max(8, Math.floor(width / MIN_PITCH));
+    setStep(Math.max(1, Math.ceil(months.length / maxTicks)));
+  }, [months.length]);
+
   /**
-   * Park the readout over the active tick. Measured from the tick element
-   * itself rather than from the pointer, so it stays correct while the strip
-   * is scrolled and on first paint before any pointer has moved.
+   * Park the readout over the active tick, measured from the tick element so
+   * it stays right on first paint before any pointer has moved. The clamp uses
+   * the label's real width rather than a constant duplicated from the CSS.
    */
   const syncLabel = useCallback(() => {
     const tick = track.current?.children[index] as HTMLElement | undefined;
     const box = wrap.current?.getBoundingClientRect();
+    const w = labelEl.current?.offsetWidth ?? 0;
     if (!tick || !box) return;
     const t = tick.getBoundingClientRect();
-    const x = t.left - box.left;
-    // Keep the whole card on screen at both ends of the strip.
-    setLabelX(Math.max(0, Math.min(box.width - LABEL_WIDTH, x)));
+    setLabelX(Math.max(0, Math.min(box.width - w, t.left - box.left)));
   }, [index]);
 
   useEffect(() => {
-    syncLabel();
-    window.addEventListener("resize", syncLabel);
-    return () => window.removeEventListener("resize", syncLabel);
-  }, [syncLabel]);
+    fit();
+    const onResize = () => {
+      fit();
+      syncLabel();
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [fit, syncLabel]);
 
-  /** All roles covering a month — two were held concurrently in 2020-21, so
-   *  taking only the first would have hidden one of them entirely. */
-  const rolesAt = (month: string): Entry[] =>
-    EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
-
-  const month = months[index];
-  const roles = rolesAt(month);
-  const active = roles[0];
-  // Falls back to ink so a role with no sampled colour still reads.
-  const brand = active?.color ?? "var(--ink)";
+  useEffect(syncLabel, [syncLabel, step]);
 
   const onMove = (e: React.PointerEvent) => {
-    // Measured against the track, not the viewport window onto it — the
-    // track's rect already shifts with scroll, so no scrollLeft maths.
     const box = track.current?.getBoundingClientRect();
     if (!box) return;
     const ratio = (e.clientX - box.left) / box.width;
-    const next = Math.round(ratio * (months.length - 1));
-    setIndex(Math.max(0, Math.min(months.length - 1, next)));
+    const next = Math.round(ratio * (ticks.length - 1));
+    setIndex(Math.max(0, Math.min(ticks.length - 1, next)));
   };
 
   return (
     <div className="tl">
       <div
+        ref={labelEl}
         className="tl-label"
         style={labelX === null ? undefined : { left: `${labelX}px` }}
       >
@@ -113,36 +131,38 @@ export default function Timeline() {
           ref={ruler}
           className="tl-ruler"
           onPointerMove={onMove}
+          onPointerDown={onMove}
           role="presentation"
         >
-        <div ref={track} className="tl-track">
-          {months.map((m, i) => {
-            const inRole = roles.some(
-              (r) => m >= (r.from ?? "") && m <= (r.to ?? "")
-            );
-            // The hovered month takes the brand colour outright; the rest of
-            // that role's span takes a 20% tint of it, mixed toward the page
-            // rather than made translucent so it stays a flat, even grey-out.
-            const background =
-              i === index
-                ? brand
-                : inRole
-                  ? `color-mix(in srgb, ${brand} 20%, var(--paper))`
-                  : undefined;
+          <div ref={track} className="tl-track">
+            {ticks.map((m, i) => {
+              const inRole = roles.some(
+                (r) => m >= (r.from ?? "") && m <= (r.to ?? "")
+              );
 
-            return (
-              <span
-                key={m}
-                className={
-                  i === index
-                    ? "tick tick-on"
-                    : inRole
-                      ? "tick tick-role"
-                      : "tick"
-                }
-                style={background ? { background } : undefined}
-              />
-            );
+              // The hovered month takes the brand colour outright; the rest of
+              // that role's span takes a 20% tint of it, mixed toward the page
+              // rather than made translucent so it stays a flat, even wash.
+              const background =
+                i === index
+                  ? brand
+                  : inRole
+                    ? `color-mix(in srgb, ${brand} 20%, var(--paper))`
+                    : undefined;
+
+              return (
+                <span
+                  key={m}
+                  className={
+                    i === index
+                      ? "tick tick-on"
+                      : inRole
+                        ? "tick tick-role"
+                        : "tick"
+                  }
+                  style={background ? { background } : undefined}
+                />
+              );
             })}
           </div>
         </div>
