@@ -174,16 +174,13 @@ a { color: inherit; }
 /* Rides above the active tick. Width is mirrored in LABEL_WIDTH so the
    clamp that keeps it on screen matches what is actually rendered. */
 .tl-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   position: absolute;
   /* Anchored above the ruler and growing upward. Anchored at the top it grew
      downward, and a title that wrapped to two lines pushed the dates into
      the ticks. 6.5rem is the ruler's own height (4.5rem track + 1rem x2). */
   bottom: calc(6.5rem + 0.5rem);
   left: 0;
-  width: 280px;
+  width: 260px;
   /* Left edge sits on the tick, as in the reference — not centred on it. */
   text-align: left;
   pointer-events: none;
@@ -191,14 +188,12 @@ a { color: inherit; }
 }
 
 /* Employer mark alone — a square tile above the readout. */
-/* Mark sits beside the name rather than above it. */
 .tl-avatars {
   display: flex;
   gap: 0.4rem;
+  margin-bottom: 0.7rem;
   height: 2.75rem;
-  flex-shrink: 0;
 }
-.tl-text { min-width: 0; }
 .tl-avatar {
   position: relative;
   width: 2.75rem;
@@ -350,21 +345,14 @@ a { color: inherit; }
   width: 100vw;
   margin: 1.5rem 0 0 calc(50% - 50vw);
 }
-/* The hint would sit below the fold with the page frozen. */
-.sphere .sphere-hint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 1.25rem;
-}
-.sphere { position: relative; }
 .sphere-host {
   position: relative;
   width: 100%;
-  /* A full viewport height, so the canvas centre and the window centre
-     coincide — that is where a focused plane lands. The page is frozen while
-     the sphere is open, so the URL bar cannot collapse and svh is not needed. */
+  /* A full viewport height, so once scrolled into view the canvas centre and
+     the window centre coincide — that is where a focused plane lands. svh
+     keeps it honest on phones where the URL bar comes and goes. */
   height: 100vh;
+  height: 100svh;
   /* Vertical panning stays with the page; horizontal drags spin the sphere. */
   touch-action: pan-y;
 }

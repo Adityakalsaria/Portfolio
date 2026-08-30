@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
@@ -24,32 +24,6 @@ export default function Showcase({
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
-  const stage = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (mode !== "sphere") return;
-    // Align the canvas with the top of the window first, then freeze the page.
-    // Locked, the canvas fills the viewport exactly, so a focused plane lands
-    // on the window centre without any further scrolling.
-    stage.current?.scrollIntoView({ block: "start" });
-
-    // Two locks, because they cover different cases. overflow:hidden stops a
-    // native wheel; stopping Lenis stops the smooth-scroll layer, which sets
-    // scroll position programmatically and ignores overflow entirely. Under
-    // reduced motion Lenis never runs and the overflow lock is the only one.
-    const root = document.documentElement;
-    const prevRoot = root.style.overflow;
-    const prevBody = document.body.style.overflow;
-    root.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    window.dispatchEvent(new CustomEvent("scroll-lock", { detail: true }));
-
-    return () => {
-      root.style.overflow = prevRoot;
-      document.body.style.overflow = prevBody;
-      window.dispatchEvent(new CustomEvent("scroll-lock", { detail: false }));
-    };
-  }, [mode]);
 
   return (
     <>
@@ -87,9 +61,7 @@ export default function Showcase({
           ))}
         </div>
       ) : (
-        <div ref={stage}>
-          <ImageSphereView shots={shots} title={title} />
-        </div>
+        <ImageSphereView shots={shots} title={title} />
       )}
     </>
   );

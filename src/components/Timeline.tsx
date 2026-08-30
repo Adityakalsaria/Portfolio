@@ -46,12 +46,11 @@ export default function Timeline() {
   const [index, setIndex] = useState(ticks.length - 1);
   const [labelX, setLabelX] = useState<number | null>(null);
 
-  // Keep pointing at the present when the sampling changes under a resize.
-  useEffect(() => setIndex(ticks.length - 1), [ticks.length]);
-
   const rolesAt = (month: string): Entry[] =>
     EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
 
+  // Clamped at read time, so a resize that changes tick sampling cannot leave
+  // the index out of range — no state write needed to correct it.
   const month = ticks[Math.min(index, ticks.length - 1)] ?? months[0];
   const roles = rolesAt(month);
   const active = roles[0];
@@ -126,12 +125,10 @@ export default function Timeline() {
           )}
         </div>
 
-        <div className="tl-text">
-          <p className="tl-title">
-            {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
-          </p>
-          <p className="tl-dates">{active?.period ?? label(month)}</p>
-        </div>
+        <p className="tl-title">
+          {roles.map((r) => r.company || r.title).join("  &  ") || "—"}
+        </p>
+        <p className="tl-dates">{active?.period ?? label(month)}</p>
       </div>
 
       <div className="tl-ruler-wrap" ref={wrap}>
