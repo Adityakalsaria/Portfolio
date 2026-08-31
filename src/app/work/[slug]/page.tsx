@@ -43,6 +43,14 @@ export default async function ProjectPage({
     project.shots ??
     [{ src: project.cover, width: project.width ?? 4, height: project.height ?? 3 }];
 
+  // The posts' stills join the sphere, where there is room, but not the
+  // scroll, which would otherwise run to twice its length.
+  const postShots: Shot[] = (project.posts ?? [])
+    .map((p) => p.media)
+    .filter((m): m is NonNullable<typeof m> => m !== null)
+    .map((m) => ({ src: m.src, width: m.width, height: m.height }));
+  const sphereShots = [...flat, ...postShots];
+
   const sections = project.sections ?? [];
   const navItems = sections.map((s) => ({ title: s.title, id: slugify(s.title) }));
 
@@ -66,13 +74,6 @@ export default async function ProjectPage({
           {project.intro && <p className="mt-5">{project.intro}</p>}
         </Reveal>
 
-        {project.posts && project.posts.length > 0 && (
-          <section>
-            <h2 className="sec-head">Published</h2>
-            <PostList posts={project.posts} />
-          </section>
-        )}
-
         {sections.length > 0 ? (
           sections.map((section) => (
             <section key={section.title} id={slugify(section.title)}>
@@ -81,10 +82,17 @@ export default async function ProjectPage({
             </section>
           ))
         ) : (
-          <Showcase shots={flat} title={project.title} />
+          <Showcase shots={flat} sphereShots={sphereShots} title={project.title} />
         )}
 
-        {next && next.slug !== project.slug && (
+          {project.posts && project.posts.length > 0 && (
+          <section>
+            <h2 className="sec-head">Published</h2>
+            <PostList posts={project.posts} />
+          </section>
+        )}
+
+      {next && next.slug !== project.slug && (
           <Reveal className="mt-16">
             <Link href={`/work/${next.slug}`} className="table">
               <span className="cell cell-group rule-full" />

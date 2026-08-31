@@ -15,12 +15,18 @@ type Mode = "scroll" | "sphere";
  * The sphere breaks out to the full viewport width in place. At the 36rem
  * column the planes crowd each other and most of the set sits off to the
  * sides; it stays on the page rather than opening as a separate view.
+ *
+ * It can also carry more than the scroll does — the published posts join the
+ * cloud, where there is room for them, without lengthening the scroll.
  */
 export default function Showcase({
   shots,
+  sphereShots,
   title,
 }: {
   shots: Shot[];
+  /** What the sphere shows, when it is more than the scroll's own images. */
+  sphereShots?: Shot[];
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
@@ -61,7 +67,7 @@ export default function Showcase({
           ))}
         </div>
       ) : (
-        <ImageSphereView shots={shots} title={title} />
+        <ImageSphereView shots={sphereShots ?? shots} title={title} />
       )}
     </>
   );
