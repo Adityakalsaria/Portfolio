@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { CATEGORIES, HAS_WORK, ALL_PROJECTS } from "@/lib/work";
+import { CATEGORIES, HAS_WORK, categoryShots, leadProject } from "@/lib/work";
 import RowTable, { type TableGroup } from "./RowTable";
 
 /** How long each image holds before the next fades up. */
-const FRAME_MS = 900;
+const FRAME_MS = 280;
 /** Matches the .work-preview width in CSS. */
 const PREVIEW_W = 224;
 /** Space between the table's edge and the preview. */
@@ -15,18 +15,19 @@ const GAP = 28;
 type Spot = { top: number; left: number };
 
 /**
- * Work reads as a list first. Hovering a row runs through that project's
- * images beside it — parked against the row rather than trailing the cursor,
- * so the image holds still long enough to be read. Never on touch, where
- * there is no hover to earn it.
+ * Work is one row per category, not per project. A category opens on its most
+ * recent piece and the rest are reachable from the rail there, which keeps
+ * this list to four lines however much work sits behind it.
+ *
+ * Hovering a row runs through everything in that category beside it — parked
+ * against the row rather than trailing the cursor, so the image holds still
+ * long enough to read. Never on touch, where there is no hover to earn it.
  */
 export default function WorkList() {
   const [active, setActive] = useState<string | null>(null);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [frame, setFrame] = useState(0);
-  /** Gates the position transition until the card has been placed once. */
   const [placed, setPlaced] = useState(false);
-  const placedOnce = useRef(false);
 
   const onActive = useCallback((key: string | null, row?: HTMLElement) => {
     if (!key || !row) {
@@ -55,58 +56,49 @@ export default function WorkList() {
     setActive(key);
     setFrame(0);
 
-    // The card sits at 0,0 until the first hover, with its position transition
-    // already live — so that first hover would glide it in from the top-left
-    // corner. Enable the transition one frame after it has been placed.
-    if (!placedOnce.current) {
-      placedOnce.current = true;
-      // Two frames, not one: a single rAF runs before the next paint, so the
-      // transition would switch on in the same frame the position lands and
-      // the browser would still interpolate it from 0,0. The second frame
-      // guarantees the placed position has actually been painted.
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => setPlaced(true))
-      );
+    // The card sits at 0,0 until the first hover with its position transition
+    // already live, so that first hover would glide it in from the top-left
+    // corner. Two frames, because a single rAF runs before the next paint and
+    // the browser would still interpolate from 0,0.
+    if (!placed) {
+      requestAnimationFrame(() => requestAnimationFrame(() => setPlaced(true)));
     }
-  }, []);
+  }, [placed]);
 
-  const activeProject = ALL_PROJECTS.find((p) => p.slug === active);
-  const shots = activeProject?.shots;
+  const category = CATEGORIES.find((c) => c.id === active);
+  const shots = category ? categoryShots(category) : [];
 
   useEffect(() => {
-    if (!active || !shots || shots.length < 2) return;
+    if (!active || shots.length < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => setFrame((f) => f + 1), FRAME_MS);
     return () => clearInterval(id);
-  }, [active, shots]);
+  }, [active, shots.length]);
 
-  const frames = shots?.length
-    ? shots.map((s) => s.src)
-    : activeProject
-      ? [activeProject.cover]
-      : [];
-  const step = frames.length ? frame % frames.length : 0;
-  const shot = shots?.length ? shots[step] : null;
-  const ratio = shot
-    ? `${shot.width} / ${shot.height}`
-    : activeProject?.width && activeProject.height
-      ? `${activeProject.width} / ${activeProject.height}`
-      : "4 / 3";
+  const step = shots.length ? frame % shots.length : 0;
+  const shot = shots[step];
+  const ratio = shot ? `${shot.width} / ${shot.height}` : "4 / 3";
 
-  const groups: TableGroup[] = CATEGORIES.map((cat) => ({
-    name: cat.name,
-    items: cat.projects.length
-      ? cat.projects.map((p) => ({
-          key: p.slug,
-          title: p.title,
-          href: `/work/${p.slug}`,
-        }))
-      : [{ key: cat.id, title: "Awaiting export", quiet: true }],
-  }));
+  // One entry per category. Empty ones stay listed but unlinked, so the shape
+  // of the work is visible before every category has something in it.
+  const groups: TableGroup[] = [
+    {
+      name: "",
+      items: CATEGORIES.map((c) => {
+        const lead = leadProject(c);
+        return {
+          key: c.id,
+          title: c.name,
+          href: lead ? `/work/${lead.slug}` : undefined,
+          quiet: !lead,
+        };
+      }),
+    },
+  ];
 
   return (
     <div>
-      <RowTable label="Work" groups={groups} onActive={onActive} />
+      <RowTable label="Work" groups={groups} onActive={onActive} flat />
 
       {HAS_WORK && (
         <div
@@ -116,16 +108,16 @@ export default function WorkList() {
             top: spot?.top ?? 0,
             left: spot?.left ?? 0,
             aspectRatio: ratio,
-            opacity: frames.length && spot ? 1 : 0,
+            opacity: shots.length && spot ? 1 : 0,
           }}
         >
           {/* Every frame stays mounted and the current one fades up. Swapping a
               single <img> made each step wait on its own fetch, so the first
-              run through a project stalled on image one. */}
-          {frames.map((f, i) => (
+              run through a category stalled on image one. */}
+          {shots.map((s, i) => (
             <Image
-              key={f}
-              src={f}
+              key={s.src}
+              src={s.src}
               alt=""
               fill
               sizes="224px"

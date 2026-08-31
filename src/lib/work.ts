@@ -33,7 +33,7 @@ export type Category = {
  */
 const CANONICAL: { id: string; name: string; aliases: string[] }[] = [
   { id: "landing-pages", name: "Landing Pages", aliases: ["landing-page", "landing-pages"] },
-  { id: "marketing-assets", name: "Marketing Assets", aliases: ["marketing-assets", "marketing-aseets", "marketing"] },
+  { id: "marketing-assets", name: "Visual design", aliases: ["marketing-assets", "marketing-aseets", "marketing"] },
   { id: "product", name: "Product", aliases: ["product"] },
   { id: "ui", name: "UI", aliases: ["ui"] },
 ];
@@ -66,6 +66,24 @@ export const ALL_PROJECTS = CATEGORIES.flatMap((c) =>
 );
 
 export const HAS_WORK = ALL_PROJECTS.length > 0;
+
+/** The project a category opens on — the most recent, which leads the list. */
+export function leadProject(c: Category): Project | undefined {
+  return c.projects[0];
+}
+
+/** Every image in a category, so hovering its row can run the whole body. */
+export function categoryShots(c: Category): Shot[] {
+  return c.projects.flatMap(
+    (p) => p.shots ?? [{ src: p.cover, width: p.width ?? 4, height: p.height ?? 3 }]
+  );
+}
+
+/** The other projects in a project's category, for the rail. */
+export function siblingsOf(slug: string) {
+  const cat = CATEGORIES.find((c) => c.projects.some((p) => p.slug === slug));
+  return cat ? cat.projects : [];
+}
 
 export function findProject(slug: string) {
   return ALL_PROJECTS.find((p) => p.slug === slug);

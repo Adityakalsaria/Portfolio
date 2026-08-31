@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ALL_PROJECTS, findProject, type Shot } from "@/lib/work";
+import { ALL_PROJECTS, findProject, siblingsOf, type Shot } from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import Reveal from "@/components/Reveal";
 import Showcase from "@/components/Showcase";
@@ -50,7 +50,11 @@ export default async function ProjectPage({
 
   return (
     <>
-      <ProjectNav sections={navItems} />
+      <ProjectNav
+        sections={navItems}
+        siblings={siblingsOf(slug).map((p) => ({ slug: p.slug, title: p.title }))}
+        currentSlug={slug}
+      />
 
       <main className="doc">
         <Reveal stagger={0.06}>

@@ -73,6 +73,8 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: 9rem 1fr auto;
 }
+/* No group gutter, for a table whose rows are the groups. */
+.table.is-flat { grid-template-columns: 1fr auto; }
 
 .trow { display: contents; color: inherit; }
 
@@ -126,7 +128,8 @@ a { color: inherit; }
    side by side at phone width — every row wrapped. Below this the group
    label becomes its own line and the entry sits under it. */
 @media (max-width: 34rem) {
-  .table { display: block; }
+  .table,
+  .table.is-flat { display: block; }
 
   .trow {
     display: flex;
@@ -275,6 +278,7 @@ a { color: inherit; }
 .pnav-list { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0.3rem; }
 .pnav-item { color: var(--muted); transition: color 0.2s ease; }
 .pnav-item:hover { color: var(--ink); }
+.pnav-item.is-on { color: var(--ink); }
 
 /* Below the breakpoint the rail is in the flow and supplies the page's top
    spacing, so .doc must not add its own on top. Scoped to that case: on

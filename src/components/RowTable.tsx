@@ -22,6 +22,8 @@ type Props = {
   groups: TableGroup[];
   /** Called with an item key and its row element on enter, null on leave. */
   onActive?: (key: string | null, row?: HTMLElement) => void;
+  /** Drop the group gutter, for a table whose rows need no grouping. */
+  flat?: boolean;
 };
 
 /**
@@ -31,7 +33,7 @@ type Props = {
  *   - after the last row                      → none
  * so the eye can find a group boundary without the group name being repeated.
  */
-export default function RowTable({ label, groups, onActive }: Props) {
+export default function RowTable({ label, groups, onActive, flat }: Props) {
   const rows = groups.flatMap((group, gi) =>
     group.items.map((item, ii) => ({
       ...item,
@@ -42,15 +44,17 @@ export default function RowTable({ label, groups, onActive }: Props) {
   );
 
   return (
-    <div className="table">
+    <div className={flat ? "table is-flat" : "table"}>
       <p className="table-label">{label}</p>
 
       {rows.map((row) => {
         const cells = (
           <>
-            <span className={clsx("cell", "cell-group", `rule-${row.rule}`)}>
-              {row.group}
-            </span>
+            {!flat && (
+              <span className={clsx("cell", "cell-group", `rule-${row.rule}`)}>
+                {row.group}
+              </span>
+            )}
             <span
               className={clsx(
                 "cell",
