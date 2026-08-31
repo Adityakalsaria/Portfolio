@@ -10,5 +10,7 @@ export type Post = {
   likes: number;
   /** True when the still is a video's poster frame. */
   video: boolean;
+  /** Local MP4, so a clip plays here rather than on X. */
+  clip: string | null;
   media: { src: string; width: number; height: number } | null;
 };

@@ -32,11 +32,14 @@ const PLANE_SCREEN_PX = 134;
 /** Cap the baked texture so 21 of them do not flood GPU memory. */
 const MAX_TEXTURE_PX = 1024;
 
+/** A plane in the cloud. `href` makes it openable once focused. */
+export type SphereItem = { url: string; href?: string; clip?: string };
+
 export interface ImageSphereOptions {
   distance?: number;
   fov?: number;
   /** Fires when a plane is focused or released, so a host can react. */
-  onFocusChange?: (focused: boolean) => void;
+  onFocusChange?: (focus: { href?: string } | null) => void;
 }
 
 type PlaneMesh = THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
@@ -48,7 +51,7 @@ export class ImageSphere {
   private camera: THREE.PerspectiveCamera;
   private group = new THREE.Group();
   private planes: PlaneMesh[] = [];
-  private onFocusChange?: (focused: boolean) => void;
+  private onFocusChange?: (focus: { href?: string } | null) => void;
   private lastFocused: PlaneMesh | null = null;
 
   private raycaster = new THREE.Raycaster();
@@ -82,10 +85,19 @@ export class ImageSphere {
   private running = false;
   private disposed = false;
 
+  /** One reused element: only the focused plane ever plays. */
+  private videoEl: HTMLVideoElement | null = null;
+  private videoTex: THREE.VideoTexture | null = null;
+  private videoPlane: PlaneMesh | null = null;
+
   private ro?: ResizeObserver;
   private cleanup: (() => void)[] = [];
 
-  constructor(host: HTMLElement, imageUrls: string[], opts: ImageSphereOptions = {}) {
+  constructor(
+    host: HTMLElement,
+    images: (string | SphereItem)[],
+    opts: ImageSphereOptions = {}
+  ) {
     this.host = host;
     const w = host.clientWidth || 1;
     const h = host.clientHeight || 1;
@@ -113,7 +125,7 @@ export class ImageSphere {
     this.onFocusChange = opts.onFocusChange;
 
 
-    this.loadPlanes(imageUrls);
+    this.loadPlanes(images.map((i) => (typeof i === "string" ? { url: i } : i)));
     this.bindEvents();
   }
 
@@ -162,10 +174,10 @@ export class ImageSphere {
     return new THREE.CanvasTexture(canvas);
   }
 
-  private loadPlanes(urls: string[]) {
+  private loadPlanes(items: SphereItem[]) {
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = "anonymous";
-    urls.forEach((url) => {
+    items.forEach(({ url, href, clip }) => {
       loader.load(url, (loaded) => {
         if (this.disposed) return;
 
@@ -187,7 +199,9 @@ export class ImageSphere {
         mat.depthWrite = false;
         const plane = new THREE.Mesh(geo, mat) as PlaneMesh;
 
-        plane.userData = { isHovered: false, opacity: 0, focus: 0, aspect };
+        // Textures resolve out of order, so the link rides on the plane
+        // rather than being looked up by index later.
+        plane.userData = { isHovered: false, opacity: 0, focus: 0, aspect, href, clip };
         mat.opacity = 0;
 
         const phi = (Math.random() * 2 - 1) * Math.PI;
@@ -297,6 +311,67 @@ export class ImageSphere {
     this.camera.updateProjectionMatrix();
   }
 
+  /**
+   * Swap the focused plane's still for a playing clip. Muted and looping: the
+   * click that focuses it is a gesture, so sound would be allowed — but a
+   * cloud that starts talking when you touch it is not what anyone wants.
+   */
+  private attachVideo(plane: PlaneMesh) {
+    const clip = plane.userData.clip as string | undefined;
+    if (!clip || this.videoPlane === plane) return;
+    this.detachVideo();
+
+    if (!this.videoEl) {
+      const el = document.createElement("video");
+      el.muted = true;
+      el.loop = true;
+      el.playsInline = true;
+      el.crossOrigin = "anonymous";
+      el.preload = "auto";
+      // Kept in the document, not detached. A detached element plays in
+      // Chrome but is unreliable elsewhere — Safari in particular will refuse
+      // — and it is invisible to anything inspecting the page.
+      Object.assign(el.style, {
+        position: "absolute",
+        width: "1px",
+        height: "1px",
+        opacity: "0",
+        pointerEvents: "none",
+      });
+      this.host.appendChild(el);
+      this.videoEl = el;
+    }
+    this.videoEl.src = clip;
+
+    const tex = new THREE.VideoTexture(this.videoEl);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+
+    // Keep the still so unfocusing can put it back; it is the only copy.
+    plane.userData.stillMap = plane.material.map;
+    plane.material.map = tex;
+    plane.material.needsUpdate = true;
+
+    this.videoTex = tex;
+    this.videoPlane = plane;
+    void this.videoEl.play().catch(() => {});
+  }
+
+  private detachVideo() {
+    const plane = this.videoPlane;
+    if (plane) {
+      plane.material.map = (plane.userData.stillMap as THREE.Texture) ?? null;
+      plane.material.needsUpdate = true;
+      plane.userData.stillMap = undefined;
+    }
+    this.videoEl?.pause();
+    if (this.videoEl) this.videoEl.removeAttribute("src");
+    this.videoTex?.dispose();
+    this.videoTex = null;
+    this.videoPlane = null;
+  }
+
   private pick(): PlaneMesh | null {
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const hits = this.raycaster.intersectObjects(this.planes, false);
@@ -364,7 +439,11 @@ export class ImageSphere {
     }
     if (this.focused !== this.lastFocused) {
       this.lastFocused = this.focused;
-      this.onFocusChange?.(this.focused !== null);
+      if (this.focused) this.attachVideo(this.focused);
+      else this.detachVideo();
+      this.onFocusChange?.(
+        this.focused ? { href: this.focused.userData.href as string | undefined } : null
+      );
     }
     const anyFocused = this.focused !== null;
 

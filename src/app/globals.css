@@ -382,6 +382,33 @@ a { color: inherit; }
   .preview-frame { transition: none; }
 }
 
+/* Three across, so eighteen posts read as a contact sheet. Two on a phone,
+   where three would be thumbnails rather than previews. */
+.grid-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+@media (max-width: 34rem) {
+  .grid-view { grid-template-columns: repeat(2, 1fr); }
+}
+
+.grid-cell {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15);
+}
+.grid-cell a { display: block; position: absolute; inset: 0; }
+
+/* Hovering one quiets the rest, as the row tables do. */
+.grid-view:has(.grid-cell:hover) .grid-cell { opacity: 0.55; }
+.grid-view .grid-cell { transition: opacity 0.25s ease; }
+.grid-view:has(.grid-cell:hover) .grid-cell:hover { opacity: 1; }
+
 /* ── Post previews ───────────────────────────────────────────────
    A thumbnail beside two lines of text, so eighteen of them stay a list
    rather than becoming a second gallery. */
@@ -393,6 +420,16 @@ a { color: inherit; }
   align-items: flex-start;
   padding: 0.85rem 0;
   border-top: 1px solid var(--line);
+}
+/* Wide enough for a play control to be usable, since the clip plays here. */
+.post .post-media { width: 11rem; }
+.post-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--surface);
 }
 .posts li:last-child .post { border-bottom: 1px solid var(--line); }
 
@@ -433,9 +470,7 @@ a { color: inherit; }
   transition: color 0.2s ease;
 }
 
-/* Hovering one quiets the rest, the same as the row tables. */
-.posts:has(.post:hover) .post-text { color: var(--muted); }
-.posts:has(.post:hover) .post:hover .post-text { color: var(--ink); }
+
 
 /* ── Image sphere ────────────────────────────────────────────────
    Breaks out of the text column to the full viewport width: at 36rem the

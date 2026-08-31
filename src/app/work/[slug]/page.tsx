@@ -1,11 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ALL_PROJECTS, findProject, siblingsOf, type Shot } from "@/lib/work";
+import {
+  ALL_PROJECTS,
+  findProject,
+  siblingsOf,
+  type Shot,
+  type SphereShot,
+} from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import Reveal from "@/components/Reveal";
 import Showcase from "@/components/Showcase";
-import PostList from "@/components/PostList";
 import ProjectNav from "@/components/ProjectNav";
 import { PROFILE } from "@/lib/cv";
 
@@ -43,12 +48,18 @@ export default async function ProjectPage({
     project.shots ??
     [{ src: project.cover, width: project.width ?? 4, height: project.height ?? 3 }];
 
-  // The posts' stills join the sphere, where there is room, but not the
-  // scroll, which would otherwise run to twice its length.
-  const postShots: Shot[] = (project.posts ?? [])
-    .map((p) => p.media)
-    .filter((m): m is NonNullable<typeof m> => m !== null)
-    .map((m) => ({ src: m.src, width: m.width, height: m.height }));
+  // The posts live in the sphere, where their clips play on the plane, rather
+  // than as a second list under the work.
+  const postShots: SphereShot[] = (project.posts ?? [])
+    .filter((p) => p.media)
+    .map((p) => ({
+      src: p.media!.src,
+      width: p.media!.width,
+      height: p.media!.height,
+      href: p.url,
+      video: p.video,
+      clip: p.clip ?? undefined,
+    }));
   const sphereShots = [...flat, ...postShots];
 
   const sections = project.sections ?? [];
@@ -83,13 +94,6 @@ export default async function ProjectPage({
           ))
         ) : (
           <Showcase shots={flat} sphereShots={sphereShots} title={project.title} />
-        )}
-
-          {project.posts && project.posts.length > 0 && (
-          <section>
-            <h2 className="sec-head">Published</h2>
-            <PostList posts={project.posts} />
-          </section>
         )}
 
       {next && next.slug !== project.slug && (

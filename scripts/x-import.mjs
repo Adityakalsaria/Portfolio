@@ -10,8 +10,8 @@
  *
  * Media is downloaded rather than hotlinked: pbs.twimg.com URLs are not
  * guaranteed stable, are blocked in some networks, and would make every card
- * a third-party request on page load. Video posts keep their poster frame —
- * a preview needs a still, not the video file.
+ * a third-party request on page load. Video posts get their poster frame and
+ * a mid-size MP4, so a clip plays here instead of sending the reader to X.
  */
 import { readdir, mkdir, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -54,6 +54,17 @@ async function fetchPost(id) {
   return res.json();
 }
 
+/**
+ * A mid-size MP4, not the largest. These play in a card a few hundred pixels
+ * wide, where 1600x900 is bytes spent on detail nobody sees.
+ */
+function pickVideo(d) {
+  const mp4 = (d.video?.variants ?? []).filter((v) => v.type === "video/mp4");
+  if (!mp4.length) return null;
+  const by = (w) => mp4.find((v) => v.src.includes(`/${w}x`));
+  return (by(640) ?? by(480) ?? mp4[0]).src;
+}
+
 /** First photo, or a video's poster frame. */
 function leadMedia(d) {
   const photo = (d.photos ?? [])[0];
@@ -75,6 +86,13 @@ function leadMedia(d) {
     };
   }
   return null;
+}
+
+async function saveFile(url, dest) {
+  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!res.ok) throw new Error(`${res.status}`);
+  await writeFile(dest, Buffer.from(await res.arrayBuffer()));
+  return (await res.arrayBuffer?.length) ?? 0;
 }
 
 async function saveImage(url, dest) {
@@ -119,9 +137,24 @@ async function main() {
       }
     }
 
+    // Video posts also get a clip, so the card can play rather than link away.
+    let clip = null;
+    const src = pickVideo(d);
+    if (src) {
+      const name = `${id}.mp4`;
+      keep.add(name);
+      try {
+        await saveFile(src, path.join(OUT_DIR, name));
+        clip = `/posts/${name}`;
+      } catch (e) {
+        console.warn(`  ! ${id} video: ${e.message}`);
+      }
+    }
+
     out.push({
       id,
       url,
+      clip,
       author: d.user?.screen_name ?? "",
       authorName: d.user?.name ?? "",
       date: d.created_at ?? "",
@@ -141,7 +174,7 @@ async function main() {
   // Drop files for posts no longer in the list.
   if (existsSync(OUT_DIR)) {
     for (const f of await readdir(OUT_DIR)) {
-      if (f.endsWith(".webp") && !keep.has(f)) await rm(path.join(OUT_DIR, f));
+      if (!keep.has(f)) await rm(path.join(OUT_DIR, f));
     }
   }
 

@@ -5,6 +5,7 @@ export const POSTS: Post[] = [
   {
     "id": "2064710819875856883",
     "url": "https://x.com/AdityaKalsaria/status/2064710819875856883",
+    "clip": "/posts/2064710819875856883.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-06-10T14:06:34.000Z",
@@ -20,6 +21,7 @@ export const POSTS: Post[] = [
   {
     "id": "2062563625894822023",
     "url": "https://x.com/AdityaKalsaria/status/2062563625894822023",
+    "clip": "/posts/2062563625894822023.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-06-04T15:54:23.000Z",
@@ -35,6 +37,7 @@ export const POSTS: Post[] = [
   {
     "id": "2060031160743542979",
     "url": "https://x.com/AdityaKalsaria/status/2060031160743542979",
+    "clip": "/posts/2060031160743542979.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-05-28T16:11:16.000Z",
@@ -50,6 +53,7 @@ export const POSTS: Post[] = [
   {
     "id": "2059608565225320917",
     "url": "https://x.com/AdityaKalsaria/status/2059608565225320917",
+    "clip": "/posts/2059608565225320917.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-05-27T12:12:02.000Z",
@@ -65,6 +69,7 @@ export const POSTS: Post[] = [
   {
     "id": "2057827133469446368",
     "url": "https://x.com/AdityaKalsaria/status/2057827133469446368",
+    "clip": "/posts/2057827133469446368.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-05-22T14:13:15.000Z",
@@ -80,6 +85,7 @@ export const POSTS: Post[] = [
   {
     "id": "2056378181104656862",
     "url": "https://x.com/dalpattapaniya/status/2056378181104656862",
+    "clip": "/posts/2056378181104656862.mp4",
     "author": "dalpattapaniya",
     "authorName": "Dalpat / KOSH",
     "date": "2026-05-18T14:15:38.000Z",
@@ -95,6 +101,7 @@ export const POSTS: Post[] = [
   {
     "id": "2051705622949986675",
     "url": "https://x.com/dalpattapaniya/status/2051705622949986675",
+    "clip": "/posts/2051705622949986675.mp4",
     "author": "dalpattapaniya",
     "authorName": "Dalpat / KOSH",
     "date": "2026-05-05T16:48:34.000Z",
@@ -110,6 +117,7 @@ export const POSTS: Post[] = [
   {
     "id": "2046210586699350332",
     "url": "https://x.com/AdityaKalsaria/status/2046210586699350332",
+    "clip": "/posts/2046210586699350332.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-20T12:53:15.000Z",
@@ -125,6 +133,7 @@ export const POSTS: Post[] = [
   {
     "id": "2042592802463453634",
     "url": "https://x.com/AdityaKalsaria/status/2042592802463453634",
+    "clip": "/posts/2042592802463453634.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-10T13:17:28.000Z",
@@ -140,6 +149,7 @@ export const POSTS: Post[] = [
   {
     "id": "2042229850845721023",
     "url": "https://x.com/AdityaKalsaria/status/2042229850845721023",
+    "clip": "/posts/2042229850845721023.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-09T13:15:13.000Z",
@@ -155,6 +165,7 @@ export const POSTS: Post[] = [
   {
     "id": "2041485488046104743",
     "url": "https://x.com/AdityaKalsaria/status/2041485488046104743",
+    "clip": "/posts/2041485488046104743.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-07T11:57:23.000Z",
@@ -170,6 +181,7 @@ export const POSTS: Post[] = [
   {
     "id": "2041163121734365253",
     "url": "https://x.com/AdityaKalsaria/status/2041163121734365253",
+    "clip": "/posts/2041163121734365253.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-06T14:36:25.000Z",
@@ -185,6 +197,7 @@ export const POSTS: Post[] = [
   {
     "id": "2040431050867052634",
     "url": "https://x.com/AdityaKalsaria/status/2040431050867052634",
+    "clip": "/posts/2040431050867052634.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-04-04T14:07:26.000Z",
@@ -200,6 +213,7 @@ export const POSTS: Post[] = [
   {
     "id": "2035003872117457289",
     "url": "https://x.com/AdityaKalsaria/status/2035003872117457289",
+    "clip": "/posts/2035003872117457289.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2026-03-20T14:41:46.000Z",
@@ -215,6 +229,7 @@ export const POSTS: Post[] = [
   {
     "id": "2000879533965369653",
     "url": "https://x.com/koshmoney/status/2000879533965369653",
+    "clip": "/posts/2000879533965369653.mp4",
     "author": "koshmoney",
     "authorName": "KOSH",
     "date": "2025-12-16T10:43:50.000Z",
@@ -230,6 +245,7 @@ export const POSTS: Post[] = [
   {
     "id": "1999776907605463065",
     "url": "https://x.com/AdityaKalsaria/status/1999776907605463065",
+    "clip": "/posts/1999776907605463065.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2025-12-13T09:42:23.000Z",
@@ -245,6 +261,7 @@ export const POSTS: Post[] = [
   {
     "id": "1999367239297044480",
     "url": "https://x.com/AdityaKalsaria/status/1999367239297044480",
+    "clip": "/posts/1999367239297044480.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2025-12-12T06:34:30.000Z",
@@ -260,6 +277,7 @@ export const POSTS: Post[] = [
   {
     "id": "1971215897621823850",
     "url": "https://x.com/AdityaKalsaria/status/1971215897621823850",
+    "clip": "/posts/1971215897621823850.mp4",
     "author": "AdityaKalsaria",
     "authorName": "Aditya kalsaria",
     "date": "2025-09-25T14:11:08.000Z",

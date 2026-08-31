@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageSphere } from "@/lib/image-sphere";
 import { useHaptics } from "@/lib/haptics";
-import type { Shot } from "@/lib/work";
+import type { SphereShot } from "@/lib/work";
 
 /**
  * Mounts the three.js image sphere on a sized host.
@@ -16,11 +16,12 @@ export default function ImageSphereView({
   shots,
   title,
 }: {
-  shots: Shot[];
+  shots: SphereShot[];
   title: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const haptic = useHaptics();
+  const [openHref, setOpenHref] = useState<string | null>(null);
 
   useEffect(() => {
     const el = host.current;
@@ -30,15 +31,16 @@ export default function ImageSphereView({
     // instead of the nearest planes running off the edges.
     const sphere = new ImageSphere(
       el,
-      shots.map((s) => s.src),
+      shots.map((s) => ({ url: s.src, href: s.href, clip: s.clip })),
       {
         distance: 620,
         fov: 32,
         // The focused plane centres in the canvas, not the window. Bring the
         // canvas to the middle of the viewport so the two coincide.
-        onFocusChange: (focused) => {
-          haptic(focused ? "nudge" : 30);
-          if (focused) el.scrollIntoView({ block: "center", behavior: "smooth" });
+        onFocusChange: (focus) => {
+          haptic(focus ? "nudge" : 30);
+          setOpenHref(focus?.href ?? null);
+          if (focus) el.scrollIntoView({ block: "center", behavior: "smooth" });
         },
       }
     );
@@ -55,7 +57,15 @@ export default function ImageSphereView({
     <figure className="sphere" aria-label={`${title}: ${shots.length} images`}>
       <div ref={host} className="sphere-host" />
       <figcaption className="sub sphere-hint">
-        Drag to spin, click an image to bring it forward.
+        {openHref ? (
+          // Offered rather than opening on the second click: that click
+          // already means "put it back", and one gesture cannot mean both.
+          <a className="link" href={openHref} target="_blank" rel="noreferrer">
+            Watch this post on X ↗
+          </a>
+        ) : (
+          "Drag to spin, click an image to bring it forward. Clips play in place."
+        )}
       </figcaption>
     </figure>
   );

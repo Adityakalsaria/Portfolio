@@ -4,9 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
-import type { Shot } from "@/lib/work";
+import type { Shot, SphereShot } from "@/lib/work";
 
-type Mode = "scroll" | "sphere";
+type Mode = "scroll" | "grid" | "sphere";
 
 /**
  * Two ways through a project's images: the stacked scroll, and a cloud of them
@@ -22,19 +22,28 @@ type Mode = "scroll" | "sphere";
 export default function Showcase({
   shots,
   sphereShots,
+  gridShots,
   title,
 }: {
   shots: Shot[];
   /** What the sphere shows, when it is more than the scroll's own images. */
-  sphereShots?: Shot[];
+  sphereShots?: SphereShot[];
+  /** What the grid shows. The posts, where a project has them. */
+  gridShots?: SphereShot[];
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
 
+  // A plain Shot has no href or video, so name the resolved list as the wider
+  // type rather than letting the fallback narrow it.
+  const tiles: SphereShot[] = gridShots?.length
+    ? gridShots
+    : (sphereShots ?? shots);
+
   return (
     <>
       <div className="mode-switch" role="group" aria-label="View">
-        {(["scroll", "sphere"] as Mode[]).map((m) => (
+        {(["scroll", "grid", "sphere"] as Mode[]).map((m) => (
           <button
             key={m}
             type="button"
@@ -42,7 +51,7 @@ export default function Showcase({
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
           >
-            {m === "scroll" ? "Scroll" : "Sphere"}
+            {m === "scroll" ? "Scroll" : m === "grid" ? "Grid" : "Sphere"}
           </button>
         ))}
       </div>
@@ -66,6 +75,34 @@ export default function Showcase({
             </Reveal>
           ))}
         </div>
+      ) : mode === "grid" ? (
+        <ul className="grid-view">
+          {tiles.map((s) => {
+            const tile = (
+              <>
+                <Image
+                  src={s.src}
+                  alt=""
+                  fill
+                  sizes="(max-width: 34rem) 45vw, 190px"
+                  className="object-cover"
+                />
+                {s.video && <span className="post-play" aria-hidden />}
+              </>
+            );
+            return (
+              <li key={s.src} className="grid-cell">
+                {s.href ? (
+                  <a href={s.href} target="_blank" rel="noreferrer" aria-label="Open post on X">
+                    {tile}
+                  </a>
+                ) : (
+                  tile
+                )}
+              </li>
+            );
+          })}
+        </ul>
       ) : (
         <ImageSphereView shots={sphereShots ?? shots} title={title} />
       )}

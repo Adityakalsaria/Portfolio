@@ -4,6 +4,15 @@ import { MANUAL } from "./manual";
 
 export type Shot = { src: string; width: number; height: number };
 
+/** A shot in the sphere or grid, which may open its source and may be the
+ *  poster frame of a video rather than a still. */
+export type SphereShot = Shot & {
+  href?: string;
+  video?: boolean;
+  /** Local MP4, played on the plane once it is focused. */
+  clip?: string;
+};
+
 export type Section = { title: string; shots: Shot[] };
 
 export type Project = {
