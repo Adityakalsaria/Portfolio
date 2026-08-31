@@ -14,6 +14,16 @@ import { useHaptics } from "@/lib/haptics";
 export default function Haptics() {
   const haptic = useHaptics();
 
+  // The library builds its audio context and DOM label lazily, inside the
+  // first trigger — and that trigger returns early before the label exists.
+  // So the first tap was spent on setup and only the second was felt. Prime
+  // it on mount with the shortest possible pulse, which does the setup while
+  // being too brief to notice.
+  useEffect(() => {
+    const id = setTimeout(() => haptic(1), 0);
+    return () => clearTimeout(id);
+  }, [haptic]);
+
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
       // Primary button only; a modified click is opening a tab, not tapping.
