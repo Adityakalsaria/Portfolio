@@ -1,4 +1,5 @@
 import type { Category } from "./work";
+import { POSTS } from "./posts.generated";
 
 /**
  * Hand-added work that does not come from the Figma import. These are merged
@@ -53,6 +54,7 @@ export const MANUAL: Category[] = [
         width: KOSH_SHOTS[0].width,
         height: KOSH_SHOTS[0].height,
         shots: KOSH_SHOTS,
+        posts: POSTS,
       },
       {
         slug: "sample-project",

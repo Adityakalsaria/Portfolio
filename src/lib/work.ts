@@ -1,3 +1,4 @@
+import type { Post } from "./posts";
 import { GENERATED } from "./work.generated";
 import { MANUAL } from "./manual";
 
@@ -18,6 +19,8 @@ export type Project = {
   cover: string;
   /** Present when the project is a set rather than a single image. */
   shots?: Shot[];
+  /** Link previews for where this work was published. */
+  posts?: Post[];
 };
 
 export type Category = {

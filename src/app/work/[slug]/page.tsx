@@ -5,6 +5,7 @@ import { ALL_PROJECTS, findProject, siblingsOf, type Shot } from "@/lib/work";
 import { metaOf } from "@/lib/format";
 import Reveal from "@/components/Reveal";
 import Showcase from "@/components/Showcase";
+import PostList from "@/components/PostList";
 import ProjectNav from "@/components/ProjectNav";
 import { PROFILE } from "@/lib/cv";
 
@@ -64,6 +65,13 @@ export default async function ProjectPage({
           </p>
           {project.intro && <p className="mt-5">{project.intro}</p>}
         </Reveal>
+
+        {project.posts && project.posts.length > 0 && (
+          <section>
+            <h2 className="sec-head">Published</h2>
+            <PostList posts={project.posts} />
+          </section>
+        )}
 
         {sections.length > 0 ? (
           sections.map((section) => (
