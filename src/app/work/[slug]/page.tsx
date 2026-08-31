@@ -80,7 +80,7 @@ export default async function ProjectPage({
         <Reveal stagger={0.06}>
           <p>{project.title}</p>
           <p className="sub">
-            {project.category.name} — {metaOf(project)}
+            {[project.category.name, metaOf(project)].filter(Boolean).join(" — ")}
           </p>
           {project.intro && <p className="mt-5">{project.intro}</p>}
         </Reveal>

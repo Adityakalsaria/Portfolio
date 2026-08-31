@@ -603,3 +603,17 @@ a { color: inherit; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The whole item is the control, so it fills the figure rather than sitting
+   inside it as a button-shaped box. */
+.shot > button {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}

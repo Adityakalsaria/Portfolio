@@ -17,8 +17,12 @@ export function aspectOf(p: Project): string {
   return `${p.width} / ${p.height}`;
 }
 
-/** What the row's right-hand column says about a project. */
+/** What the row's right-hand column says about a project.
+ *
+ *  No counts — a tally of files is inventory, not information about the work.
+ *  And no format either once there is a set: "Square" describes one frame,
+ *  not thirty-nine of assorted shapes. */
 export function metaOf(p: Project): string {
-  if (p.shots?.length) return `${p.shots.length} images`;
+  if (p.shots?.length || p.posts?.length) return "";
   return formatOf(p);
 }

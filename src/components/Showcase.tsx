@@ -5,6 +5,7 @@ import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
 import Lightbox from "./Lightbox";
+import ScrollShot from "./ScrollShot";
 import type { Shot, SphereShot } from "@/lib/work";
 
 type Mode = "scroll" | "grid" | "sphere";
@@ -60,20 +61,16 @@ export default function Showcase({
 
       {mode === "scroll" ? (
         <div className="mt-6 flex flex-col gap-3">
-          {shots.map((s, i) => (
+          {/* The same set the grid and sphere carry. Holding the posts back
+              kept the column short but hid every clip from the one view
+              people actually read down. */}
+          {tiles.map((s, i) => (
             <Reveal key={s.src} y={28}>
-              <figure
-                className="shot relative w-full overflow-hidden bg-surface"
-                style={{ aspectRatio: `${s.width} / ${s.height}` }}
-              >
-                <Image
-                  src={s.src}
-                  alt={`${title}, ${i + 1} of ${shots.length}`}
-                  fill
-                  sizes="(max-width: 60rem) 100vw, 36rem"
-                  className="object-cover"
-                />
-              </figure>
+              <ScrollShot
+                shot={s}
+                alt={`${title}, ${i + 1} of ${tiles.length}`}
+                onOpen={() => setOpen(s)}
+              />
             </Reveal>
           ))}
         </div>
