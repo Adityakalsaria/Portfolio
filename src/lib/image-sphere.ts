@@ -9,6 +9,8 @@ const HOVER_SCALE = 1.2;
 const SCALE_EASE = 0.1;
 const OPACITY_EASE = 0.12;
 const INERTIA_DECAY = 0.94;
+/** Every rate below is expressed per frame at this pace. */
+const BASE_FPS = 60;
 const FLICK_SCALE = 0.9;
 
 const CLICK_SLOP = 6;
@@ -76,6 +78,7 @@ export class ImageSphere {
   private tmpPos = new THREE.Vector3();
 
   private raf = 0;
+  private lastFrame = 0;
   private running = false;
   private disposed = false;
 
@@ -317,26 +320,40 @@ export class ImageSphere {
 
   stop() {
     this.running = false;
+    this.lastFrame = 0;
     if (this.raf) cancelAnimationFrame(this.raf);
     this.raf = 0;
   }
 
-  private loop = () => {
+  private loop = (now: number) => {
     if (!this.running) return;
 
+    /**
+     * Every rate here was written as an amount per frame, which ties the
+     * sphere's speed to the display: on a 120Hz screen it span twice as fast
+     * and inertia died twice as quickly. `k` is how many 60fps frames this
+     * one covered, so the motion is the same on any refresh rate. Capped so a
+     * background tab does not resume with one enormous jump.
+     */
+    const dt = this.lastFrame ? (now - this.lastFrame) / 1000 : 1 / BASE_FPS;
+    this.lastFrame = now;
+    const k = Math.min(4, Math.max(0.001, dt * BASE_FPS));
+    /** Exponential approach, so a lerp lands in the same place per second. */
+    const ease = (e: number) => 1 - Math.pow(1 - e, k);
+
     if (!this.dragging && (this.velX !== 0 || this.velY !== 0)) {
-      this.rotationY += this.velY;
-      this.rotationX -= this.velX;
-      this.velX *= INERTIA_DECAY;
-      this.velY *= INERTIA_DECAY;
+      this.rotationY += this.velY * k;
+      this.rotationX -= this.velX * k;
+      this.velX *= Math.pow(INERTIA_DECAY, k);
+      this.velY *= Math.pow(INERTIA_DECAY, k);
       if (Math.abs(this.velX) < 0.01) this.velX = 0;
       if (Math.abs(this.velY) < 0.01) this.velY = 0;
     }
 
-    this.baseRotationY += AUTO_ROT_Y;
-    this.baseRotationX += AUTO_ROT_X;
-    this.currentRotationX += (this.rotationX - this.currentRotationX) * DRAG_EASE;
-    this.currentRotationY += (this.rotationY - this.currentRotationY) * DRAG_EASE;
+    this.baseRotationY += AUTO_ROT_Y * k;
+    this.baseRotationX += AUTO_ROT_X * k;
+    this.currentRotationX += (this.rotationX - this.currentRotationX) * ease(DRAG_EASE);
+    this.currentRotationY += (this.rotationY - this.currentRotationY) * ease(DRAG_EASE);
     this.group.rotation.x = this.baseRotationX + this.currentRotationX * 0.002;
     this.group.rotation.y = this.baseRotationY + this.currentRotationY * 0.002;
 
@@ -363,7 +380,8 @@ export class ImageSphere {
       plane.quaternion.copy(this.invQuat);
 
       const focusTarget = plane === this.focused ? 1 : 0;
-      const f = plane.userData.focus + (focusTarget - plane.userData.focus) * FOCUS_EASE;
+      const f =
+        plane.userData.focus + (focusTarget - plane.userData.focus) * ease(FOCUS_EASE);
       plane.userData.focus = f;
 
       if (f > 0.0005) {
@@ -391,12 +409,13 @@ export class ImageSphere {
       const zScale = 0.8 + depth / 2000;
       let target = plane.userData.isHovered ? zScale * HOVER_SCALE : zScale;
       target = target + (focusScale - target) * f;
-      const s = plane.scale.x + (target - plane.scale.x) * SCALE_EASE;
+      const s = plane.scale.x + (target - plane.scale.x) * ease(SCALE_EASE);
       plane.scale.set(s, s, s);
 
       let wantOpacity = 1;
       if (anyFocused) wantOpacity = BACKDROP_DIM + (1 - BACKDROP_DIM) * f;
-      const o = plane.userData.opacity + (wantOpacity - plane.userData.opacity) * OPACITY_EASE;
+      const o =
+        plane.userData.opacity + (wantOpacity - plane.userData.opacity) * ease(OPACITY_EASE);
       plane.userData.opacity = o;
       plane.material.opacity = o;
 

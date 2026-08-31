@@ -13,7 +13,7 @@ export default function ProjectNav({ sections = [] }: Props) {
   return (
     <nav className="pnav">
       <Link href="/" className="pnav-index link">
-        ↩ Index
+        ↩ Back
       </Link>
 
       {sections.length > 0 && (
