@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
+import Lightbox from "./Lightbox";
 import type { Shot, SphereShot } from "@/lib/work";
 
 type Mode = "scroll" | "grid" | "sphere";
@@ -33,6 +34,7 @@ export default function Showcase({
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
+  const [open, setOpen] = useState<SphereShot | null>(null);
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
@@ -77,9 +79,15 @@ export default function Showcase({
         </div>
       ) : mode === "grid" ? (
         <ul className="grid-view">
-          {tiles.map((s) => {
-            const tile = (
-              <>
+          {tiles.map((s) => (
+            <li key={s.src} className="grid-cell">
+              {/* A button, not a link: clicking opens it here, the way the
+                  sphere does. The link to the post lives inside. */}
+              <button
+                type="button"
+                onClick={() => setOpen(s)}
+                aria-label={s.href ? "Open post" : "Open image"}
+              >
                 <Image
                   src={s.src}
                   alt=""
@@ -90,24 +98,14 @@ export default function Showcase({
                   className="object-cover"
                 />
                 {s.video && <span className="post-play" aria-hidden />}
-              </>
-            );
-            return (
-              <li key={s.src} className="grid-cell">
-                {s.href ? (
-                  <a href={s.href} target="_blank" rel="noreferrer" aria-label="Open post on X">
-                    {tile}
-                  </a>
-                ) : (
-                  tile
-                )}
-              </li>
-            );
-          })}
+              </button>
+            </li>
+          ))}
         </ul>
       ) : (
         <ImageSphereView shots={sphereShots ?? shots} title={title} />
       )}
+      {open && <Lightbox shot={open} onClose={() => setOpen(null)} />}
     </>
   );
 }

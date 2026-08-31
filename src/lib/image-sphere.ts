@@ -213,7 +213,11 @@ export class ImageSphere {
           r * Math.cos(phi),
         );
 
+        // Kept apart from `home`: home is the spread position the loop reads,
+        // and spread is recomputed whenever the frame's aspect changes.
+        plane.userData.baseHome = plane.position.clone();
         plane.userData.home = plane.position.clone();
+        this.applySpread();
 
         this.group.add(plane);
         this.planes.push(plane);
@@ -301,6 +305,22 @@ export class ImageSphere {
     this.ro.observe(host);
   }
 
+  /**
+   * Widen the cloud to the frame. The sphere is round, so on a wide screen it
+   * left the sides empty while the middle crowded. Positions are scaled on X,
+   * not the group — scaling the group would stretch the planes with it.
+   */
+  private applySpread() {
+    const spread = Math.min(2.2, Math.max(1, this.camera.aspect / 1.15));
+    for (const plane of this.planes) {
+      const base = plane.userData.baseHome as THREE.Vector3 | undefined;
+      const home = plane.userData.home as THREE.Vector3 | undefined;
+      if (!base || !home) continue;
+      home.set(base.x * spread, base.y, base.z);
+      if (plane !== this.focused) plane.position.copy(home);
+    }
+  }
+
   private resize() {
     if (this.disposed) return;
     const w = this.host.clientWidth;
@@ -309,6 +329,7 @@ export class ImageSphere {
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.applySpread();
   }
 
   /**
