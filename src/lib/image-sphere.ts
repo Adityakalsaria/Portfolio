@@ -376,7 +376,14 @@ export class ImageSphere {
 
     this.videoTex = tex;
     this.videoPlane = plane;
-    void this.videoEl.play().catch(() => {});
+    // Focusing a plane is a click, so sound is allowed. If the browser still
+    // refuses, drop to muted rather than leaving a frozen first frame.
+    const el = this.videoEl;
+    el.muted = false;
+    el.play().catch(() => {
+      el.muted = true;
+      void el.play().catch(() => {});
+    });
   }
 
   private detachVideo() {

@@ -114,7 +114,10 @@ async function saveVideo(url, dest) {
       "-y", "-loglevel", "error", "-i", raw,
       "-vf", "scale=1280:1280:force_original_aspect_ratio=decrease:force_divisible_by=2",
       "-c:v", "libx264", "-crf", "26", "-preset", "medium",
-      "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
+      "-pix_fmt", "yuv420p",
+      // X ships these with sound; -an here made every post silent on the site.
+      "-c:a", "aac", "-b:a", "128k",
+      "-movflags", "+faststart",
       dest,
     ]);
   } finally {

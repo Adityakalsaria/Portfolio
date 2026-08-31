@@ -39,28 +39,40 @@ export default function Lightbox({
       {/* The backdrop closes; the frame swallows the click so controls work. */}
       <button className="lightbox-scrim" onClick={onClose} aria-label="Close" />
 
-      <div
-        className="lightbox-frame"
-        style={{ aspectRatio: `${shot.width} / ${shot.height}` }}
-      >
+      {/* Sized by the media itself, capped to the viewport — not poured into
+          a fixed frame, which letterboxed anything that was not the frame's
+          shape. `fill` needs a sized parent, so this passes real dimensions. */}
+      <div className="lightbox-frame">
         {shot.clip ? (
           <video
             className="lightbox-media"
             poster={shot.src}
             src={shot.clip}
+            width={shot.width}
+            height={shot.height}
             autoPlay
             loop
-            muted
             playsInline
             controls
+            ref={(el) => {
+              if (!el) return;
+              // Sound by default; if the browser refuses to autoplay unmuted,
+              // fall back to muted rather than not playing at all.
+              el.muted = false;
+              el.play().catch(() => {
+                el.muted = true;
+                void el.play().catch(() => {});
+              });
+            }}
           />
         ) : (
           <Image
+            className="lightbox-media"
             src={shot.src}
             alt=""
-            fill
-            sizes="(max-width: 60rem) 92vw, 1100px"
-            className="object-contain"
+            width={shot.width}
+            height={shot.height}
+            sizes="92vw"
             priority
           />
         )}
