@@ -84,7 +84,9 @@ export default function Showcase({
                   src={s.src}
                   alt=""
                   fill
-                  sizes="(max-width: 34rem) 45vw, 190px"
+                  // Doubled deliberately: a tile renders ~190px, and a 1x
+                  // candidate at that width is visibly soft on a 2x screen.
+                  sizes="(max-width: 34rem) 90vw, 400px"
                   className="object-cover"
                 />
                 {s.video && <span className="post-play" aria-hidden />}

@@ -93,7 +93,12 @@ export default async function ProjectPage({
             </section>
           ))
         ) : (
-          <Showcase shots={flat} sphereShots={sphereShots} title={project.title} />
+          <Showcase
+            shots={flat}
+            sphereShots={sphereShots}
+            gridShots={sphereShots}
+            title={project.title}
+          />
         )}
 
       {next && next.slug !== project.slug && (

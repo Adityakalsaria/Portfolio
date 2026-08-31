@@ -55,14 +55,14 @@ async function fetchPost(id) {
 }
 
 /**
- * A mid-size MP4, not the largest. These play in a card a few hundred pixels
- * wide, where 1600x900 is bytes spent on detail nobody sees.
+ * The largest MP4 on offer. It is only the encoding source — what ships is
+ * re-encoded below, so starting from the best available costs nothing.
  */
 function pickVideo(d) {
   const mp4 = (d.video?.variants ?? []).filter((v) => v.type === "video/mp4");
   if (!mp4.length) return null;
   const by = (w) => mp4.find((v) => v.src.includes(`/${w}x`));
-  return (by(640) ?? by(480) ?? mp4[0]).src;
+  return (by(1600) ?? by(1280) ?? by(640) ?? mp4[mp4.length - 1]).src;
 }
 
 /** First photo, or a video's poster frame. */
@@ -88,20 +88,47 @@ function leadMedia(d) {
   return null;
 }
 
-async function saveFile(url, dest) {
+/**
+ * Re-encode rather than shipping X's own file.
+ *
+ * Their variants are wildly uneven — the same tier ranged from 160KB to 26MB
+ * across these posts, because bitrate follows whatever the uploader had. One
+ * CRF pass gives consistent quality at a predictable size.
+ *
+ * The filter fits the frame inside a 1280 box instead of using a min()
+ * expression: commas inside those need escaping through the filtergraph
+ * parser, which silently mis-parsed and left one clip at 2160x3840.
+ * force_original_aspect_ratio does the same job with no expression at all,
+ * and handles portrait clips, which a fixed height gets wrong.
+ *
+ * Audio is dropped: these play muted on a plane, and the link to the post
+ * covers anyone who wants it with sound.
+ */
+async function saveVideo(url, dest) {
   const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) throw new Error(`${res.status}`);
-  await writeFile(dest, Buffer.from(await res.arrayBuffer()));
-  return (await res.arrayBuffer?.length) ?? 0;
+  const raw = `${dest}.src`;
+  await writeFile(raw, Buffer.from(await res.arrayBuffer()));
+  try {
+    await run("ffmpeg", [
+      "-y", "-loglevel", "error", "-i", raw,
+      "-vf", "scale=1280:1280:force_original_aspect_ratio=decrease:force_divisible_by=2",
+      "-c:v", "libx264", "-crf", "26", "-preset", "medium",
+      "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
+      dest,
+    ]);
+  } finally {
+    await rm(raw, { force: true });
+  }
 }
 
+/** The post's still, at the size a focused plane needs on a 2x screen. */
 async function saveImage(url, dest) {
   const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) throw new Error(`media ${res.status}`);
   const tmp = `${dest}.tmp`;
   await writeFile(tmp, Buffer.from(await res.arrayBuffer()));
-  // 1200px wide is ample for a card that renders at 576.
-  await run("cwebp", ["-quiet", "-q", "82", "-resize", "1200", "0", tmp, "-o", dest]);
+  await run("cwebp", ["-quiet", "-q", "88", "-resize", "1600", "0", tmp, "-o", dest]);
   await rm(tmp, { force: true });
 }
 
@@ -144,10 +171,13 @@ async function main() {
       const name = `${id}.mp4`;
       keep.add(name);
       try {
-        await saveFile(src, path.join(OUT_DIR, name));
+        await saveVideo(src, path.join(OUT_DIR, name));
         clip = `/posts/${name}`;
       } catch (e) {
-        console.warn(`  ! ${id} video: ${e.message}`);
+        // Loud, and no clip recorded. Shipping the raw download instead is
+        // how 18 clips became 98MB without anything saying so.
+        console.warn(`  ! ${id} video FAILED to encode: ${e.message}`);
+        keep.delete(name);
       }
     }
 
