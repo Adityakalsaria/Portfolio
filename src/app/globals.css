@@ -602,13 +602,16 @@ a { color: inherit; }
      won the stack and ate every click on the scrim behind it. */
   z-index: 90;
 }
+/* Opaque paper, not a wash over the page: the opened item gets the screen to
+   itself rather than the grid ghosting through behind it. Still fades in on
+   --p, so the arrival is not a cut. */
 .expander-scrim {
   position: absolute;
   inset: 0;
   border: 0;
   padding: 0;
   cursor: default;
-  background: rgb(253 252 250 / 0.94);
+  background: var(--paper);
   opacity: var(--p, 1);
 }
 .expander-frame {
