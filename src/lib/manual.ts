@@ -116,6 +116,49 @@ const SOCKET_SECTIONS = [
       { src: "/work/marketing-assets/socket/socket-23.17dbb7e7.webp", width: 3200, height: 1800 },
     ],
   },
+  {
+    title: "Bungee branding",
+    shots: [
+      { src: "/work/marketing-assets/socket/socket-24.de31afe9.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-25.5c096f67.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-26.17ef40cd.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-27.2f72c64a.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-28.adc1ccbf.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-29.0712d6b7.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-30.798b4ca2.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-31.d0c1e3f9.webp", width: 2991, height: 1683 },
+      { src: "/work/marketing-assets/socket/socket-32.411db08b.webp", width: 2991, height: 1682 },
+      { src: "/work/marketing-assets/socket/socket-33.ff8e3445.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/socket/socket-34.4468fdf7.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/socket/socket-35.18cde503.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/socket/socket-36.39a60966.webp", width: 2160, height: 2160 },
+    ],
+  },
+  {
+    title: "Bungee campaigns",
+    shots: [
+      { src: "/work/marketing-assets/socket/socket-37.a5745127.webp", width: 2443, height: 3200 },
+      { src: "/work/marketing-assets/socket/socket-38.7140d53d.webp", width: 3200, height: 3200 },
+      { src: "/work/marketing-assets/socket/socket-39.8237e629.webp", width: 847, height: 901 },
+      { src: "/work/marketing-assets/socket/socket-40.e646f65b.webp", width: 2142, height: 901 },
+      { src: "/work/marketing-assets/socket/socket-41.9a568aef.webp", width: 848, height: 1100 },
+      { src: "/work/marketing-assets/socket/socket-42.88bde284.webp", width: 848, height: 1100 },
+      { src: "/work/marketing-assets/socket/socket-43.62ee7fad.webp", width: 1244, height: 1100 },
+      { src: "/work/marketing-assets/socket/socket-44.364cec82.webp", width: 1493, height: 1100 },
+      { src: "/work/marketing-assets/socket/socket-45.958c0102.webp", width: 1493, height: 1100 },
+      { src: "/work/marketing-assets/socket/socket-46.2a956a14.webp", width: 3200, height: 1671 },
+      { src: "/work/marketing-assets/socket/socket-47.87f91906.webp", width: 2172, height: 2172 },
+      { src: "/work/marketing-assets/socket/socket-48.93460a47.webp", width: 2172, height: 2172 },
+      { src: "/work/marketing-assets/socket/socket-49.2add54b4.webp", width: 3200, height: 1802 },
+      { src: "/work/marketing-assets/socket/socket-50.990b001c.webp", width: 2189, height: 2189 },
+      { src: "/work/marketing-assets/socket/socket-51.544da491.webp", width: 3200, height: 1802 },
+      { src: "/work/marketing-assets/socket/socket-52.ccca43f0.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-53.65bcb458.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-54.9c97cccd.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/socket/socket-55.e8f08adf.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/socket/socket-56.10add118.webp", width: 2160, height: 2160 },
+    ],
+  },
 ];
 
 /** Flat run of every Socket image, for the views that do not group. */
@@ -292,10 +335,11 @@ export const MANUAL: Category[] = [
       },
       {
         slug: "socket",
-        title: "Socket",
+        title: "Socket/Bungee",
         intro:
-          "Brand and campaign design for Socket — protocol announcements, " +
-          "partnerships and the chain abstraction launch.",
+          "Brand and campaign design for Socket and Bungee — protocol " +
+          "announcements, the chain abstraction launch, and Bungee's identity " +
+          "and campaigns.",
         sections: SOCKET_SECTIONS,
         shots: SOCKET_SHOTS,
         cover: SOCKET_SHOTS[0].src,
