@@ -6,17 +6,56 @@ import { POSTS } from "./posts.generated";
  * ahead of the generated projects for the same category, so re-running the
  * importer never drops them.
  */
+const SOCKET_SECTIONS = [
+  {
+    title: "Socket protocol campaign",
+    shots: [
+      { src: "/work/marketing-assets/socket/socket-01.be0fa42a.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-02.bf7e1222.webp", width: 2855, height: 1606 },
+      { src: "/work/marketing-assets/socket/socket-03.92ca80c7.webp", width: 2855, height: 1606 },
+      { src: "/work/marketing-assets/socket/socket-04.55fc7649.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-05.cd485558.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-06.32a3b711.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-07.998bfaaa.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-08.138671fe.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-09.93239cdf.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-10.29e2afe8.webp", width: 2860, height: 1668 },
+      { src: "/work/marketing-assets/socket/socket-11.9cde31ba.webp", width: 3200, height: 1601 },
+      { src: "/work/marketing-assets/socket/socket-12.aa4513cf.webp", width: 2860, height: 1668 },
+    ],
+  },
+  {
+    title: "Chain abstraction campaign",
+    shots: [
+      { src: "/work/marketing-assets/socket/socket-13.a912f7d9.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-14.5dc4dd27.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-15.e129740f.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-16.af2bd227.webp", width: 3200, height: 3200 },
+      { src: "/work/marketing-assets/socket/socket-17.94464c66.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-18.669e3acd.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-19.9afff8fb.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-20.3c4e229b.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-21.7d510156.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-22.b25a19aa.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/socket/socket-23.17dbb7e7.webp", width: 3200, height: 1800 },
+    ],
+  },
+];
+
+/** Flat run of every Socket image, for the views that do not group. */
+const SOCKET_SHOTS = SOCKET_SECTIONS.flatMap((s) => s.shots);
+
 const POLYGON_SECTIONS = [
   {
     title: "Polygon Ignite Dubai 2021 branding",
     shots: [
-      { src: "/work/marketing-assets/polygon/polygon-01.ebd20c94.webp", width: 1366, height: 2048 },
+      { src: "/work/marketing-assets/polygon/polygon-01.6e4a4c57.webp", width: 1870, height: 2804 },
       { src: "/work/marketing-assets/polygon/polygon-02.902b99f0.webp", width: 1003, height: 1337 },
       { src: "/work/marketing-assets/polygon/polygon-03.0d16aa18.webp", width: 1003, height: 1337 },
       { src: "/work/marketing-assets/polygon/polygon-04.11030ac7.webp", width: 1003, height: 1337 },
       { src: "/work/marketing-assets/polygon/polygon-05.c24d99ca.webp", width: 1003, height: 1337 },
       { src: "/work/marketing-assets/polygon/polygon-06.e236f027.webp", width: 1805, height: 1128 },
-      { src: "/work/marketing-assets/polygon/polygon-07.2e57dc5c.webp", width: 2048, height: 1024 },
+      { src: "/work/marketing-assets/polygon/polygon-07.97b8865e.webp", width: 3200, height: 1600 },
       { src: "/work/marketing-assets/polygon/polygon-08.a9bbec4b.webp", width: 1600, height: 900 },
       { src: "/work/marketing-assets/polygon/polygon-09.a3458478.webp", width: 1600, height: 900 },
     ],
@@ -40,10 +79,10 @@ const POLYGON_SECTIONS = [
     title: "Building Web3 by polygon",
     shots: [
       { src: "/work/marketing-assets/polygon/polygon-20.5e63e98a.webp", width: 1995, height: 1123 },
-      { src: "/work/marketing-assets/polygon/polygon-21.22bbadee.webp", width: 2048, height: 2048 },
-      { src: "/work/marketing-assets/polygon/polygon-22.39783ded.webp", width: 2048, height: 2048 },
-      { src: "/work/marketing-assets/polygon/polygon-23.63cd8756.webp", width: 2048, height: 2048 },
-      { src: "/work/marketing-assets/polygon/polygon-24.64ea4469.webp", width: 2048, height: 2048 },
+      { src: "/work/marketing-assets/polygon/polygon-21.3e4aae7f.webp", width: 2394, height: 2394 },
+      { src: "/work/marketing-assets/polygon/polygon-22.41566263.webp", width: 2394, height: 2394 },
+      { src: "/work/marketing-assets/polygon/polygon-23.e2751467.webp", width: 2394, height: 2394 },
+      { src: "/work/marketing-assets/polygon/polygon-24.e70755c7.webp", width: 2394, height: 2394 },
       { src: "/work/marketing-assets/polygon/polygon-25.418cec1e.webp", width: 1995, height: 1123 },
       { src: "/work/marketing-assets/polygon/polygon-26.b3d56e6f.webp", width: 1995, height: 1123 },
     ],
@@ -53,16 +92,16 @@ const POLYGON_SECTIONS = [
     shots: [
       { src: "/work/marketing-assets/polygon/polygon-27.3ac8717a.webp", width: 1111, height: 1976 },
       { src: "/work/marketing-assets/polygon/polygon-28.8c2d2f29.webp", width: 1800, height: 1000 },
-      { src: "/work/marketing-assets/polygon/polygon-29.e209ecc1.webp", width: 2048, height: 1076 },
+      { src: "/work/marketing-assets/polygon/polygon-29.0c0c0e4a.webp", width: 2698, height: 1417 },
     ],
   },
   {
     title: "polygon Jampad branding",
     shots: [
-      { src: "/work/marketing-assets/polygon/polygon-30.dbb98b68.webp", width: 2048, height: 1728 },
-      { src: "/work/marketing-assets/polygon/polygon-31.d0648aa4.webp", width: 2048, height: 1728 },
-      { src: "/work/marketing-assets/polygon/polygon-32.28dad08a.webp", width: 2048, height: 1024 },
-      { src: "/work/marketing-assets/polygon/polygon-33.37a5fb80.webp", width: 2048, height: 1728 },
+      { src: "/work/marketing-assets/polygon/polygon-30.936ef16f.webp", width: 2367, height: 1997 },
+      { src: "/work/marketing-assets/polygon/polygon-31.62e531b7.webp", width: 2367, height: 1997 },
+      { src: "/work/marketing-assets/polygon/polygon-32.1db8e1e5.webp", width: 2367, height: 1184 },
+      { src: "/work/marketing-assets/polygon/polygon-33.9bd674c0.webp", width: 2367, height: 1997 },
     ],
   },
   {
@@ -95,7 +134,7 @@ const POLYGON_SECTIONS = [
       { src: "/work/marketing-assets/polygon/polygon-53.eec8532c.webp", width: 1600, height: 900 },
       { src: "/work/marketing-assets/polygon/polygon-54.35c45aed.webp", width: 1600, height: 900 },
       { src: "/work/marketing-assets/polygon/polygon-55.a3348689.webp", width: 1600, height: 900 },
-      { src: "/work/marketing-assets/polygon/polygon-56.d0bb9449.webp", width: 2048, height: 1024 },
+      { src: "/work/marketing-assets/polygon/polygon-56.22803abd.webp", width: 2160, height: 1080 },
       { src: "/work/marketing-assets/polygon/polygon-57.2195a75a.webp", width: 1600, height: 900 },
       { src: "/work/marketing-assets/polygon/polygon-58.f7aa6253.webp", width: 1600, height: 900 },
       { src: "/work/marketing-assets/polygon/polygon-59.44380e46.webp", width: 856, height: 1001 },
@@ -114,27 +153,27 @@ const POLYGON_SECTIONS = [
 const POLYGON_SHOTS = POLYGON_SECTIONS.flatMap((s) => s.shots);
 
 const KOSH_SHOTS = [
-  { src: "/work/marketing-assets/kosh/kosh-01.e15bcdb7.webp", width: 1662, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-02.c76a0609.webp", width: 1662, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-03.53c7c129.webp", width: 1662, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-04.08d7e28a.webp", width: 1662, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-05.9c495050.webp", width: 1920, height: 1080 },
-  { src: "/work/marketing-assets/kosh/kosh-06.2a393bf1.webp", width: 2048, height: 1536 },
-  { src: "/work/marketing-assets/kosh/kosh-07.fdc608ef.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-08.d4467a6b.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-09.f96bf4fe.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-10.1895b4e3.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-11.0d93bf28.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-12.da1333ca.webp", width: 2048, height: 1152 },
-  { src: "/work/marketing-assets/kosh/kosh-13.091b6a77.webp", width: 2048, height: 1226 },
-  { src: "/work/marketing-assets/kosh/kosh-14.4d36f871.webp", width: 2048, height: 1152 },
-  { src: "/work/marketing-assets/kosh/kosh-15.0092539c.webp", width: 2048, height: 1226 },
-  { src: "/work/marketing-assets/kosh/kosh-16.9c352571.webp", width: 2048, height: 1075 },
-  { src: "/work/marketing-assets/kosh/kosh-17.88a7a054.webp", width: 2048, height: 1152 },
-  { src: "/work/marketing-assets/kosh/kosh-18.41f3c685.webp", width: 1662, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-19.f8cdd79b.webp", width: 2048, height: 1275 },
-  { src: "/work/marketing-assets/kosh/kosh-20.62b4df52.webp", width: 2048, height: 2048 },
-  { src: "/work/marketing-assets/kosh/kosh-21.e4f0fe37.webp", width: 2048, height: 1152 },
+  { src: "/work/marketing-assets/kosh/kosh-01.3256969b.webp", width: 1920, height: 2366 },
+  { src: "/work/marketing-assets/kosh/kosh-02.ee30746e.webp", width: 1920, height: 2366 },
+  { src: "/work/marketing-assets/kosh/kosh-03.19e830e7.webp", width: 1920, height: 2366 },
+  { src: "/work/marketing-assets/kosh/kosh-04.87a9bd0d.webp", width: 1920, height: 2366 },
+  { src: "/work/marketing-assets/kosh/kosh-05.1d72a903.webp", width: 1920, height: 1080 },
+  { src: "/work/marketing-assets/kosh/kosh-06.b23cb180.webp", width: 2400, height: 1800 },
+  { src: "/work/marketing-assets/kosh/kosh-07.908adab3.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-08.27fb0839.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-09.5eb45000.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-10.6dabd1f6.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-11.469c5a6d.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-12.f1d96ee4.webp", width: 2160, height: 1215 },
+  { src: "/work/marketing-assets/kosh/kosh-13.b0869fd0.webp", width: 2160, height: 1293 },
+  { src: "/work/marketing-assets/kosh/kosh-14.dc02d262.webp", width: 2160, height: 1215 },
+  { src: "/work/marketing-assets/kosh/kosh-15.a1a11379.webp", width: 2160, height: 1293 },
+  { src: "/work/marketing-assets/kosh/kosh-16.80b1313f.webp", width: 2160, height: 1134 },
+  { src: "/work/marketing-assets/kosh/kosh-17.b6ff2aff.webp", width: 2160, height: 1215 },
+  { src: "/work/marketing-assets/kosh/kosh-18.3da1235d.webp", width: 2160, height: 2662 },
+  { src: "/work/marketing-assets/kosh/kosh-19.223bdbe1.webp", width: 2160, height: 1345 },
+  { src: "/work/marketing-assets/kosh/kosh-20.12d982a0.webp", width: 2160, height: 2160 },
+  { src: "/work/marketing-assets/kosh/kosh-21.3e1c356c.webp", width: 2160, height: 1215 },
 ];
 
 /** Stand-in work, so a category with siblings can be seen behaving. Delete
@@ -162,6 +201,18 @@ export const MANUAL: Category[] = [
         height: KOSH_SHOTS[0].height,
         shots: KOSH_SHOTS,
         posts: POSTS,
+      },
+      {
+        slug: "socket",
+        title: "Socket",
+        intro:
+          "Brand and campaign design for Socket — protocol announcements, " +
+          "partnerships and the chain abstraction launch.",
+        sections: SOCKET_SECTIONS,
+        shots: SOCKET_SHOTS,
+        cover: SOCKET_SHOTS[0].src,
+        width: SOCKET_SHOTS[0].width,
+        height: SOCKET_SHOTS[0].height,
       },
       {
         slug: "polygon",

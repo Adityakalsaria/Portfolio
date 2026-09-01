@@ -24,7 +24,8 @@ import path from "node:path";
 const run = promisify(execFile);
 const SRC = "/Users/akash/Downloads/KOSH work for portfolio";
 const OUT = "public/work/marketing-assets/kosh";
-const MAX = 2048;
+/** Matches scripts/brand-images.mjs — see the note there on why near-native. */
+const MAX = 3200;
 
 const identify = async (f) =>
   (await run("/opt/ImageMagick/bin/identify", ["-format", "%w %h", f])).stdout
@@ -70,7 +71,8 @@ for (const name of files) {
   const ow = Math.round(w * scale);
   const oh = Math.round(h * scale);
   await run("/opt/homebrew/bin/cwebp", [
-    "-q", "88", "-resize", String(ow), String(oh), "-quiet", src, "-o", tmp,
+    "-q", "95", "-m", "6", "-sharp_yuv",
+    "-resize", String(ow), String(oh), "-quiet", src, "-o", tmp,
   ]);
   const hash = createHash("sha1").update(await readFile(tmp)).digest("hex").slice(0, 8);
   const file = `kosh-${n}.${hash}.webp`;

@@ -25,7 +25,15 @@ if (!SRC || !SLUG) {
   process.exit(1);
 }
 const OUT = `public/work/marketing-assets/${SLUG}`;
-const MAX = 2048;
+/**
+ * Near-native. The expander shows an image at up to about 1400 CSS px, which
+ * is ~2800 device pixels on a 2x screen, so 2048 was visibly soft there.
+ * 3200 covers that with room and only shrinks the very largest sources.
+ */
+const MAX = 3200;
+/** 95 rather than 88, and the slowest encoder pass, which buys quality per
+ *  byte rather than just spending more bytes. */
+const QUALITY = "95";
 
 const identify = async (f) =>
   (await run("/opt/ImageMagick/bin/identify", ["-format", "%w %h", f])).stdout
