@@ -405,9 +405,8 @@ a { color: inherit; }
 .grid-cell a { display: block; position: absolute; inset: 0; }
 
 /* Hovering one quiets the rest, as the row tables do. */
-.grid-view:has(.grid-cell:hover) .grid-cell { opacity: 0.55; }
-.grid-view .grid-cell { transition: opacity 0.25s ease; }
-.grid-view:has(.grid-cell:hover) .grid-cell:hover { opacity: 1; }
+/* No sibling fade on hover: dimming twenty tiles to point at one costs more
+   than it says, and the work is the point. */
 
 /* ── Post previews ───────────────────────────────────────────────
    A thumbnail beside two lines of text, so eighteen of them stay a list
@@ -616,4 +615,82 @@ a { color: inherit; }
   border: 0;
   background: none;
   cursor: zoom-in;
+}
+
+/* ── Carousel ────────────────────────────────────────────────────
+   Breaks out of the text column: a filmstrip inside 36rem shows two items
+   and none of the drift that makes it worth dragging. */
+.carousel {
+  position: relative;
+  width: 100vw;
+  margin: 1.5rem 0 0 calc(50% - 50vw);
+  overflow: hidden;
+  padding: 1rem 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.carousel:active { cursor: grabbing; }
+.carousel-track {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  will-change: transform;
+}
+.carousel-item {
+  position: relative;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+.carousel-item img,
+.carousel-item video { pointer-events: none; }
+
+/* ── Expander ────────────────────────────────────────────────────
+   The opened item. Its frame is driven frame-by-frame from the spring, so
+   nothing here animates in CSS — --p only fades the things around it. */
+.expander {
+  position: fixed;
+  inset: 0;
+  /* Above .pnav, which is also fixed at 60 — at equal z-index the index rail
+     won the stack and ate every click on the scrim behind it. */
+  z-index: 90;
+}
+.expander-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  cursor: default;
+  background: rgb(253 252 250 / 0.94);
+  opacity: var(--p, 1);
+}
+.expander-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15);
+  will-change: transform, width, height;
+}
+.expander-media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.expander-link {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.25rem;
+  text-align: center;
+  font-size: 0.8125rem;
 }

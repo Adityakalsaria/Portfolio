@@ -5,7 +5,7 @@ import Image from "next/image";
 import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
 import Lightbox from "./Lightbox";
-import ScrollShot from "./ScrollShot";
+import Carousel from "./Carousel";
 import type { Shot, SphereShot } from "@/lib/work";
 
 type Mode = "scroll" | "grid" | "sphere";
@@ -54,26 +54,13 @@ export default function Showcase({
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
           >
-            {m === "scroll" ? "Scroll" : m === "grid" ? "Grid" : "Sphere"}
+            {m === "scroll" ? "Carousel" : m === "grid" ? "Grid" : "Sphere"}
           </button>
         ))}
       </div>
 
       {mode === "scroll" ? (
-        <div className="mt-6 flex flex-col gap-3">
-          {/* The same set the grid and sphere carry. Holding the posts back
-              kept the column short but hid every clip from the one view
-              people actually read down. */}
-          {tiles.map((s, i) => (
-            <Reveal key={s.src} y={28}>
-              <ScrollShot
-                shot={s}
-                alt={`${title}, ${i + 1} of ${tiles.length}`}
-                onOpen={() => setOpen(s)}
-              />
-            </Reveal>
-          ))}
-        </div>
+        <Carousel shots={tiles} title={title} />
       ) : mode === "grid" ? (
         <ul className="grid-view">
           {tiles.map((s) => (

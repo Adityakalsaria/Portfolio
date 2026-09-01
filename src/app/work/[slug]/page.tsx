@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ALL_PROJECTS,
@@ -65,8 +64,6 @@ export default async function ProjectPage({
   const sections = project.sections ?? [];
   const navItems = sections.map((s) => ({ title: s.title, id: slugify(s.title) }));
 
-  const index = ALL_PROJECTS.findIndex((p) => p.slug === slug);
-  const next = ALL_PROJECTS[(index + 1) % ALL_PROJECTS.length];
 
   return (
     <>
@@ -101,17 +98,6 @@ export default async function ProjectPage({
           />
         )}
 
-      {next && next.slug !== project.slug && (
-          <Reveal className="mt-16">
-            <Link href={`/work/${next.slug}`} className="table">
-              <span className="cell cell-group rule-full" />
-              <span className="cell cell-title rule-on">
-                <span className="link">{next.title}</span>
-              </span>
-              <span className="cell cell-meta rule-on">Next</span>
-            </Link>
-          </Reveal>
-        )}
       </main>
     </>
   );
