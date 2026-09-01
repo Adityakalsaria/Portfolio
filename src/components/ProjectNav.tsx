@@ -3,8 +3,6 @@ import Link from "next/link";
 export type NavProject = { slug: string; title: string };
 
 type Props = {
-  /** In-page sections, when the project has them. */
-  sections?: { title: string; id: string }[];
   /** The other work in this category, so it is reachable without going back. */
   siblings?: NavProject[];
   /** Which sibling is being shown, marked rather than linked to itself. */
@@ -16,7 +14,6 @@ type Props = {
  * where a fixed rail would cover the content it indexes.
  */
 export default function ProjectNav({
-  sections = [],
   siblings = [],
   currentSlug,
 }: Props) {
@@ -47,17 +44,6 @@ export default function ProjectNav({
         </ul>
       )}
 
-      {sections.length > 0 && (
-        <ul className="pnav-list">
-          {sections.map((s) => (
-            <li key={s.id}>
-              <a href={`#${s.id}`} className="pnav-item">
-                {s.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
     </nav>
   );
 }

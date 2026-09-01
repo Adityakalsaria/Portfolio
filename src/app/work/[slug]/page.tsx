@@ -32,7 +32,6 @@ export async function generateMetadata({
   };
 }
 
-const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export default async function ProjectPage({
   params,
@@ -62,13 +61,21 @@ export default async function ProjectPage({
   const sphereShots = [...flat, ...postShots];
 
   const sections = project.sections ?? [];
-  const navItems = sections.map((s) => ({ title: s.title, id: slugify(s.title) }));
+  // Runs over the flat list: each campaign's start and length.
+  const groups = sections.reduce<{ title: string; start: number; count: number }[]>(
+    (acc, section) => {
+      const last = acc.at(-1);
+      const start = last ? last.start + last.count : 0;
+      acc.push({ title: section.title, start, count: section.shots.length });
+      return acc;
+    },
+    []
+  );
 
 
   return (
     <>
       <ProjectNav
-        sections={navItems}
         siblings={siblingsOf(slug).map((p) => ({ slug: p.slug, title: p.title }))}
         currentSlug={slug}
       />
@@ -82,21 +89,16 @@ export default async function ProjectPage({
           {project.intro && <p className="mt-5">{project.intro}</p>}
         </Reveal>
 
-        {sections.length > 0 ? (
-          sections.map((section) => (
-            <section key={section.title} id={slugify(section.title)}>
-              <h2 className="sec-head">{section.title}</h2>
-              <Showcase shots={section.shots} title={`${project.title} — ${section.title}`} />
-            </section>
-          ))
-        ) : (
-          <Showcase
-            shots={flat}
-            sphereShots={sphereShots}
-            gridShots={sphereShots}
-            title={project.title}
-          />
-        )}
+        {/* One gallery, with the campaigns as runs inside it. Rendering a
+            Showcase per section gave a project with nine campaigns nine
+            separate galleries and nine view switches. */}
+        <Showcase
+          shots={flat}
+          sphereShots={sphereShots}
+          gridShots={sphereShots}
+          groups={groups}
+          title={project.title}
+        />
 
       </main>
     </>

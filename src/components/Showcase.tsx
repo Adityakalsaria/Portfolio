@@ -4,6 +4,7 @@ import { useState } from "react";
 import ImageSphereView from "./ImageSphereView";
 import Gallery from "./Gallery";
 import type { Shot, SphereShot } from "@/lib/work";
+import type { Group } from "@/lib/layout";
 
 type Mode = "scroll" | "grid" | "sphere";
 
@@ -20,12 +21,15 @@ export default function Showcase({
   sphereShots,
   gridShots,
   title,
+  groups,
 }: {
   shots: Shot[];
   /** What the sphere shows, when it is more than the scroll's own images. */
   sphereShots?: SphereShot[];
   /** What the grid shows. The posts, where a project has them. */
   gridShots?: SphereShot[];
+  /** Campaign runs over the same list. */
+  groups?: Group[];
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
@@ -57,7 +61,12 @@ export default function Showcase({
       ) : (
         // One component for both: switching between them is a retarget, not
         // an unmount, so the items travel rather than blink.
-        <Gallery shots={tiles} mode={mode === "scroll" ? "strip" : "grid"} title={title} />
+        <Gallery
+          shots={tiles}
+          groups={groups}
+          mode={mode === "scroll" ? "strip" : "grid"}
+          title={title}
+        />
       )}
     </>
   );

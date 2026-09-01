@@ -684,3 +684,20 @@ a { color: inherit; }
 }
 .gallery-cell img,
 .gallery-cell video { pointer-events: none; }
+
+/* Campaign heading. Positioned by the layout and carried by the stage, so it
+   travels with the run it names instead of being pinned to the viewport. */
+.gallery-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.gallery.is-strip .gallery-label {
+  /* Sits in the space the layout reserves at the top of the band. */
+  transform-origin: left top;
+  line-height: 24px;
+}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import type { SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
-import { gridLayout, stripLayout, type Layout } from "@/lib/layout";
+import { gridLayout, stripLayout, type Group, type Layout } from "@/lib/layout";
 import {
   DISTANCE_COMMIT,
   HOVER_LAYOUT_SPRING,
@@ -46,10 +46,13 @@ export default function Gallery({
   shots,
   mode,
   title,
+  groups = [],
 }: {
   shots: SphereShot[];
   mode: Mode;
   title: string;
+  /** Campaign runs. Empty means one undivided set. */
+  groups?: Group[];
 }) {
   const host = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -74,6 +77,7 @@ export default function Gallery({
 
   const [open, setOpen] = useState<{ shot: SphereShot; from: Rect } | null>(null);
   const [width, setWidth] = useState(0);
+  const [labels, setLabels] = useState<Layout["labels"]>([]);
 
   if (rects.current.length !== shots.length) {
     rects.current = shots.map(() => rectSpring());
@@ -186,16 +190,19 @@ export default function Gallery({
             shots,
             boxFor(vw, vh),
             GAP,
-            hovers.current.map((h) => h.value)
+            hovers.current.map((h) => h.value),
+            groups
           )
         : gridLayout(
             shots,
             el.clientWidth,
             columnsFor(vw),
             GAP,
-            Math.min(el.clientWidth - 32, 1180)
+            Math.min(el.clientWidth - 32, 1180),
+            groups
           );
     layout.current = l;
+    setLabels(l.labels);
 
     const first = !laidOut.current;
     l.boxes.forEach((b, i) => retarget(rects.current[i], b, first));
@@ -214,7 +221,7 @@ export default function Gallery({
       laidOut.current = true;
     }
     paint();
-  }, [shots, offsetFor, paint, interacting]);
+  }, [shots, offsetFor, paint, interacting, groups]);
 
   useEffect(() => {
     modeRef.current = mode;
@@ -451,6 +458,15 @@ export default function Gallery({
         aria-label={`${title}, ${shots.length} items`}
       >
         <div ref={stage} className="gallery-stage">
+          {labels.map((l) => (
+            <span
+              key={l.title + l.x}
+              className="gallery-label"
+              style={{ transform: `translate3d(${l.x}px,${l.y}px,0)`, width: l.width }}
+            >
+              {l.title}
+            </span>
+          ))}
           {shots.map((s, i) => (
             <button
               key={s.src}
