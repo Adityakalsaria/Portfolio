@@ -81,14 +81,20 @@ export function gridLayout(
   /** Centres a narrower grid inside a wider host, so the columns stay a
    *  readable size on a large screen instead of sprawling. */
   inner = width,
-  groups: Group[] = []
+  groups: Group[] = [],
+  /** Space to keep clear on the left for the fixed index rail. Centred when
+   *  zero. Without it the first column and every campaign heading ran under
+   *  the rail, which sits above them and painted over the text. */
+  reserve = 0
 ): Layout {
-  const gridW = Math.min(width, inner);
-  const left = (width - gridW) / 2;
+  const gridW = Math.min(width - reserve - 32, inner);
+  const left = reserve ? reserve : (width - gridW) / 2;
   const colW = (gridW - gap * (columns - 1)) / columns;
   const boxes: Box[] = [];
   const labels: Label[] = [];
-  /** Room for a campaign caption under each band. */
+  /** Room for a campaign heading above each band. In the grid the bands
+   *  stack, so a title reads as belonging to the block it sits on top of;
+   *  the strip runs sideways and takes its caption underneath instead. */
   const HEAD = groups.length ? 34 : 0;
 
   // Each group packs its own columns and then the next band starts below the
@@ -98,7 +104,8 @@ export function gridLayout(
     : [{ title: "", start: 0, count: shots.length }];
   let top = 0;
   for (const run of runs) {
-    const heights = new Array(columns).fill(top);
+    if (run.title) labels.push({ title: run.title, x: left, y: top, width: gridW });
+    const heights = new Array(columns).fill(top + HEAD);
     for (let i = run.start; i < run.start + run.count; i++) {
       const s = shots[i];
       if (!s) continue;
@@ -108,9 +115,7 @@ export function gridLayout(
       boxes[i] = { x: left + col * (colW + gap), y: heights[col], width: colW, height: h };
       heights[col] += h + gap;
     }
-    const bottom = Math.max(...heights) - gap;
-    if (run.title) labels.push({ title: run.title, x: left, y: bottom + 10, width: gridW });
-    top = bottom + HEAD + gap * 3;
+    top = Math.max(...heights) - gap + gap * 3;
   }
   return { boxes, labels, width, height: Math.max(0, top - gap * 3) };
 }
