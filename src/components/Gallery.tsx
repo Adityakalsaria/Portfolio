@@ -13,6 +13,8 @@ import {
   LAYOUT_SPRING,
   TRACK_SPRING,
   VELOCITY_COMMIT,
+  easeBlur,
+  motionBlur,
   rectSpring,
   retarget,
   spring,
@@ -61,6 +63,8 @@ export default function Gallery({
   /** Set while a wheel gesture is in flight; drags use `dragging`. */
   const wheelUntil = useRef(0);
   const pointer = useRef({ x: -1, y: -1 });
+  const lastOffset = useRef(0);
+  const blurs = useRef<number[]>([]);
   const hovers = useRef<ReturnType<typeof spring>[]>([]);
   const hovered = useRef(-1);
   const modeRef = useRef(mode);
@@ -74,6 +78,7 @@ export default function Gallery({
   if (rects.current.length !== shots.length) {
     rects.current = shots.map(() => rectSpring());
     hovers.current = shots.map(() => spring(0));
+    blurs.current = shots.map(() => 0);
   }
 
   /** Where the stage must sit for item i to be centred in the strip. */
@@ -106,6 +111,10 @@ export default function Gallery({
 
       let moving = dragging.current;
       let hoverChanged = false;
+      // The stage's own speed. While dragging it is set directly rather than
+      // integrated, so measure it from the frame-to-frame delta instead.
+      const stageV = dt > 0 ? (offset.current.value - lastOffset.current) / dt : 0;
+      lastOffset.current = offset.current.value;
       // Springier while a hover is live, so the overshoot reaches the pixels.
       // Cleared during a mode morph, which wants the settled config.
       const live = hovers.current.some((h) => h.value > 0.001 || h.target > 0);
@@ -118,6 +127,7 @@ export default function Gallery({
           hoverChanged = true;
         }
         if (stepRect(r, dt, cfg)) moving = true;
+        if (blurs.current[i] > 0) moving = true;
         const el = cells.current[i];
         if (el) {
           // The strip spends its hover on the layout, so neighbours are
@@ -128,6 +138,19 @@ export default function Gallery({
           el.style.width = `${r.w.value}px`;
           el.style.height = `${r.h.value}px`;
           el.style.zIndex = h.value > 0.01 ? "1" : "";
+
+          // Speed through the layout, plus the speed of the whole stage under
+          // it, so a flick blurs as well as a morph.
+          const speed = Math.hypot(r.x.velocity + stageV, r.y.velocity);
+          const blur = (blurs.current[i] = easeBlur(
+            blurs.current[i] ?? 0,
+            motionBlur(speed),
+            dt
+          ));
+          // Written only on change: assigning filter every frame re-uploads
+          // the layer even when the string is identical.
+          const want = blur ? `blur(${blur.toFixed(2)}px)` : "";
+          if (el.style.filter !== want) el.style.filter = want;
         }
       }
       // A growing item widens the strip, so its neighbours need new targets.
@@ -284,6 +307,11 @@ export default function Gallery({
       dragging.current = false;
       d.id = -1;
       swallowClick.current = d.moved > 6;
+      // Hand the flick's momentum to the spring. Every pointermove zeroes the
+      // velocity so the finger stays authoritative, which meant release
+      // always started from a dead stop — the throw was discarded and the
+      // strip merely sprang to the next item. d.v is px/ms.
+      offset.current.velocity = d.v * 1000;
       const travelled = d.lastX - d.startX;
       if (Math.abs(travelled) > DISTANCE_COMMIT || Math.abs(d.v) > VELOCITY_COMMIT) {
         const box = boxFor(window.innerWidth, window.innerHeight);

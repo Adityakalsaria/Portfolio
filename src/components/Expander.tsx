@@ -3,7 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { SphereShot } from "@/lib/work";
-import { CLOSE_SPRING, OPEN_SPRING, contain, lerp, spring, step } from "@/lib/motion";
+import {
+  CLOSE_SPRING,
+  OPEN_SPRING,
+  contain,
+  lerp,
+  easeBlur,
+  motionBlur,
+  spring,
+  step,
+} from "@/lib/motion";
 
 export type Rect = { x: number; y: number; width: number; height: number };
 
@@ -28,6 +37,7 @@ export default function Expander({
   const frame = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const p = useRef(spring(0));
+  const blurRef = useRef(0);
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
@@ -67,6 +77,18 @@ export default function Expander({
         )}px, 0)`;
         el.style.width = `${lerp(from.width, to.width, t)}px`;
         el.style.height = `${lerp(from.height, to.height, t)}px`;
+        // p is 0..1, so its velocity scales by how far the item is actually
+        // travelling — a tile crossing the screen smears, one already near
+        // the centre barely does.
+        const travel = Math.hypot(to.x - from.x, to.y - from.y);
+        blurRef.current = easeBlur(
+          blurRef.current,
+          motionBlur(Math.abs(p.current.velocity) * travel),
+          dt
+        );
+        const blur = blurRef.current;
+        const want = blur ? `blur(${blur.toFixed(2)}px)` : "";
+        if (el.style.filter !== want) el.style.filter = want;
       }
       // On the root, not the frame. The scrim is the frame's sibling, so it
       // never inherited --p from it and fell back to 1 — meaning the backdrop

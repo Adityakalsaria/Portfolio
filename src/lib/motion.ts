@@ -113,6 +113,53 @@ export function step(s: Spring, dt: number, { k, c }: SpringConfig): boolean {
 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/** Below this a blur is under a third of a pixel — invisible, and not worth
+ *  the compositing. px/s. */
+const BLUR_FLOOR = 140;
+/** Measured peak for both a layout morph and a flick is about 1800px/s, so
+ *  the cap is what that speed produces rather than an arbitrary ceiling. */
+const BLUR_CAP = 4.5;
+const BLUR_RATE = 0.0025;
+
+/**
+ * Motion blur from speed.
+ *
+ * What separates smooth motion from motion that merely lands in the right
+ * place: something crossing the screen in a few frames reads as teleporting
+ * unless it smears. Measured off the reference, its digits lose about 14x
+ * their edge energy at the midpoint of a swap and recover by the end, so the
+ * blur tracks velocity rather than being a fixed fade.
+ *
+ * Not physical — a true shutter smear at these speeds would be tens of
+ * pixels. This is scaled to read, and capped.
+ */
+export function motionBlur(speed: number): number {
+  if (speed < BLUR_FLOOR || reducedMotion()) return 0;
+  return Math.min(BLUR_CAP, speed * BLUR_RATE);
+}
+
+/** Read per call rather than cached: the setting can change mid-session. */
+function reducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+  );
+}
+
+/**
+ * Eases a blur toward its target so it cannot pop.
+ *
+ * Speed is not continuous across a gesture: releasing a flick hands the strip
+ * from the finger to the spring, and the measured velocity fell from 1796 to
+ * 138 px/s in one frame. Blurring straight off that reads as a flash. Frame
+ * -rate independent, so it decays the same on any display.
+ */
+export function easeBlur(current: number, target: number, dt: number): number {
+  const k = 1 - Math.pow(0.001, dt / 0.11);
+  const next = current + (target - current) * k;
+  return next < 0.05 ? 0 : next;
+}
+
 /** Fits an aspect inside a box without cropping it. */
 export function contain(aspect: number, boxW: number, boxH: number) {
   const w = Math.min(boxW, boxH * aspect);
