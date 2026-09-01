@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import type { SphereShot } from "@/lib/work";
 import {
   CLOSE_SPRING,
@@ -168,14 +167,10 @@ export default function Expander({
             {preview && (
               <img className="expander-media expander-preview" src={preview} alt="" />
             )}
-            <Image
-              className="expander-media"
-              src={shot.src}
-              alt=""
-              fill
-              sizes="1200px"
-              priority
-            />
+            {/* A plain img on the original file — see expandedUrl. Going
+                through next/image here bought a smaller payload at the cost
+                of a transcode the reader waits on. */}
+            <img className="expander-media" src={shot.src} alt="" decoding="async" />
           </>
         )}
       </div>
