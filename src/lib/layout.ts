@@ -87,8 +87,12 @@ export function gridLayout(
    *  the rail, which sits above them and painted over the text. */
   reserve = 0
 ): Layout {
-  const gridW = Math.min(width - reserve - 32, inner);
-  const left = reserve ? reserve : (width - gridW) / 2;
+  // Centre it, and only push right when centring would put it under the
+  // rail. Treating the reserve as the position rather than a floor left the
+  // grid pinned hard left on a wide screen, with the slack all on one side.
+  const wanted = Math.min(inner, width - 32);
+  const left = Math.max(reserve, (width - wanted) / 2);
+  const gridW = Math.min(wanted, width - left - 32);
   const colW = (gridW - gap * (columns - 1)) / columns;
   const boxes: Box[] = [];
   const labels: Label[] = [];

@@ -16,12 +16,17 @@ export default function Haptics() {
 
   // The library builds its audio context and DOM label lazily, inside the
   // first trigger — and that trigger returns early before the label exists.
-  // So the first tap was spent on setup and only the second was felt. Prime
-  // it on mount with the shortest possible pulse, which does the setup while
-  // being too brief to notice.
+  // So the first tap was spent on setup and only the second was felt.
+  //
+  // Primed on the first press rather than on mount: navigator.vibrate before
+  // any gesture is blocked by the browser and logged as an error, so priming
+  // early bought nothing and left a console error on every page. Capture
+  // phase, so this runs before the delegated handler below and that tap is
+  // still felt.
   useEffect(() => {
-    const id = setTimeout(() => haptic(1), 0);
-    return () => clearTimeout(id);
+    const prime = () => haptic(1);
+    document.addEventListener("pointerdown", prime, { capture: true, once: true });
+    return () => document.removeEventListener("pointerdown", prime, { capture: true });
   }, [haptic]);
 
   useEffect(() => {
