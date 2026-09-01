@@ -320,10 +320,31 @@ a { color: inherit; }
 }
 
 /* View switch on a project page. */
+/* Sits at the top-right corner of the media rather than centred above it.
+   Breaks out to the viewport like the canvas and gallery do, so "right" means
+   the right edge of what it controls, not of the 36rem text column. */
 .mode-switch {
   display: flex;
   gap: 1rem;
+  justify-content: flex-end;
   margin-top: 2.5rem;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding-right: max(1.5rem, calc(50vw - 44rem));
+  position: relative;
+  /* Above the canvas, which is full-bleed and would otherwise take the
+     clicks on any button that overlaps it. */
+  z-index: 2;
+}
+@media (max-width: 48rem) {
+  /* Back in the column on a phone, where the media is nearly full width
+     anyway and a right-pinned row reads as detached. */
+  .mode-switch {
+    justify-content: flex-start;
+    width: auto;
+    margin-left: 0;
+    padding-right: 0;
+  }
 }
 .mode-btn {
   color: var(--muted);
