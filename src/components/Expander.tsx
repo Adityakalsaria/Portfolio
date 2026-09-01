@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { SphereShot } from "@/lib/work";
-import { OPEN_SPRING, contain, lerp, spring, step } from "@/lib/motion";
+import { CLOSE_SPRING, OPEN_SPRING, contain, lerp, spring, step } from "@/lib/motion";
 
 export type Rect = { x: number; y: number; width: number; height: number };
 
@@ -24,6 +24,7 @@ export default function Expander({
   from: Rect;
   onClose: () => void;
 }) {
+  const root = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const p = useRef(spring(0));
@@ -53,7 +54,8 @@ export default function Expander({
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      const moving = step(p.current, dt, OPEN_SPRING);
+      const closing = p.current.target === 0;
+      const moving = step(p.current, dt, closing ? CLOSE_SPRING : OPEN_SPRING);
       const t = p.current.value;
       const to = target();
       const el = frame.current;
@@ -65,10 +67,18 @@ export default function Expander({
         )}px, 0)`;
         el.style.width = `${lerp(from.width, to.width, t)}px`;
         el.style.height = `${lerp(from.height, to.height, t)}px`;
-        el.style.setProperty("--p", String(t));
       }
-      // Settled at zero means the close finished; only then unmount.
-      if (!moving && p.current.target === 0) return onClose();
+      // On the root, not the frame. The scrim is the frame's sibling, so it
+      // never inherited --p from it and fell back to 1 — meaning the backdrop
+      // was fully opaque from the first frame and never faded at all. With an
+      // opaque paper scrim that turned every open and close into a blank
+      // white screen with a picture crawling across it.
+      root.current?.style.setProperty("--p", String(t));
+
+      // Unmount once it is invisible rather than once the spring is formally
+      // settled: the last stretch is hundredths of a pixel and was holding
+      // the overlay up for another fifth of a second after it looked done.
+      if (closing && t < 0.004) return onClose();
       if (moving || p.current.target === 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -92,7 +102,7 @@ export default function Expander({
   }, []);
 
   return (
-    <div className="expander" role="dialog" aria-modal="true">
+    <div ref={root} className="expander" role="dialog" aria-modal="true">
       <button className="expander-scrim" onClick={close} aria-label="Close" />
       {/* A still closes when clicked, like the scrim — an opened image that
           swallows a click reads as stuck. A clip does not: those clicks

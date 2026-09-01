@@ -18,6 +18,10 @@ export type SpringConfig = { k: number; c: number };
 
 /** Open progress p. Firm, barely any overshoot — it carries a real image. */
 export const OPEN_SPRING: SpringConfig = { k: 190, c: 25 };
+/** Closing is shorter than opening. Nobody wants to watch the thing they
+ *  just dismissed travel home; the return should be over before it is
+ *  noticed. Critically damped, so it does not undershoot past the tile. */
+export const CLOSE_SPRING: SpringConfig = { k: 340, c: 37 };
 /** The track. Looser, so a flick still reads as momentum. */
 export const TRACK_SPRING: SpringConfig = { k: 120, c: 22 };
 /** Items travelling between layouts. Slightly softer than the opener, since

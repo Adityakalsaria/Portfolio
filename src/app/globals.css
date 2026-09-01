@@ -598,6 +598,10 @@ a { color: inherit; }
 .expander {
   position: fixed;
   inset: 0;
+  /* Starts transparent. The loop sets --p from the spring, but not until the
+     first frame after mount — without this the fallback of 1 painted one
+     frame of solid white before the fade began. */
+  --p: 0;
   /* Above .pnav, which is also fixed at 60 — at equal z-index the index rail
      won the stack and ate every click on the scrim behind it. */
   z-index: 90;
