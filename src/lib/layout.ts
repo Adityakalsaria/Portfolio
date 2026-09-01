@@ -34,9 +34,13 @@ export function stripLayout(
   const BREAK = gap * 4;
   /** Room for the campaign name at the top of the band. Reserved rather than
    *  set as a negative margin — the gallery clips its overflow, so a label
-   *  placed above y=0 was simply invisible. */
+   *  placed above y=0 was simply invisible.
+   *
+   *  Added to the strip's height rather than taken out of it. Subtracting it
+   *  shrank every item to make room, which changed the carousel's spacing on
+   *  a project that had campaigns and one that did not. */
   const HEAD = groups.length ? 24 : 0;
-  const band = box.h - HEAD;
+  const band = box.h;
   let x = 0;
   let g = 0;
   let runStart = 0;
@@ -59,7 +63,7 @@ export function stripLayout(
       g += 1;
     }
   });
-  return { boxes, labels, width: Math.max(0, x - gap), height: box.h };
+  return { boxes, labels, width: Math.max(0, x - gap), height: box.h + HEAD };
 }
 
 /**

@@ -27,10 +27,14 @@ export type Rect = { x: number; y: number; width: number; height: number };
 export default function Expander({
   shot,
   from,
+  preview,
   onClose,
 }: {
   shot: SphereShot;
   from: Rect;
+  /** The exact URL the tile already painted, so it is in the browser cache
+   *  and can be shown while the full-size version is still in flight. */
+  preview?: string;
   onClose: () => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
@@ -156,14 +160,23 @@ export default function Expander({
             controls
           />
         ) : (
-          <Image
-            className="expander-media"
-            src={shot.src}
-            alt=""
-            fill
-            sizes="92vw"
-            priority
-          />
+          <>
+            {/* Underneath, and already decoded: the tile's own image. Without
+                it the frame opened empty and stayed that way for 80-150ms
+                while the large version was fetched — the "slow" part of
+                opening was never the animation. */}
+            {preview && (
+              <img className="expander-media expander-preview" src={preview} alt="" />
+            )}
+            <Image
+              className="expander-media"
+              src={shot.src}
+              alt=""
+              fill
+              sizes="(max-width: 40rem) 92vw, 1400px"
+              priority
+            />
+          </>
         )}
       </div>
       {!closing && shot.href && (

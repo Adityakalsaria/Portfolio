@@ -75,7 +75,11 @@ export default function Gallery({
   const relayoutRef = useRef<(() => void) | null>(null);
   const haptic = useHaptics();
 
-  const [open, setOpen] = useState<{ shot: SphereShot; from: Rect } | null>(null);
+  const [open, setOpen] = useState<{
+    shot: SphereShot;
+    from: Rect;
+    preview?: string;
+  } | null>(null);
   const [width, setWidth] = useState(0);
   const [labels, setLabels] = useState<Layout["labels"]>([]);
 
@@ -439,7 +443,20 @@ export default function Gallery({
     }
     const r = el.getBoundingClientRect();
     haptic("nudge");
-    setOpen({ shot, from: { x: r.left, y: r.top, width: r.width, height: r.height } });
+    // Whatever the tile actually painted — the optimizer URL at the tile's
+    // size, already in cache — rather than shot.src, which is the original.
+    const media = el.querySelector("img, video");
+    const preview =
+      media instanceof HTMLImageElement
+        ? media.currentSrc || media.src
+        : media instanceof HTMLVideoElement
+          ? media.poster
+          : undefined;
+    setOpen({
+      shot,
+      preview,
+      from: { x: r.left, y: r.top, width: r.width, height: r.height },
+    });
   };
 
   return (
@@ -508,7 +525,12 @@ export default function Gallery({
         </div>
       </div>
       {open && (
-        <Expander shot={open.shot} from={open.from} onClose={() => setOpen(null)} />
+        <Expander
+          shot={open.shot}
+          from={open.from}
+          preview={open.preview}
+          onClose={() => setOpen(null)}
+        />
       )}
       <span hidden>{width}</span>
     </>

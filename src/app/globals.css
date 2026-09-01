@@ -701,3 +701,9 @@ a { color: inherit; }
   transform-origin: left top;
   line-height: 24px;
 }
+
+/* The cached tile image, held under the full-size one until it arrives. */
+.expander-preview {
+  position: absolute;
+  inset: 0;
+}

@@ -79,6 +79,13 @@ for (const dir of dirs) {
       console.log(`  skip  ${name} — flat frame (sd ${sd.toFixed(4)}), a dead export`);
       continue;
     }
+    // A 1568x196 export is not a wide banner, it is several designs merged
+    // into one strip. Imported whole it shows as one unreadable sliver, so
+    // say so rather than shipping it silently.
+    const ratio = Math.max(w / h, h / w);
+    if (ratio > 4) {
+      console.log(`  WARN  ${name} — ${w}x${h}, ratio ${ratio.toFixed(1)}. Several images merged into one file?`);
+    }
     n += 1;
     const tmp = path.join(OUT, `tmp-${n}.webp`);
     const scale = Math.min(1, MAX / Math.max(w, h));
