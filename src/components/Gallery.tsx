@@ -24,14 +24,15 @@ import {
   type RectSpring,
 } from "@/lib/motion";
 
-const BOX_W = 300;
-const BOX_H = 420;
+/** The strip's shared item height, and how wide one item may get. */
+const ITEM_H = 340;
 const GAP = 20;
 
 export type Mode = "strip" | "grid";
 
 function boxFor(vw: number, vh: number) {
-  return { w: Math.min(BOX_W, vw * 0.68), h: Math.min(BOX_H, vh * 0.56) };
+  const h = Math.min(ITEM_H, vh * 0.42, vw * 0.78);
+  return { w: h, h, maxW: Math.min(vw * 0.92, h * 2.6) };
 }
 const columnsFor = (vw: number) => (vw < 640 ? 2 : vw < 1024 ? 3 : 4);
 

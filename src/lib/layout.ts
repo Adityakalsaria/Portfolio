@@ -19,7 +19,8 @@ export type Layout = {
  */
 export function stripLayout(
   shots: SphereShot[],
-  box: { w: number; h: number },
+  /** h is the shared item height; maxW caps how wide a wide one may run. */
+  box: { w: number; h: number; maxW: number },
   gap: number,
   /** Per-item growth, 0–1, from the hover springs. A grown item takes more
    *  room, so its neighbours are pushed apart rather than overlapped — the
@@ -47,10 +48,13 @@ export function stripLayout(
       if (i > 0) x += BREAK - gap;
       runStart = x;
     }
+    // Every item is the same height; the width follows the proportions and
+    // is capped, so one panorama cannot run the length of the strip. Past
+    // the cap the cell crops, which object-cover already does.
     const aspect = s.width / s.height;
     const scale = 1 + 0.09 * (grow[i] ?? 0);
-    const width = Math.min(box.w, band * aspect) * scale;
-    const height = width / aspect;
+    const height = band * scale;
+    const width = Math.min(height * aspect, box.maxW * scale);
     boxes.push({ x, y: (band - height) / 2, width, height });
     x += width + gap;
 
