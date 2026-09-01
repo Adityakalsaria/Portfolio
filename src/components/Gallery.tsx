@@ -58,6 +58,9 @@ export default function Gallery({
   const height = useRef(spring(0));
   const index = useRef(0);
   const laidOut = useRef(false);
+  /** Set while a wheel gesture is in flight; drags use `dragging`. */
+  const wheelUntil = useRef(0);
+  const pointer = useRef({ x: -1, y: -1 });
   const hovers = useRef<ReturnType<typeof spring>[]>([]);
   const hovered = useRef(-1);
   const modeRef = useRef(mode);
@@ -88,6 +91,11 @@ export default function Gallery({
   // ── the loop ────────────────────────────────────────────────────
   const running = useRef(false);
   const dragging = useRef(false);
+  /** True while the reader is moving the strip themselves. */
+  const interacting = useCallback(
+    () => dragging.current || performance.now() < wheelUntil.current,
+    []
+  );
   const paint = useCallback(() => {
     if (running.current) return;
     running.current = true;
@@ -169,14 +177,21 @@ export default function Gallery({
     const first = !laidOut.current;
     l.boxes.forEach((b, i) => retarget(rects.current[i], b, first));
     height.current.target = l.height;
-    offset.current.target = modeRef.current === "strip" ? offsetFor(index.current) : 0;
+
+    // Only recentre when the strip is not being driven. A hover relayouts on
+    // every frame of its spring, and this line used to run with it — so a
+    // wheel gesture was continually yanked back toward whatever index was
+    // current, which is the jump.
+    if (!interacting() || first) {
+      offset.current.target = modeRef.current === "strip" ? offsetFor(index.current) : 0;
+    }
     if (first) {
       height.current.value = l.height;
       offset.current.value = offset.current.target;
       laidOut.current = true;
     }
     paint();
-  }, [shots, offsetFor, paint]);
+  }, [shots, offsetFor, paint, interacting]);
 
   useEffect(() => {
     modeRef.current = mode;
@@ -254,6 +269,12 @@ export default function Gallery({
       const max = offsetFor(0);
       const over = raw > max ? raw - max : raw < min ? raw - min : 0;
       offset.current.value = raw - over + over * 0.35;
+      // The finger is the authority while it is down. Without moving the
+      // target with it the spring stayed anchored to the previously centred
+      // item and hauled the strip back a little every frame — a pull that
+      // grew with the distance dragged, which is the stutter.
+      offset.current.target = offset.current.value;
+      offset.current.velocity = 0;
     };
     const up = (ev: PointerEvent) => {
       if (d.id !== ev.pointerId) return;
@@ -271,6 +292,7 @@ export default function Gallery({
       } else {
         goTo(index.current);
       }
+      rearmHover();
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -289,14 +311,32 @@ export default function Gallery({
 
   const setHover = useCallback(
     (i: number) => {
+      // Items sliding beneath a still cursor are not a hover. Growing them
+      // mid-gesture shifts the layout out from under the scroll.
+      if (i >= 0 && interacting()) return;
       if (hovered.current === i) return;
       if (hovered.current >= 0) hovers.current[hovered.current].target = 0;
       hovered.current = i;
       if (i >= 0) hovers.current[i].target = 1;
       paint();
     },
-    [paint]
+    [paint, interacting]
   );
+
+  /**
+   * Picks the hover back up from wherever the cursor actually is.
+   *
+   * A gesture clears the hover, but the pointer never left the cell it was
+   * over — so pointerenter does not fire again and the item stayed flat until
+   * the reader moved off it and back.
+   */
+  const rearmHover = useCallback(() => {
+    const { x, y } = pointer.current;
+    if (x < 0) return;
+    const el = document.elementFromPoint(x, y);
+    const cell = el?.closest(".gallery-cell") ?? null;
+    setHover(cell ? cells.current.indexOf(cell as HTMLElement) : -1);
+  }, [setHover]);
 
   /**
    * A horizontal trackpad swipe moves the strip directly, then settles to
@@ -317,6 +357,11 @@ export default function Gallery({
       const dx = e.deltaX;
       if (!dx) return;
       e.preventDefault();
+      wheelUntil.current = performance.now() + 160;
+      if (hovered.current >= 0) {
+        hovers.current[hovered.current].target = 0;
+        hovered.current = -1;
+      }
       const min = offsetFor(shots.length - 1);
       const max = offsetFor(0);
       const raw = offset.current.value - dx;
@@ -327,6 +372,8 @@ export default function Gallery({
       paint();
       clearTimeout(idle);
       idle = setTimeout(() => {
+        wheelUntil.current = 0;
+        rearmHover();
         // Settle on whichever item is nearest the middle.
         const l = layout.current;
         if (!l) return;
@@ -348,7 +395,7 @@ export default function Gallery({
       el.removeEventListener("wheel", onWheel);
       clearTimeout(idle);
     };
-  }, [mode, shots.length, offsetFor, paint]);
+  }, [mode, shots.length, offsetFor, paint, rearmHover]);
 
   const openAt = (shot: SphereShot, el: HTMLElement) => {
     if (swallowClick.current) {
@@ -366,6 +413,12 @@ export default function Gallery({
         ref={host}
         className={`gallery ${mode === "strip" ? "is-strip" : "is-grid"}`}
         onPointerDown={onDown}
+        onPointerMove={(e) => {
+          pointer.current = { x: e.clientX, y: e.clientY };
+        }}
+        onPointerLeave={() => {
+          pointer.current = { x: -1, y: -1 };
+        }}
         role="group"
         aria-label={`${title}, ${shots.length} items`}
       >
