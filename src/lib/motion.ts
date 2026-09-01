@@ -20,8 +20,54 @@ export type SpringConfig = { k: number; c: number };
 export const OPEN_SPRING: SpringConfig = { k: 190, c: 25 };
 /** The track. Looser, so a flick still reads as momentum. */
 export const TRACK_SPRING: SpringConfig = { k: 120, c: 22 };
+/** Items travelling between layouts. Slightly softer than the opener, since
+ *  they move much further and a stiff one snaps. */
+export const LAYOUT_SPRING: SpringConfig = { k: 140, c: 23 };
 
 export const spring = (value = 0): Spring => ({ value, velocity: 0, target: value });
+
+/** A rect as four springs, so each edge can be retargeted independently. */
+export type RectSpring = { x: Spring; y: Spring; w: Spring; h: Spring };
+
+export const rectSpring = (): RectSpring => ({
+  x: spring(),
+  y: spring(),
+  w: spring(),
+  h: spring(),
+});
+
+/**
+ * Points a rect's springs at a new destination.
+ *
+ * The velocities are left alone on purpose. Retargeting mid-flight is the
+ * whole point — an item already moving toward the grid that is sent back to
+ * the strip carries its speed into the reversal instead of stopping dead and
+ * restarting, which is what makes an interrupted transition feel continuous.
+ * `settle` is for the first layout, where there is nothing to preserve.
+ */
+export function retarget(
+  r: RectSpring,
+  to: { x: number; y: number; width: number; height: number },
+  settle = false
+) {
+  r.x.target = to.x;
+  r.y.target = to.y;
+  r.w.target = to.width;
+  r.h.target = to.height;
+  if (settle) {
+    for (const s of [r.x, r.y, r.w, r.h]) {
+      s.value = s.target;
+      s.velocity = 0;
+    }
+  }
+}
+
+/** Advances all four and reports whether any is still moving. */
+export function stepRect(r: RectSpring, dt: number, cfg: SpringConfig): boolean {
+  let moving = false;
+  for (const s of [r.x, r.y, r.w, r.h]) if (step(s, dt, cfg)) moving = true;
+  return moving;
+}
 
 /**
  * Advances a spring by dt seconds.

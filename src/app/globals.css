@@ -471,65 +471,6 @@ a { color: inherit; }
 
 
 
-/* ── Lightbox ────────────────────────────────────────────────────
-   A grid tile opened, matching what focusing a sphere plane gives you. */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem 1.5rem;
-}
-/* Paper, not ink: the sphere fades its cloud toward the page rather than
-   dropping a dark curtain, and these two should not disagree. */
-.lightbox-scrim {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  padding: 0;
-  cursor: default;
-  background: rgb(253 252 250 / 0.94);
-}
-.lightbox-frame {
-  position: relative;
-  z-index: 1;
-  line-height: 0;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15);
-}
-/* The media decides the size; the viewport only caps it. */
-.lightbox-media {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 92vw;
-  max-height: 80vh;
-}
-.lightbox-bar {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-
-/* The tile is a button now, so it needs the anchor's old geometry. */
-.grid-cell button {
-  display: block;
-  position: absolute;
-  inset: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
 /* ── Image sphere ────────────────────────────────────────────────
    Breaks out of the text column to the full viewport width: at 36rem the
    planes crowd each other and most of the set sits outside the frame.
@@ -694,3 +635,43 @@ a { color: inherit; }
   text-align: center;
   font-size: 0.8125rem;
 }
+
+/* ── Gallery ─────────────────────────────────────────────────────
+   One host for both layouts. Its height is animated, not set, so switching
+   view does not jolt the page under the reader. */
+/* Both layouts run edge to edge, so the grid is not squeezed into 36rem. */
+.gallery {
+  position: relative;
+  margin-top: 1.5rem;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  /* Clipped in both layouts. Dropping it on the switch let the still-in-strip
+     items overflow the page sideways for the length of the morph. */
+  overflow: hidden;
+}
+.gallery.is-strip {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.gallery.is-strip:active { cursor: grabbing; }
+.gallery-stage {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.gallery-cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+  will-change: transform, width, height;
+}
+.gallery-cell img,
+.gallery-cell video { pointer-events: none; }

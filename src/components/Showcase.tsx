@@ -1,25 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Reveal from "./Reveal";
 import ImageSphereView from "./ImageSphereView";
-import Lightbox from "./Lightbox";
-import Carousel from "./Carousel";
+import Gallery from "./Gallery";
 import type { Shot, SphereShot } from "@/lib/work";
 
 type Mode = "scroll" | "grid" | "sphere";
 
 /**
- * Two ways through a project's images: the stacked scroll, and a cloud of them
- * orbiting an invisible sphere.
+ * Three ways through a project's images.
  *
- * The sphere breaks out to the full viewport width in place. At the 36rem
- * column the planes crowd each other and most of the set sits off to the
- * sides; it stays on the page rather than opening as a separate view.
- *
- * It can also carry more than the scroll does — the published posts join the
- * cloud, where there is room for them, without lengthening the scroll.
+ * Carousel and Grid are the same component in two layouts, so switching
+ * between them moves the items rather than replacing them. The sphere is its
+ * own thing — a three.js cloud — and breaks out to the full viewport width,
+ * since at the 36rem column the planes crowd each other.
  */
 export default function Showcase({
   shots,
@@ -35,7 +29,6 @@ export default function Showcase({
   title: string;
 }) {
   const [mode, setMode] = useState<Mode>("scroll");
-  const [open, setOpen] = useState<SphereShot | null>(null);
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
@@ -59,37 +52,13 @@ export default function Showcase({
         ))}
       </div>
 
-      {mode === "scroll" ? (
-        <Carousel shots={tiles} title={title} />
-      ) : mode === "grid" ? (
-        <ul className="grid-view">
-          {tiles.map((s) => (
-            <li key={s.src} className="grid-cell">
-              {/* A button, not a link: clicking opens it here, the way the
-                  sphere does. The link to the post lives inside. */}
-              <button
-                type="button"
-                onClick={() => setOpen(s)}
-                aria-label={s.href ? "Open post" : "Open image"}
-              >
-                <Image
-                  src={s.src}
-                  alt=""
-                  fill
-                  // Doubled deliberately: a tile renders ~190px, and a 1x
-                  // candidate at that width is visibly soft on a 2x screen.
-                  sizes="(max-width: 34rem) 90vw, 400px"
-                  className="object-cover"
-                />
-                {s.video && <span className="post-play" aria-hidden />}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
+      {mode === "sphere" ? (
         <ImageSphereView shots={sphereShots ?? shots} title={title} />
+      ) : (
+        // One component for both: switching between them is a retarget, not
+        // an unmount, so the items travel rather than blink.
+        <Gallery shots={tiles} mode={mode === "scroll" ? "strip" : "grid"} title={title} />
       )}
-      {open && <Lightbox shot={open} onClose={() => setOpen(null)} />}
     </>
   );
 }
