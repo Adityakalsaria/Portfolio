@@ -76,6 +76,8 @@ export default function WorkList() {
   }, [active, shots.length]);
 
   const step = shots.length ? frame % shots.length : 0;
+  /** Held opaque under the incoming frame so nothing shows between them. */
+  const prev = shots.length ? (frame - 1 + shots.length) % shots.length : 0;
   const shot = shots[step];
   const ratio = shot ? `${shot.width} / ${shot.height}` : "4 / 3";
 
@@ -111,9 +113,14 @@ export default function WorkList() {
             opacity: shots.length && spot ? 1 : 0,
           }}
         >
-          {/* Every frame stays mounted and the current one fades up. Swapping a
-              single <img> made each step wait on its own fetch, so the first
-              run through a category stalled on image one. */}
+          {/* Every frame stays mounted and the current one fades up. Swapping
+              a single <img> made each step wait on its own fetch, so the first
+              run through a category stalled on image one.
+
+              Only the incoming frame fades, over the outgoing one held at full
+              opacity beneath it. Fading both at once dips the total coverage
+              to 1-(1-0.5)^2 = 0.75 at the midpoint, and the card's own grey
+              showed through the gap. */}
           {shots.map((s, i) => (
             <Image
               key={s.src}
@@ -122,7 +129,10 @@ export default function WorkList() {
               fill
               sizes="224px"
               className="preview-frame object-cover"
-              style={{ opacity: i === step ? 1 : 0 }}
+              style={{
+                opacity: i === step || i === prev ? 1 : 0,
+                zIndex: i === step ? 2 : i === prev ? 1 : 0,
+              }}
             />
           ))}
         </div>
