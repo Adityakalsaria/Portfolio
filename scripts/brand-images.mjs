@@ -39,12 +39,18 @@ const identify = async (f) =>
   (await run("/opt/ImageMagick/bin/identify", ["-format", "%w %h", f])).stdout
     .trim().split(" ").map(Number);
 
-const stats = async (f) => {
-  const { stdout } = await run("/opt/ImageMagick/bin/convert", [
-    f, "-resize", "64x64!", "-format", "%[fx:standard_deviation]", "info:",
-  ]);
-  return Number(stdout.trim());
-};
+/**
+ * Distinct colours in the file.
+ *
+ * Standard deviation was the wrong test and threw out real work: a logo
+ * drawn in thin lines on white deviates about as little as a dead export
+ * does. Measured, the solid green frame this guard exists for has exactly 1
+ * colour, while the minimal layouts it was rejecting have 68 and 1464.
+ */
+const colours = async (f) =>
+  Number(
+    (await run("/opt/ImageMagick/bin/convert", [f, "-format", "%k", "info:"])).stdout.trim()
+  );
 
 const dirs = (await readdir(SRC, { withFileTypes: true }))
   .filter((d) => d.isDirectory())
@@ -74,17 +80,17 @@ for (const dir of dirs) {
   for (const name of files) {
     const src = path.join(SRC, dir, name);
     const [w, h] = await identify(src);
-    const sd = await stats(src);
+    const k = await colours(src);
     // Longest edge, not both. Requiring both over 800 threw out every wide
     // banner — 1568x196 and 2161x546 are legitimate work, not low-res files.
     // The dead-export case is caught by flatness below, which is what
     // actually identified it.
-    if (Math.max(w, h) < 800) {
+    if (Math.max(w, h) < 400) {
       console.log(`  skip  ${name} — ${w}x${h}, too small to show at ${MAX}`);
       continue;
     }
-    if (sd < 0.02) {
-      console.log(`  skip  ${name} — flat frame (sd ${sd.toFixed(4)}), a dead export`);
+    if (k <= 2) {
+      console.log(`  skip  ${name} — ${k} colour(s), a dead export`);
       continue;
     }
     // A 1568x196 export is not a wide banner, it is several designs merged

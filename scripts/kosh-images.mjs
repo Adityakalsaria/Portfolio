@@ -33,15 +33,11 @@ const identify = async (f) =>
     .split(" ")
     .map(Number);
 
-/** Mean colour and spread; a flat frame has near-zero standard deviation. */
-const stats = async (f) => {
-  const { stdout } = await run("/opt/ImageMagick/bin/convert", [
-    f, "-resize", "64x64!", "-format",
-    "%[fx:mean.r] %[fx:mean.g] %[fx:mean.b] %[fx:standard_deviation]", "info:",
-  ]);
-  const [r, g, b, sd] = stdout.trim().split(/\s+/).map(Number);
-  return { r, g, b, sd };
-};
+/** Distinct colours; a dead export has exactly one. See brand-images.mjs. */
+const colours = async (f) =>
+  Number(
+    (await run("/opt/ImageMagick/bin/convert", [f, "-format", "%k", "info:"])).stdout.trim()
+  );
 
 const files = (await readdir(SRC))
   .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
@@ -54,14 +50,14 @@ const kept = [];
 for (const name of files) {
   const src = path.join(SRC, name);
   const [w, h] = await identify(src);
-  const { sd } = await stats(src);
+  const k = await colours(src);
 
-  if (w < 800 || h < 800) {
-    console.log(`  skip  ${name} — ${w}x${h}, too small to show at 2048`);
+  if (Math.max(w, h) < 400) {
+    console.log(`  skip  ${name} — ${w}x${h}, too small to show at ${MAX}`);
     continue;
   }
-  if (sd < 0.02) {
-    console.log(`  skip  ${name} — flat frame (sd ${sd.toFixed(4)}), a dead export`);
+  if (k <= 2) {
+    console.log(`  skip  ${name} — ${k} colour(s), a dead export`);
     continue;
   }
 

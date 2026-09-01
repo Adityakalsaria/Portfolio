@@ -6,6 +6,82 @@ import { POSTS } from "./posts.generated";
  * ahead of the generated projects for the same category, so re-running the
  * importer never drops them.
  */
+const STACKR_SECTIONS = [
+  {
+    title: "Flux branding",
+    shots: [
+      { src: "/work/marketing-assets/stackr/stackr-01.47db2c7d.webp", width: 1979, height: 1078 },
+      { src: "/work/marketing-assets/stackr/stackr-02.e96eb793.webp", width: 1979, height: 1078 },
+      { src: "/work/marketing-assets/stackr/stackr-03.32fcbef6.webp", width: 1979, height: 518 },
+      { src: "/work/marketing-assets/stackr/stackr-04.8e56753b.webp", width: 1979, height: 1078 },
+      { src: "/work/marketing-assets/stackr/stackr-05.6c984e5f.webp", width: 1979, height: 1152 },
+      { src: "/work/marketing-assets/stackr/stackr-06.d0f4d936.webp", width: 1225, height: 1175 },
+      { src: "/work/marketing-assets/stackr/stackr-07.17671227.webp", width: 1225, height: 1600 },
+      { src: "/work/marketing-assets/stackr/stackr-08.1f135e40.webp", width: 469, height: 469 },
+      { src: "/work/marketing-assets/stackr/stackr-09.201eff53.webp", width: 1920, height: 1118 },
+      { src: "/work/marketing-assets/stackr/stackr-10.aef86e2c.webp", width: 1225, height: 1175 },
+      { src: "/work/marketing-assets/stackr/stackr-11.3b9887cf.webp", width: 1225, height: 1600 },
+      { src: "/work/marketing-assets/stackr/stackr-12.90fcad10.webp", width: 1920, height: 872 },
+      { src: "/work/marketing-assets/stackr/stackr-13.33a1e11f.webp", width: 1979, height: 1078 },
+      { src: "/work/marketing-assets/stackr/stackr-14.6c984e5f.webp", width: 1979, height: 1152 },
+      { src: "/work/marketing-assets/stackr/stackr-15.511e4254.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-16.561ffd79.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-17.7df82e07.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-18.e9843232.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-19.d1cddb85.webp", width: 1401, height: 467 },
+    ],
+  },
+  {
+    title: "Ferrofluid branding",
+    shots: [
+      { src: "/work/marketing-assets/stackr/stackr-20.8ec89054.webp", width: 2089, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-21.49a3a723.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-22.f9441f7f.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-23.ac2d5012.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-24.43375065.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-25.06ff5be6.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-26.b76ecb0f.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-27.0f7b590f.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-28.b66f128e.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-29.6493bb14.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-30.9f89bebd.webp", width: 2354, height: 3099 },
+      { src: "/work/marketing-assets/stackr/stackr-31.a706d996.webp", width: 2354, height: 3099 },
+      { src: "/work/marketing-assets/stackr/stackr-32.56fc1c1f.webp", width: 2354, height: 3099 },
+      { src: "/work/marketing-assets/stackr/stackr-33.ea256ac1.webp", width: 2354, height: 3099 },
+      { src: "/work/marketing-assets/stackr/stackr-34.38a0619e.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-35.91fb3ae2.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-36.8ee11749.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-37.d45b7b31.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-38.f8647eb5.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-39.2c5dc6fc.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-40.5830f84b.webp", width: 2131, height: 728 },
+      { src: "/work/marketing-assets/stackr/stackr-41.1eff4217.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/stackr/stackr-42.32144a19.webp", width: 1920, height: 1080 },
+    ],
+  },
+  {
+    title: "Stackr campaign",
+    shots: [
+      { src: "/work/marketing-assets/stackr/stackr-43.ea76c374.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-44.f5cc0b8b.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-45.7c6e06f7.webp", width: 2385, height: 2486 },
+      { src: "/work/marketing-assets/stackr/stackr-46.f0b18612.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-47.87e773c4.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-48.d9d0060d.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-49.48155f7a.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-50.f37cd6e9.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-51.6fbd873b.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-52.aa5ba21b.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-53.c6894189.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-54.34872dbe.webp", width: 2385, height: 1342 },
+      { src: "/work/marketing-assets/stackr/stackr-55.4cf9b3e4.webp", width: 2385, height: 2486 },
+    ],
+  },
+];
+
+/** Flat run of every Stackr image, for the views that do not group. */
+const STACKR_SHOTS = STACKR_SECTIONS.flatMap((s) => s.shots);
+
 const SOCKET_SECTIONS = [
   {
     title: "Socket protocol campaign",
@@ -201,6 +277,18 @@ export const MANUAL: Category[] = [
         height: KOSH_SHOTS[0].height,
         shots: KOSH_SHOTS,
         posts: POSTS,
+      },
+      {
+        slug: "stackr",
+        title: "Stackr",
+        intro:
+          "Brand and campaign design across three identities — Flux, then " +
+          "Ferrofluid, then Stackr — and the ETH Global campaign that ran on it.",
+        sections: STACKR_SECTIONS,
+        shots: STACKR_SHOTS,
+        cover: STACKR_SHOTS[0].src,
+        width: STACKR_SHOTS[0].width,
+        height: STACKR_SHOTS[0].height,
       },
       {
         slug: "socket",
