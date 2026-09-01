@@ -113,6 +113,20 @@ export function step(s: Spring, dt: number, { k, c }: SpringConfig): boolean {
 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/**
+ * The URL the expander will ask for, so it can be fetched before the click.
+ *
+ * Widths must be one of Next's configured deviceSizes; anything else is a 400.
+ * sizes="1400px" looked like a saving and was not — 1400 is not on the list,
+ * so the browser fell back to 1920 from the srcset, which costs 130ms to
+ * generate cold against 61ms for 1200.
+ */
+export function expandedUrl(src: string): string {
+  const dpr = typeof window === "undefined" ? 1 : Math.min(2, window.devicePixelRatio || 1);
+  const w = dpr > 1 ? 2048 : 1200;
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
+}
+
 /** Below this a blur is under a third of a pixel — invisible, and not worth
  *  the compositing. px/s. */
 const BLUR_FLOOR = 140;

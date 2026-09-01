@@ -697,7 +697,7 @@ a { color: inherit; }
   white-space: nowrap;
 }
 .gallery.is-strip .gallery-label {
-  /* Sits in the space the layout reserves at the top of the band. */
+  /* Sits in the space the layout reserves under the band. */
   transform-origin: left top;
   line-height: 24px;
 }

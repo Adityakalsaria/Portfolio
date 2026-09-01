@@ -32,13 +32,10 @@ export function stripLayout(
   /** A campaign break is a wider gap, so the eye reads a boundary without
    *  needing a rule drawn between them. */
   const BREAK = gap * 4;
-  /** Room for the campaign name at the top of the band. Reserved rather than
-   *  set as a negative margin — the gallery clips its overflow, so a label
-   *  placed above y=0 was simply invisible.
-   *
-   *  Added to the strip's height rather than taken out of it. Subtracting it
-   *  shrank every item to make room, which changed the carousel's spacing on
-   *  a project that had campaigns and one that did not. */
+  /** Room for the campaign name under the band. Added to the strip's height
+   *  rather than taken out of it — subtracting shrank every item to make
+   *  room, which changed the carousel's spacing on a project that had
+   *  campaigns against one that did not. */
   const HEAD = groups.length ? 24 : 0;
   const band = box.h;
   let x = 0;
@@ -54,12 +51,13 @@ export function stripLayout(
     const scale = 1 + 0.09 * (grow[i] ?? 0);
     const width = Math.min(box.w, band * aspect) * scale;
     const height = width / aspect;
-    boxes.push({ x, y: HEAD + (band - height) / 2, width, height });
+    boxes.push({ x, y: (band - height) / 2, width, height });
     x += width + gap;
 
     const cur = groups[g];
     if (cur && i === cur.start + cur.count - 1) {
-      labels.push({ title: cur.title, x: runStart, y: 0, width: x - gap - runStart });
+      // Under the run it names, not above it.
+      labels.push({ title: cur.title, x: runStart, y: band, width: x - gap - runStart });
       g += 1;
     }
   });
@@ -86,8 +84,8 @@ export function gridLayout(
   const colW = (gridW - gap * (columns - 1)) / columns;
   const boxes: Box[] = [];
   const labels: Label[] = [];
-  /** Room for a campaign heading above each band. */
-  const HEAD = groups.length ? 44 : 0;
+  /** Room for a campaign caption under each band. */
+  const HEAD = groups.length ? 34 : 0;
 
   // Each group packs its own columns and then the next band starts below the
   // tallest of them, so a campaign never interleaves with the one after it.
@@ -96,9 +94,7 @@ export function gridLayout(
     : [{ title: "", start: 0, count: shots.length }];
   let top = 0;
   for (const run of runs) {
-    if (run.title) labels.push({ title: run.title, x: left, y: top, width: gridW });
-    const bandTop = top + HEAD;
-    const heights = new Array(columns).fill(bandTop);
+    const heights = new Array(columns).fill(top);
     for (let i = run.start; i < run.start + run.count; i++) {
       const s = shots[i];
       if (!s) continue;
@@ -108,7 +104,9 @@ export function gridLayout(
       boxes[i] = { x: left + col * (colW + gap), y: heights[col], width: colW, height: h };
       heights[col] += h + gap;
     }
-    top = Math.max(...heights) - gap + gap * 3;
+    const bottom = Math.max(...heights) - gap;
+    if (run.title) labels.push({ title: run.title, x: left, y: bottom + 10, width: gridW });
+    top = bottom + HEAD + gap * 3;
   }
   return { boxes, labels, width, height: Math.max(0, top - gap * 3) };
 }

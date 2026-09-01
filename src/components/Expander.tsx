@@ -173,7 +173,7 @@ export default function Expander({
               src={shot.src}
               alt=""
               fill
-              sizes="(max-width: 40rem) 92vw, 1400px"
+              sizes="1200px"
               priority
             />
           </>

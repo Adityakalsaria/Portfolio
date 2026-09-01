@@ -14,6 +14,7 @@ import {
   TRACK_SPRING,
   VELOCITY_COMMIT,
   easeBlur,
+  expandedUrl,
   motionBlur,
   rectSpring,
   retarget,
@@ -177,6 +178,18 @@ export default function Gallery({
     requestAnimationFrame(tick);
   }, []);
 
+  /** Warms the size the expander will ask for, so opening is a cache hit. */
+  const prefetched = useRef(new Set<string>());
+  const prefetch = useCallback((i: number) => {
+    const shot = shots[i];
+    if (!shot || shot.clip || prefetched.current.has(shot.src)) return;
+    prefetched.current.add(shot.src);
+    // window.Image, not Image — next/image shadows the global here.
+    const img = new window.Image();
+    img.decoding = "async";
+    img.src = expandedUrl(shot.src);
+  }, [shots]);
+
   // ── layout ──────────────────────────────────────────────────────
   const relayout = useCallback(() => {
     const el = host.current;
@@ -266,9 +279,10 @@ export default function Gallery({
       if (next !== index.current) haptic("nudge");
       index.current = next;
       offset.current.target = offsetFor(next);
+      prefetch(next);
       paint();
     },
-    [shots.length, offsetFor, paint, haptic]
+    [shots.length, offsetFor, paint, haptic, prefetch]
   );
   goToRef.current = goTo;
 
@@ -356,10 +370,13 @@ export default function Gallery({
       if (hovered.current === i) return;
       if (hovered.current >= 0) hovers.current[hovered.current].target = 0;
       hovered.current = i;
-      if (i >= 0) hovers.current[i].target = 1;
+      if (i >= 0) {
+        hovers.current[i].target = 1;
+        prefetch(i);
+      }
       paint();
     },
-    [paint, interacting]
+    [paint, interacting, prefetch]
   );
 
   /**
