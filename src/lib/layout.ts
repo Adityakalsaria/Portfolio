@@ -11,17 +11,22 @@ export type Layout = { boxes: Box[]; width: number; height: number };
 export function stripLayout(
   shots: SphereShot[],
   box: { w: number; h: number },
-  gap: number
+  gap: number,
+  /** Per-item growth, 0–1, from the hover springs. A grown item takes more
+   *  room, so its neighbours are pushed apart rather than overlapped — the
+   *  push comes out of the layout, not a separate effect. */
+  grow: number[] = []
 ): Layout {
   const boxes: Box[] = [];
   let x = 0;
-  for (const s of shots) {
+  shots.forEach((s, i) => {
     const aspect = s.width / s.height;
-    const width = Math.min(box.w, box.h * aspect);
+    const scale = 1 + 0.09 * (grow[i] ?? 0);
+    const width = Math.min(box.w, box.h * aspect) * scale;
     const height = width / aspect;
     boxes.push({ x, y: (box.h - height) / 2, width, height });
     x += width + gap;
-  }
+  });
   return { boxes, width: Math.max(0, x - gap), height: box.h };
 }
 

@@ -8,6 +8,8 @@ import Expander, { type Rect } from "./Expander";
 import { gridLayout, stripLayout, type Layout } from "@/lib/layout";
 import {
   DISTANCE_COMMIT,
+  HOVER_LAYOUT_SPRING,
+  HOVER_SPRING,
   LAYOUT_SPRING,
   TRACK_SPRING,
   VELOCITY_COMMIT,
@@ -56,7 +58,11 @@ export default function Gallery({
   const height = useRef(spring(0));
   const index = useRef(0);
   const laidOut = useRef(false);
+  const hovers = useRef<ReturnType<typeof spring>[]>([]);
+  const hovered = useRef(-1);
   const modeRef = useRef(mode);
+  const stripRef = useRef(mode === "strip");
+  const relayoutRef = useRef<(() => void) | null>(null);
   const haptic = useHaptics();
 
   const [open, setOpen] = useState<{ shot: SphereShot; from: Rect } | null>(null);
@@ -64,6 +70,7 @@ export default function Gallery({
 
   if (rects.current.length !== shots.length) {
     rects.current = shots.map(() => rectSpring());
+    hovers.current = shots.map(() => spring(0));
   }
 
   /** Where the stage must sit for item i to be centred in the strip. */
@@ -90,16 +97,33 @@ export default function Gallery({
       last = now;
 
       let moving = dragging.current;
+      let hoverChanged = false;
+      // Springier while a hover is live, so the overshoot reaches the pixels.
+      // Cleared during a mode morph, which wants the settled config.
+      const live = hovers.current.some((h) => h.value > 0.001 || h.target > 0);
+      const cfg = live ? HOVER_LAYOUT_SPRING : LAYOUT_SPRING;
       for (let i = 0; i < rects.current.length; i++) {
         const r = rects.current[i];
-        if (stepRect(r, dt, LAYOUT_SPRING)) moving = true;
+        const h = hovers.current[i];
+        if (step(h, dt, HOVER_SPRING)) {
+          moving = true;
+          hoverChanged = true;
+        }
+        if (stepRect(r, dt, cfg)) moving = true;
         const el = cells.current[i];
         if (el) {
-          el.style.transform = `translate3d(${r.x.value}px,${r.y.value}px,0)`;
+          // The strip spends its hover on the layout, so neighbours are
+          // pushed apart; the grid cannot reflow forty tiles under the
+          // cursor, so there it is a scale in place.
+          const scale = stripRef.current ? 1 : 1 + 0.045 * h.value;
+          el.style.transform = `translate3d(${r.x.value}px,${r.y.value}px,0) scale(${scale})`;
           el.style.width = `${r.w.value}px`;
           el.style.height = `${r.h.value}px`;
+          el.style.zIndex = h.value > 0.01 ? "1" : "";
         }
       }
+      // A growing item widens the strip, so its neighbours need new targets.
+      if (hoverChanged && stripRef.current) relayoutRef.current?.();
       if (step(offset.current, dt, TRACK_SPRING)) moving = true;
       if (step(height.current, dt, LAYOUT_SPRING)) moving = true;
 
@@ -127,7 +151,12 @@ export default function Gallery({
     // filling a 36rem column, where four columns came out at 129px.
     const l =
       modeRef.current === "strip"
-        ? stripLayout(shots, boxFor(vw, vh), GAP)
+        ? stripLayout(
+            shots,
+            boxFor(vw, vh),
+            GAP,
+            hovers.current.map((h) => h.value)
+          )
         : gridLayout(
             shots,
             el.clientWidth,
@@ -151,6 +180,14 @@ export default function Gallery({
 
   useEffect(() => {
     modeRef.current = mode;
+    stripRef.current = mode === "strip";
+    relayoutRef.current = relayout;
+    if (mode !== "strip") {
+      // Leaving the strip: drop any hover so the grid does not inherit a
+      // half-grown tile from a cursor that is no longer over anything.
+      hovered.current = -1;
+      hovers.current.forEach((h) => (h.target = 0));
+    }
     relayout();
   }, [mode, relayout]);
 
@@ -172,6 +209,8 @@ export default function Gallery({
   // suppressed every grid click that followed.
   const swallowClick = useRef(false);
 
+  const goToRef = useRef<((i: number) => void) | null>(null);
+
   const goTo = useCallback(
     (i: number) => {
       const next = Math.max(0, Math.min(shots.length - 1, i));
@@ -182,6 +221,7 @@ export default function Gallery({
     },
     [shots.length, offsetFor, paint, haptic]
   );
+  goToRef.current = goTo;
 
   const onDown = (e: React.PointerEvent) => {
     // Cleared on every press, before the mode check. A drag that ended over
@@ -247,6 +287,69 @@ export default function Gallery({
     return () => window.removeEventListener("keydown", onKey);
   }, [goTo, open, mode]);
 
+  const setHover = useCallback(
+    (i: number) => {
+      if (hovered.current === i) return;
+      if (hovered.current >= 0) hovers.current[hovered.current].target = 0;
+      hovered.current = i;
+      if (i >= 0) hovers.current[i].target = 1;
+      paint();
+    },
+    [paint]
+  );
+
+  /**
+   * A horizontal trackpad swipe moves the strip directly, then settles to
+   * the nearest item once the gesture stops. Registered here rather than as
+   * onWheel
+   * because React attaches wheel listeners passively, and a passive listener
+   * cannot preventDefault — the page would scroll away underneath.
+   */
+  useEffect(() => {
+    const el = host.current;
+    if (!el || mode !== "strip") return;
+    let idle: ReturnType<typeof setTimeout>;
+    const onWheel = (e: WheelEvent) => {
+      // Horizontal intent only. Swallowing deltaY as well would trap the page
+      // whenever the cursor sat over the strip, which on a 420px band in a
+      // document is most of the time.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      const dx = e.deltaX;
+      if (!dx) return;
+      e.preventDefault();
+      const min = offsetFor(shots.length - 1);
+      const max = offsetFor(0);
+      const raw = offset.current.value - dx;
+      const over = raw > max ? raw - max : raw < min ? raw - min : 0;
+      offset.current.value = raw - over + over * 0.35;
+      offset.current.target = offset.current.value;
+      offset.current.velocity = 0;
+      paint();
+      clearTimeout(idle);
+      idle = setTimeout(() => {
+        // Settle on whichever item is nearest the middle.
+        const l = layout.current;
+        if (!l) return;
+        const centre = el.clientWidth / 2 - offset.current.value;
+        let best = 0;
+        let dist = Infinity;
+        l.boxes.forEach((b, i) => {
+          const d = Math.abs(b.x + b.width / 2 - centre);
+          if (d < dist) {
+            dist = d;
+            best = i;
+          }
+        });
+        goToRef.current?.(best);
+      }, 110);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      clearTimeout(idle);
+    };
+  }, [mode, shots.length, offsetFor, paint]);
+
   const openAt = (shot: SphereShot, el: HTMLElement) => {
     if (swallowClick.current) {
       swallowClick.current = false;
@@ -275,6 +378,18 @@ export default function Gallery({
                 cells.current[i] = el;
               }}
               className="gallery-cell"
+              onPointerEnter={(e) => {
+                if (e.pointerType === "mouse") setHover(i);
+              }}
+              onPointerLeave={(e) => {
+                if (e.pointerType === "mouse") setHover(-1);
+              }}
+              onFocus={(e) => {
+                // :focus-visible, not focus — a tap focuses the button too,
+                // and no blur follows, so the tile stayed grown afterwards.
+                if (e.currentTarget.matches(":focus-visible")) setHover(i);
+              }}
+              onBlur={() => setHover(-1)}
               onClick={(e) => openAt(s, e.currentTarget)}
               aria-label={s.clip ? "Play with sound" : "Open image"}
             >

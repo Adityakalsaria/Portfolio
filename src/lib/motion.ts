@@ -23,6 +23,18 @@ export const TRACK_SPRING: SpringConfig = { k: 120, c: 22 };
 /** Items travelling between layouts. Slightly softer than the opener, since
  *  they move much further and a stiff one snaps. */
 export const LAYOUT_SPRING: SpringConfig = { k: 140, c: 23 };
+/** Hover. Deliberately underdamped — c below 2·sqrt(k) is what overshoots,
+ *  and the overshoot is the bounce. At k=260 critical would be ~32. */
+export const HOVER_SPRING: SpringConfig = { k: 260, c: 19 };
+/**
+ * The rects while a hover is live.
+ *
+ * A bouncy hover spring is not enough on its own: it only moves the layout's
+ * target, and LAYOUT_SPRING is near-critical (c 23 against a critical ~24),
+ * so it chased the overshoot and flattened it. The rects need to be springy
+ * too for the bounce to survive. ζ ≈ 0.57 here against a critical c of ~30.
+ */
+export const HOVER_LAYOUT_SPRING: SpringConfig = { k: 220, c: 17 };
 
 export const spring = (value = 0): Spring => ({ value, velocity: 0, target: value });
 
