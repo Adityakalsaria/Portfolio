@@ -17,11 +17,11 @@ import {
 /** Cell pitch. The field is a lattice of these, extending in every direction.
  *  Scaled to the window so a big screen shows a denser wall rather than the
  *  same handful of pieces blown up. */
-const CELL = 320;
-const CELL_SM = 190;
+const CELL = 370;
+const CELL_SM = 215;
 /** Clear space kept around every piece, as a fraction of the cell. Two
  *  neighbours are always at least twice this apart. */
-const PAD = 0.09;
+const PAD = 0.075;
 /** Side of the square each piece is worth, within the padded box. Every piece
  *  gets this area whatever its proportions.
  *
