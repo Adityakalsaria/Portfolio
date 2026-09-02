@@ -349,10 +349,16 @@ a { color: inherit; }
 .mode-icon { width: 0.95rem; height: 0.95rem; fill: currentColor; display: block; }
 .mode-btn:hover { color: var(--ink); }
 .mode-btn.is-on { color: var(--ink); background: var(--surface); }
-/* Below the panel's breakpoint the index is in the flow with less headroom,
-   so the switch meets Back on its line there instead. */
+/* Below the panel's breakpoint the index is in the flow: a centred column
+   with less headroom, not a panel flush to the left edge. The offset has to
+   come from that column, or the switch lands where the panel would have been
+   and sits on top of Back — measured at 1100px, 194px to its left. The
+   column is min(100% - 2.5rem, 36rem), so its left edge is this. */
 @media (max-width: 74rem) {
-  .mode-switch { top: 4.5rem; }
+  .mode-switch {
+    top: 4.5rem;
+    left: calc(max(1.25rem, 50% - 18rem) + 4rem);
+  }
 }
 .sr-only {
   position: absolute;
