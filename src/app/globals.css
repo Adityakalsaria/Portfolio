@@ -861,3 +861,73 @@ a { color: inherit; }
   width: 100%;
   height: auto;
 }
+
+
+/* ── Landing pages ───────────────────────────────────────────────
+   Cards cropped to the hero, which is what distinguishes one page from
+   another at a glance. Clears the fixed index the way the grid does. */
+.pgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 1.75rem;
+  width: 100vw;
+  margin: 5.5rem 0 0 calc(50% - 50vw);
+  padding: 0 1.75rem 7rem;
+  list-style: none;
+}
+@media (min-width: 74rem) {
+  .pgrid { padding-left: calc(clamp(15rem, 23vw, 21rem) + 1.75rem); }
+}
+.pcard {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+.pcard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Cover from the top: the hero is the identifying part of a page. */
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* The whole page. The overlay itself scrolls — a scroll inside a scroll is
+   what made the first attempt awkward. */
+.pview {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #141416;
+  padding: 4.5rem 1.5rem 5rem;
+  text-align: center;
+}
+.pview-page {
+  display: inline-block;
+  width: 100%;
+  max-width: 52rem;
+  height: auto;
+  border-radius: 6px;
+}
+.pview-close {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.75rem;
+  z-index: 1;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.pview-close:hover { background: rgb(255 255 255 / 0.18); }

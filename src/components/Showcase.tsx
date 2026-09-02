@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Wall from "./Wall";
 import Gallery from "./Gallery";
-import type { Shot, SphereShot } from "@/lib/work";
+import Pages from "./Pages";
+import { isPage, type Shot, type SphereShot } from "@/lib/work";
 import type { Group } from "@/lib/layout";
 
 type Mode = "wall" | "grid";
@@ -45,6 +46,11 @@ export default function Showcase({
         return g ? { ...s, name: g.title } : s;
       })
     : base;
+
+  // A project of pages is read, not browsed: no wall, no grid, no switch.
+  if (tiles.length > 0 && tiles.every(isPage)) {
+    return <Pages shots={tiles} title={title} />;
+  }
 
   return (
     <>
