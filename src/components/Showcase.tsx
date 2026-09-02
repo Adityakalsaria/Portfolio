@@ -16,30 +16,6 @@ type Mode = "wall" | "grid";
  * own thing: fixed cells that each hold a piece for a few seconds before the
  * next takes its place, so the whole set is seen without scrolling.
  */
-/** Uneven blocks: the field is scattered, not ruled. */
-function WallIcon() {
-  return (
-    <svg viewBox="0 0 16 16" className="mode-icon" aria-hidden focusable="false">
-      <rect x="1" y="2" width="6" height="4.5" rx="1" />
-      <rect x="9" y="1" width="6" height="6.5" rx="1" />
-      <rect x="1" y="8.5" width="6" height="6.5" rx="1" />
-      <rect x="9" y="9.5" width="6" height="4.5" rx="1" />
-    </svg>
-  );
-}
-
-/** Even columns, which is what the grid actually is. */
-function GridIcon() {
-  return (
-    <svg viewBox="0 0 16 16" className="mode-icon" aria-hidden focusable="false">
-      <rect x="1" y="1" width="6" height="6" rx="1" />
-      <rect x="9" y="1" width="6" height="6" rx="1" />
-      <rect x="1" y="9" width="6" height="6" rx="1" />
-      <rect x="9" y="9" width="6" height="6" rx="1" />
-    </svg>
-  );
-}
-
 export default function Showcase({
   shots,
   allShots,
@@ -82,8 +58,7 @@ export default function Showcase({
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
             title={m === "wall" ? "Wall" : "Grid"}
           >
-            {m === "wall" ? <WallIcon /> : <GridIcon />}
-            <span className="sr-only">{m === "wall" ? "Wall" : "Grid"}</span>
+            {m === "wall" ? "Wall" : "Grid"}
           </button>
         ))}
       </div>
