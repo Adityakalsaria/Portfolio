@@ -21,6 +21,8 @@ const CELL = 320;
 const CELL_SM = 190;
 /** How far the field leans toward the cursor, in px. */
 const PARALLAX = 44;
+/** Fraction of the window kept clear above the field. */
+const TOP_BAND = 0.2;
 
 /** Positive modulo — JS % keeps the sign, which breaks indexing past zero. */
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -90,6 +92,12 @@ export default function Wall({
     const el = host.current;
     if (!el) return;
     const measure = () => {
+      // Clear band across the top before the field starts: room for the view
+      // switch and the index to sit on paper rather than on artwork.
+      el.style.marginTop = "0px";
+      const natural = el.getBoundingClientRect().top + window.scrollY;
+      el.style.marginTop = `${Math.max(0, window.innerHeight * TOP_BAND - natural)}px`;
+
       const rect = el.getBoundingClientRect();
       // What sits under the wall, measured from the column rather than from
       // scrollHeight. scrollHeight is clamped to the viewport, so on a page
