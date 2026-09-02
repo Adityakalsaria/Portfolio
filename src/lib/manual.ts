@@ -376,6 +376,17 @@ const SAMPLE_SHOTS = [
 ];
 
 const LANDING_SHOTS = [
+  {
+    src: "/work/pages/koshmoney/koshmoney-1.0069480d.webp",
+    width: 2880,
+    height: 32796,
+    name: "koshmoney.com",
+    parts: [
+      { src: "/work/pages/koshmoney/koshmoney-1.0069480d.webp", width: 2880, height: 10932 },
+      { src: "/work/pages/koshmoney/koshmoney-2.1989d115.webp", width: 2880, height: 10932 },
+      { src: "/work/pages/koshmoney/koshmoney-3.dee60f20.webp", width: 2880, height: 10932 },
+    ],
+  },
   { src: "/work/marketing-assets/landing/landing-01.cfc4b5fb.webp", width: 787, height: 4096 },
   { src: "/work/marketing-assets/landing/landing-02.e82c8c48.webp", width: 781, height: 1798 },
   { src: "/work/marketing-assets/landing/landing-03.d5d8dc37.webp", width: 934, height: 4096 },

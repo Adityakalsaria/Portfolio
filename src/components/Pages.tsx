@@ -103,8 +103,21 @@ function PageViewer({
       <button type="button" className="pview-close" onClick={onClose}>
         Close
       </button>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="pview-page" src={shot.src} alt={title} decoding="async" />
+      {/* Segments, stacked with nothing between them, so a page cut up to
+          clear WebP's size ceiling reads as one continuous capture. */}
+      <div className="pview-stack">
+        {(shot.parts ?? [shot]).map((part, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={part.src}
+            className="pview-page"
+            src={part.src}
+            alt={i === 0 ? title : ""}
+            decoding="async"
+            loading={i === 0 ? "eager" : "lazy"}
+          />
+        ))}
+      </div>
     </div>
   );
 }

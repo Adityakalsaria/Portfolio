@@ -911,13 +911,25 @@ a { color: inherit; }
   padding: 4.5rem 1.5rem 5rem;
   text-align: center;
 }
-.pview-page {
-  display: inline-block;
+/* One column, no gaps: the segments have to meet exactly or the seams show. */
+.pview-stack {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 52rem;
-  height: auto;
+  margin: 0 auto;
   border-radius: 6px;
+  overflow: hidden;
 }
+.pview-page {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Kills the sliver of background that sits between stacked images when
+     their scaled heights land on a fraction of a pixel. */
+  margin-bottom: -1px;
+}
+.pview-page:last-child { margin-bottom: 0; }
 .pview-close {
   position: fixed;
   top: 1.5rem;

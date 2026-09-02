@@ -24,6 +24,15 @@ export const isPage = (s: { width: number; height: number }) =>
 export type SphereShot = Shot & {
   /** The campaign this belongs to, shown as the frame's name when opened. */
   name?: string;
+  /**
+   * A tall page, cut into stackable segments.
+   *
+   * WebP cannot exceed 16383px in either direction, and a 16400px page
+   * captured at 2x is 32796 tall. One file would have to come down to about
+   * 1438px wide to fit — softer than a retina viewer wants — so it is stored
+   * at full width in pieces and stacked back together seamlessly.
+   */
+  parts?: Shot[];
   href?: string;
   video?: boolean;
   /** Local MP4, played on the plane once it is focused. */
