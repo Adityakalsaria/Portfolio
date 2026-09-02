@@ -7,8 +7,6 @@ import {
   type Shot,
   type SphereShot,
 } from "@/lib/work";
-import { metaOf } from "@/lib/format";
-import Reveal from "@/components/Reveal";
 import Showcase from "@/components/Showcase";
 import ProjectNav from "@/components/ProjectNav";
 import { PROFILE } from "@/lib/cv";
@@ -81,14 +79,6 @@ export default async function ProjectPage({
       />
 
       <main className="doc">
-        <Reveal stagger={0.06}>
-          <p>{project.title}</p>
-          <p className="sub">
-            {[project.category.name, metaOf(project)].filter(Boolean).join(" — ")}
-          </p>
-          {project.intro && <p className="mt-5">{project.intro}</p>}
-        </Reveal>
-
         {/* One gallery, with the campaigns as runs inside it. Rendering a
             Showcase per section gave a project with nine campaigns nine
             separate galleries and nine view switches. */}

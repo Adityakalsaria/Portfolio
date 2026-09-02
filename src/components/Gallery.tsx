@@ -24,14 +24,16 @@ import {
   type RectSpring,
 } from "@/lib/motion";
 
-/** The strip's shared item height, and how wide one item may get. */
-const ITEM_H = 340;
+/** The strip's shared item height, and how wide one item may get. Driven by
+ *  the viewport rather than a fixed cap — with the page header gone the media
+ *  gets the screen, and a 340px band in a 900px window is a stripe. */
+const ITEM_MAX = 560;
 const GAP = 20;
 
 export type Mode = "strip" | "grid";
 
 function boxFor(vw: number, vh: number) {
-  const h = Math.min(ITEM_H, vh * 0.42, vw * 0.78);
+  const h = Math.min(ITEM_MAX, vh * 0.66, vw * 0.78);
   return { w: h, h, maxW: Math.min(vw * 0.92, h * 2.6) };
 }
 const columnsFor = (vw: number) => (vw < 640 ? 2 : vw < 1024 ? 3 : 4);

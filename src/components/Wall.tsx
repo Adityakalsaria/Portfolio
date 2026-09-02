@@ -6,8 +6,10 @@ import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
 import { TRACK_SPRING, easeBlur, motionBlur, spring, step } from "@/lib/motion";
 
-/** Cell pitch. The field is a lattice of these, extending in every direction. */
-const CELL = 300;
+/** Cell pitch. The field is a lattice of these, extending in every direction.
+ *  Scaled to the window so a big screen shows a denser wall rather than the
+ *  same handful of pieces blown up. */
+const CELL = 320;
 const CELL_SM = 190;
 /** How far the field leans toward the cursor, in px. */
 const PARALLAX = 44;
@@ -71,15 +73,21 @@ export default function Wall({
     if (!el) return;
     const measure = () => {
       const rect = el.getBoundingClientRect();
-      const topInPage = rect.top + window.scrollY;
-      const below =
-        document.documentElement.scrollHeight - (topInPage + rect.height);
-      const fit = Math.max(320, window.innerHeight - topInPage - below);
+      // What sits under the wall, measured from the column rather than from
+      // scrollHeight. scrollHeight is clamped to the viewport, so on a page
+      // shorter than the window it reported the empty space below as content
+      // and the wall could never grow into it — it settled 183px short and
+      // stayed there, since the measurement agreed with itself.
+      const col = el.closest(".doc");
+      const below = col
+        ? Math.max(0, col.getBoundingClientRect().bottom - rect.bottom)
+        : 0;
+      const fit = Math.max(320, window.innerHeight - rect.top - below);
       el.style.height = `${fit}px`;
       setBox({
         w: el.clientWidth,
         h: el.clientHeight,
-        cell: el.clientWidth < 640 ? CELL_SM : CELL,
+        cell: el.clientWidth < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4)),
       });
     };
     measure();
@@ -191,6 +199,37 @@ export default function Wall({
     };
     paint();
   };
+
+  /**
+   * Trackpad and wheel, panning the field the way a drag does.
+   *
+   * Registered by hand rather than as onWheel: React attaches wheel
+   * listeners passively, and a passive listener cannot preventDefault.
+   *
+   * Vertical is only taken when the page has nowhere to scroll — which is the
+   * case on a desktop, where the wall now fills the window. Where the page
+   * can still scroll, a vertical gesture belongs to it and only the
+   * horizontal component moves the wall.
+   */
+  useEffect(() => {
+    const el = host.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      const pageScrolls =
+        document.documentElement.scrollHeight > window.innerHeight + 1;
+      const takeY = !pageScrolls;
+      const dx = e.deltaX;
+      const dy = takeY ? e.deltaY : 0;
+      if (!dx && !dy) return;
+      e.preventDefault();
+      x.current.value = x.current.target = x.current.value - dx;
+      y.current.value = y.current.target = y.current.value - dy;
+      x.current.velocity = y.current.velocity = 0;
+      paint();
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [paint]);
 
   const openAt = (shot: SphereShot, el: HTMLElement) => {
     if (swallowClick.current) {

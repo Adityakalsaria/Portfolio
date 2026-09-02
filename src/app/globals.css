@@ -293,6 +293,18 @@ a { color: inherit; }
     /* Above the full-bleed media, which otherwise scrolls up under the fixed
        rail and swallows every click on the index. */
     z-index: 60;
+    /* And legible over it. The wall runs the full window now, so the rail
+       sits on artwork rather than on paper; without a ground of its own the
+       index is unreadable. Faded out at the edges so it reads as the page
+       showing through rather than as a panel. */
+    padding: 0.5rem 1.25rem 1.75rem;
+    margin-left: -1.25rem;
+    background: radial-gradient(
+      150% 115% at 25% 45%,
+      var(--paper) 0%,
+      var(--paper) 72%,
+      rgb(255 255 255 / 0) 100%
+    );
     /* Matches .doc's top padding, so the rail's first line sits on the same
        baseline as the title rather than 88px below it. */
     top: 5.5rem;
@@ -762,3 +774,8 @@ a { color: inherit; }
   .wall-piece.is-out,
   .wall-piece.is-in { transform: scale(var(--s, 1)); }
 }
+
+/* A project page is its media: no header above it, so the column's top
+   padding is the switch's alone and the views start near the top. */
+.doc:has(.mode-switch) { padding-top: 2.5rem; padding-bottom: 0; }
+.doc:has(.mode-switch) .mode-switch { margin-top: 0; }
