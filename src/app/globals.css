@@ -816,8 +816,7 @@ a { color: inherit; }
   border-radius: 4px;
 }
 .sel-handle,
-.sel-name,
-.sel-size { position: absolute; }
+.sel-name { position: absolute; }
 .sel-handle {
   width: 7px;
   height: 7px;
@@ -825,29 +824,18 @@ a { color: inherit; }
   box-shadow: 0 0 0 1px var(--sel, #0d99ff);
   border-radius: 1px;
 }
-.sel-handle.tl { left: 0; top: 0; transform: translate(-50%, -50%); }
-.sel-handle.tr { right: 0; top: 0; transform: translate(50%, -50%); }
-.sel-handle.bl { left: 0; bottom: 0; transform: translate(-50%, 50%); }
-.sel-handle.br { right: 0; bottom: 0; transform: translate(50%, 50%); }
-/* The name sits on the top edge, the size under the bottom one, both clear
-   of the artwork so neither covers it. */
+/* Prefixed. Bare .tl is the timeline's own class, with a 9rem padding-top,
+   which stretched the top-left handle to 144px tall. */
+.sel-handle.sel-tl { left: 0; top: 0; transform: translate(-50%, -50%); }
+.sel-handle.sel-tr { right: 0; top: 0; transform: translate(50%, -50%); }
+.sel-handle.sel-bl { left: 0; bottom: 0; transform: translate(-50%, 50%); }
+.sel-handle.sel-br { right: 0; bottom: 0; transform: translate(50%, 50%); }
+/* The name sits above the top edge, clear of the artwork. */
 .sel-name {
   left: 0;
   bottom: 100%;
   margin-bottom: 7px;
   color: var(--sel, #0d99ff);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-.sel-size {
-  left: 50%;
-  top: 100%;
-  transform: translateX(-50%);
-  margin-top: 9px;
-  padding: 0.15rem 0.45rem;
-  border-radius: 3px;
-  background: var(--sel, #0d99ff);
-  color: #fff;
   font-size: 0.75rem;
   white-space: nowrap;
 }
