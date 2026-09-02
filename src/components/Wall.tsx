@@ -355,9 +355,13 @@ export default function Wall({
                 key={`${c}:${r}`}
                 type="button"
                 className="wall-cell"
+                // The cell tiles exactly; the jitter moves the picture inside
+                // it. Offsetting the cell itself left uncovered strips between
+                // them, and a click that landed in one hit the stage and did
+                // nothing.
                 style={{
-                  left: c * cell + jr(31) * (box - w),
-                  top: r * cell + jr(57) * (box - w / aspect),
+                  left: c * cell,
+                  top: r * cell,
                   width: cell,
                   height: cell,
                 }}
@@ -366,7 +370,13 @@ export default function Wall({
               >
                 <span
                   className="wall-piece"
-                  style={{ width: w, aspectRatio: aspect }}
+                  style={{
+                    width: w,
+                    aspectRatio: aspect,
+                    transform: `translate(${jr(31) * (box - w)}px, ${
+                      jr(57) * (box - w / aspect)
+                    }px)`,
+                  }}
                 >
                   {shot.clip ? (
                     <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
