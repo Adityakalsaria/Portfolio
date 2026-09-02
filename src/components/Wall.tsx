@@ -21,8 +21,7 @@ const CELL = 320;
 const CELL_SM = 190;
 /** How far the field leans toward the cursor, in px. */
 const PARALLAX = 44;
-/** Fraction of the window kept clear above the field. */
-const TOP_BAND = 0.2;
+
 
 /** Positive modulo — JS % keeps the sign, which breaks indexing past zero. */
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -92,12 +91,6 @@ export default function Wall({
     const el = host.current;
     if (!el) return;
     const measure = () => {
-      // Clear band across the top before the field starts: room for the view
-      // switch and the index to sit on paper rather than on artwork.
-      el.style.marginTop = "0px";
-      const natural = el.getBoundingClientRect().top + window.scrollY;
-      el.style.marginTop = `${Math.max(0, window.innerHeight * TOP_BAND - natural)}px`;
-
       const rect = el.getBoundingClientRect();
       // What sits under the wall, measured from the column rather than from
       // scrollHeight. scrollHeight is clamped to the viewport, so on a page
@@ -331,7 +324,11 @@ export default function Wall({
       >
         <div ref={stage} className="wall-stage">
           {cells.map(({ c, r, shot }) => {
-            const s = 0.55 + hash(c, r) * 0.4;
+            const s = 0.5 + hash(c, r) * 0.45;
+            // Nudged off the lattice, stably per coordinate, so rows do not
+            // line up and the field reads as scattered rather than ruled.
+            const jx = (hash(c + 31, r) - 0.5) * cell * 0.22;
+            const jy = (hash(c, r + 57) - 0.5) * cell * 0.34;
             const aspect = shot.width / shot.height;
             const w = cell * s * (aspect > 1 ? 1 : aspect);
             return (
@@ -340,8 +337,8 @@ export default function Wall({
                 type="button"
                 className="wall-cell"
                 style={{
-                  left: c * cell,
-                  top: r * cell,
+                  left: c * cell + jx,
+                  top: r * cell + jy,
                   width: cell,
                   height: cell,
                 }}

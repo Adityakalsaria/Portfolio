@@ -330,23 +330,49 @@ a { color: inherit; }
 }
 
 /* View switch on a project page. */
+/* Out of the flow and into the corner, over the work. Inverts against it
+   like the index does, so it reads on anything. */
 .mode-switch {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.75rem;
+  z-index: 61;
   display: flex;
-  gap: 1rem;
-  margin-top: 2.5rem;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  mix-blend-mode: difference;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45);
+}
+.mode-glyph {
+  display: block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.5;
 }
 .mode-btn {
-  color: var(--muted);
-  transition: color 0.2s ease;
-  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  color: #fff;
 }
-.mode-btn:hover { color: var(--ink); }
-.mode-btn.is-on {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+.mode-btn.is-on { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7); }
+.mode-btn.is-on .mode-glyph { opacity: 1; }
+.mode-btn:hover .mode-glyph { opacity: 0.85; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
+.mode-btn { cursor: pointer; }
 
 /* Gallery images carry the same hairline edge as the preview. Drawn outside
    the box rather than inset, so it rings the image instead of overlapping
@@ -698,7 +724,7 @@ a { color: inherit; }
 .wall {
   position: relative;
   width: 100vw;
-  margin: 1.5rem 0 0 calc(50% - 50vw);
+  margin: 0 0 0 calc(50% - 50vw);
   /* A starting height only; the component measures what actually fits. */
   height: 70svh;
   overflow: hidden;
@@ -773,7 +799,6 @@ a { color: inherit; }
   .wall-piece.is-in { transform: scale(var(--s, 1)); }
 }
 
-/* A project page is its media: no header above it, so the column's top
-   padding is the switch's alone and the views start near the top. */
-.doc:has(.mode-switch) { padding-top: 2.5rem; padding-bottom: 0; }
-.doc:has(.mode-switch) .mode-switch { margin-top: 0; }
+/* A project page is its media, edge to edge: no header, no column padding,
+   nothing between the window and the work. */
+.doc:has(.mode-switch) { padding-top: 0; padding-bottom: 0; }

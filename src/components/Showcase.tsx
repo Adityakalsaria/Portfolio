@@ -50,8 +50,10 @@ export default function Showcase({
             onClick={() => setMode(m)}
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
+            title={m === "wall" ? "Wall" : "Grid"}
           >
-            {m === "wall" ? "Wall" : "Grid"}
+            <span className="mode-glyph" aria-hidden />
+            <span className="sr-only">{m === "wall" ? "Wall" : "Grid"}</span>
           </button>
         ))}
       </div>
