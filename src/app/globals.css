@@ -689,10 +689,15 @@ a { color: inherit; }
   position: relative;
   width: 100vw;
   margin: 1.5rem 0 0 calc(50% - 50vw);
-  height: 78svh;
+  /* A starting height only; the component measures what actually fits. */
+  height: 70svh;
   overflow: hidden;
   cursor: grab;
-  touch-action: none;
+  /* pan-y, not none: on a phone the header leaves the page a little taller
+     than the viewport, and swallowing vertical touch there would strand the
+     reader on the wall with no way back. A vertical swipe scrolls the page,
+     a horizontal one moves the wall. A mouse drags freely in both. */
+  touch-action: pan-y;
   user-select: none;
 }
 .wall:active { cursor: grabbing; }

@@ -56,18 +56,38 @@ export default function Wall({
     null
   );
 
+  /**
+   * Sizes the wall to whatever is left of the viewport, so the page has
+   * nothing to scroll.
+   *
+   * The wall is a surface you drag, sitting in a document that could still
+   * scroll — 212px of it, which a wheel over the wall would take in one go.
+   * That is the jump: not the pan, which measures smooth, but the page
+   * leaving under it. Nothing follows the wall, so it may as well end where
+   * the viewport does.
+   */
   useEffect(() => {
+    const el = host.current;
+    if (!el) return;
     const measure = () => {
-      const el = host.current;
-      if (!el) return;
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      setBox({ w, h, cell: w < 640 ? CELL_SM : CELL });
+      const rect = el.getBoundingClientRect();
+      const topInPage = rect.top + window.scrollY;
+      const below =
+        document.documentElement.scrollHeight - (topInPage + rect.height);
+      const fit = Math.max(320, window.innerHeight - topInPage - below);
+      el.style.height = `${fit}px`;
+      setBox({
+        w: el.clientWidth,
+        h: el.clientHeight,
+        cell: el.clientWidth < 640 ? CELL_SM : CELL,
+      });
     };
     measure();
-    const ro = new ResizeObserver(measure);
-    if (host.current) ro.observe(host.current);
-    return () => ro.disconnect();
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      el.style.height = "";
+    };
   }, []);
 
   // ── the loop ────────────────────────────────────────────────────
