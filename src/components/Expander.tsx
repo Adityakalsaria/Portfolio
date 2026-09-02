@@ -41,6 +41,7 @@ export default function Expander({
   const video = useRef<HTMLVideoElement>(null);
   const p = useRef(spring(0));
   const blurRef = useRef(0);
+  const opened = useRef(false);
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
@@ -60,7 +61,14 @@ export default function Expander({
       };
     };
 
-    p.current.target = 1;
+    // Only on the way in. This effect re-runs whenever the parent hands it a
+    // new onClose — and the wall rebuilds that every frame while it animates
+    // — so setting the target here unconditionally cancelled a close in
+    // progress, over and over. It took four clicks to get one through.
+    if (!opened.current) {
+      opened.current = true;
+      p.current.target = 1;
+    }
     let raf = 0;
     let last = performance.now();
 

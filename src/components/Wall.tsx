@@ -63,6 +63,10 @@ export default function Wall({
   /** Which config the pan chases. Stiff while a wheel is driving it, loose
    *  after a throw, so momentum still reads as momentum. */
   const chase = useRef(TRACK_SPRING);
+  /** Which lattice cell sits at the origin; a re-render is only needed when
+   *  this changes. */
+  const range = useRef({ c: 0, r: 0 });
+  const cellRef = useRef(CELL);
   const blur = useRef(0);
   const haptic = useHaptics();
 
@@ -103,6 +107,7 @@ export default function Wall({
       // field beneath the index left it unreadable on artwork, and the paper
       // panel I put behind it read as a slab dropped on the work.
       const w = el.clientWidth;
+      cellRef.current = w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4));
       setBox({
         w,
         h: el.clientHeight,
@@ -149,8 +154,16 @@ export default function Wall({
         const want = blur.current ? `blur(${blur.current.toFixed(2)}px)` : "";
         if (el.style.filter !== want) el.style.filter = want;
       }
-      // Re-render when the pan has carried a new row or column into view.
-      force((n) => n + 1);
+      // Only when the pan has actually carried a new row or column into view.
+      // Re-rendering every frame rebuilt thirty-five buttons for nothing and
+      // handed the expander a new onClose each time.
+      const cellNow = cellRef.current;
+      const nc = Math.floor(-(x.current.value + leanX.current.value) / cellNow);
+      const nr = Math.floor(-(y.current.value + leanY.current.value) / cellNow);
+      if (nc !== range.current.c || nr !== range.current.r) {
+        range.current = { c: nc, r: nr };
+        force((n) => n + 1);
+      }
       if (moving) requestAnimationFrame(tick);
       else running.current = false;
     };
@@ -257,6 +270,8 @@ export default function Wall({
     return () => el.removeEventListener("wheel", onWheel);
   }, [paint]);
 
+  const close = useCallback(() => setOpen(null), []);
+
   const openAt = (shot: SphereShot, el: HTMLElement) => {
     if (swallowClick.current) {
       swallowClick.current = false;
@@ -346,7 +361,7 @@ export default function Wall({
           shot={open.shot}
           from={open.from}
           preview={open.preview}
-          onClose={() => setOpen(null)}
+          onClose={close}
         />
       )}
     </>
