@@ -1,5 +1,17 @@
 import type { SphereShot } from "./work";
 
+/**
+ * The room the fixed index rail needs on the left.
+ *
+ * It is only fixed at 74rem and up; below that it sits in the flow and needs
+ * nothing. Mirrors its own CSS: left is clamp(1.5rem, 5vw, 7rem), width 11rem.
+ */
+export function railReserve(vw: number): number {
+  if (vw < 1184) return 0;
+  const left = Math.min(Math.max(24, vw * 0.05), 112);
+  return left + 176 + 24;
+}
+
 export type Box = { x: number; y: number; width: number; height: number };
 /** A run of consecutive shots that belong to one campaign. */
 export type Group = { title: string; start: number; count: number };

@@ -276,9 +276,11 @@ a { color: inherit; }
 }
 .pnav-index { display: inline-block; }
 .pnav-list { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0.3rem; }
-.pnav-item { color: var(--muted); transition: color 0.2s ease; }
-.pnav-item:hover { color: var(--ink); }
-.pnav-item.is-on { color: var(--ink); }
+/* All white, separated by weight rather than by colour: under difference a
+   grey would invert to a different grey, not to a readable one. */
+.pnav-item { color: #fff; opacity: 0.55; transition: opacity 0.2s ease; }
+.pnav-item:hover { opacity: 1; }
+.pnav-item.is-on { opacity: 1; }
 
 /* Below the breakpoint the rail is in the flow and supplies the page's top
    spacing, so .doc must not add its own on top. Scoped to that case: on
@@ -293,18 +295,14 @@ a { color: inherit; }
     /* Above the full-bleed media, which otherwise scrolls up under the fixed
        rail and swallows every click on the index. */
     z-index: 60;
-    /* And legible over it. The wall runs the full window now, so the rail
-       sits on artwork rather than on paper; without a ground of its own the
-       index is unreadable. Faded out at the edges so it reads as the page
-       showing through rather than as a panel. */
-    padding: 0.5rem 1.25rem 1.75rem;
-    margin-left: -1.25rem;
-    background: radial-gradient(
-      150% 115% at 25% 45%,
-      var(--paper) 0%,
-      var(--paper) 72%,
-      rgb(255 255 255 / 0) 100%
-    );
+    /* Inverts against whatever is behind it: white text over a dark image
+       stays white, over a light one it comes out black. Difference blending
+       does that arithmetically — 255 minus the backdrop — so the index reads
+       over the wall without a panel between them, which looked like a slab
+       dropped on the work. */
+    mix-blend-mode: difference;
+    color: #fff;
+
     /* Matches .doc's top padding, so the rail's first line sits on the same
        baseline as the title rather than 88px below it. */
     top: 5.5rem;

@@ -5,7 +5,13 @@ import Image from "next/image";
 import type { SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
-import { gridLayout, stripLayout, type Group, type Layout } from "@/lib/layout";
+import {
+  gridLayout,
+  railReserve,
+  stripLayout,
+  type Group,
+  type Layout,
+} from "@/lib/layout";
 import {
   DISTANCE_COMMIT,
   HOVER_LAYOUT_SPRING,
@@ -38,17 +44,6 @@ function boxFor(vw: number, vh: number) {
 }
 const columnsFor = (vw: number) => (vw < 640 ? 2 : vw < 1024 ? 3 : 4);
 
-/**
- * The room the fixed index rail needs on the left.
- *
- * It is only fixed at 74rem and up; below that it sits in the flow and needs
- * nothing. Mirrors its own CSS: left is clamp(1.5rem, 5vw, 7rem), width 11rem.
- */
-function railReserve(vw: number): number {
-  if (vw < 1184) return 0;
-  const left = Math.min(Math.max(24, vw * 0.05), 112);
-  return left + 176 + 24;
-}
 
 /**
  * One set of items, two layouts, and the same springs carrying them between.

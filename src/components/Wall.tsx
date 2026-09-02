@@ -98,10 +98,15 @@ export default function Wall({
         : 0;
       const fit = Math.max(320, window.innerHeight - rect.top - below);
       el.style.height = `${fit}px`;
+      // The host already starts after the rail — see .wall in the CSS, which
+      // mirrors railReserve so there is no first-frame shift. Running the
+      // field beneath the index left it unreadable on artwork, and the paper
+      // panel I put behind it read as a slab dropped on the work.
+      const w = el.clientWidth;
       setBox({
-        w: el.clientWidth,
+        w,
         h: el.clientHeight,
-        cell: el.clientWidth < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4)),
+        cell: w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4)),
       });
     };
     measure();
