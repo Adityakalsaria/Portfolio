@@ -6,7 +6,7 @@ import Gallery from "./Gallery";
 import type { Shot, SphereShot } from "@/lib/work";
 import type { Group } from "@/lib/layout";
 
-type Mode = "scroll" | "grid" | "wall";
+type Mode = "wall" | "grid";
 
 /**
  * Three ways through a project's images.
@@ -32,7 +32,7 @@ export default function Showcase({
   groups?: Group[];
   title: string;
 }) {
-  const [mode, setMode] = useState<Mode>("scroll");
+  const [mode, setMode] = useState<Mode>("wall");
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
@@ -43,7 +43,7 @@ export default function Showcase({
   return (
     <>
       <div className="mode-switch" role="group" aria-label="View">
-        {(["scroll", "grid", "wall"] as Mode[]).map((m) => (
+        {(["wall", "grid"] as Mode[]).map((m) => (
           <button
             key={m}
             type="button"
@@ -51,7 +51,7 @@ export default function Showcase({
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
           >
-            {m === "scroll" ? "Carousel" : m === "grid" ? "Grid" : "Wall"}
+            {m === "wall" ? "Wall" : "Grid"}
           </button>
         ))}
       </div>
@@ -61,12 +61,7 @@ export default function Showcase({
       ) : (
         // One component for both: switching between them is a retarget, not
         // an unmount, so the items travel rather than blink.
-        <Gallery
-          shots={tiles}
-          groups={groups}
-          mode={mode === "scroll" ? "strip" : "grid"}
-          title={title}
-        />
+        <Gallery shots={tiles} groups={groups} mode="grid" title={title} />
       )}
     </>
   );

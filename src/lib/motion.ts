@@ -24,6 +24,11 @@ export const OPEN_SPRING: SpringConfig = { k: 190, c: 25 };
 export const CLOSE_SPRING: SpringConfig = { k: 340, c: 37 };
 /** The track. Looser, so a flick still reads as momentum. */
 export const TRACK_SPRING: SpringConfig = { k: 120, c: 22 };
+/** Following a wheel or trackpad. Stiff enough to feel direct, damped enough
+ *  to smooth the steps those devices arrive in. Critically damped. */
+export const CHASE_SPRING: SpringConfig = { k: 300, c: 35 };
+/** The cursor lean. Slow and soft — it is a drift, not a response. */
+export const LEAN_SPRING: SpringConfig = { k: 34, c: 12 };
 /** Items travelling between layouts. Slightly softer than the opener, since
  *  they move much further and a stiff one snaps. */
 export const LAYOUT_SPRING: SpringConfig = { k: 140, c: 23 };

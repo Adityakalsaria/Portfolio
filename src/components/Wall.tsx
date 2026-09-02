@@ -4,7 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
-import { TRACK_SPRING, easeBlur, motionBlur, spring, step } from "@/lib/motion";
+import {
+  CHASE_SPRING,
+  LEAN_SPRING,
+  TRACK_SPRING,
+  easeBlur,
+  motionBlur,
+  spring,
+  step,
+} from "@/lib/motion";
 
 /** Cell pitch. The field is a lattice of these, extending in every direction.
  *  Scaled to the window so a big screen shows a denser wall rather than the
@@ -47,8 +55,14 @@ export default function Wall({
   const stage = useRef<HTMLDivElement>(null);
   const x = useRef(spring(0));
   const y = useRef(spring(0));
-  /** Cursor lean, kept apart from the pan so a drag does not fight it. */
-  const lean = useRef({ x: 0, y: 0 });
+  /** Cursor lean, kept apart from the pan so a drag does not fight it. Eased
+   *  rather than assigned: set straight from pointermove it stepped with the
+   *  cursor, which is the opposite of a drift. */
+  const leanX = useRef(spring(0));
+  const leanY = useRef(spring(0));
+  /** Which config the pan chases. Stiff while a wheel is driving it, loose
+   *  after a throw, so momentum still reads as momentum. */
+  const chase = useRef(TRACK_SPRING);
   const blur = useRef(0);
   const haptic = useHaptics();
 
@@ -111,8 +125,10 @@ export default function Wall({
       const dt = (now - last) / 1000;
       last = now;
       let moving = dragging.current;
-      if (step(x.current, dt, TRACK_SPRING)) moving = true;
-      if (step(y.current, dt, TRACK_SPRING)) moving = true;
+      if (step(x.current, dt, chase.current)) moving = true;
+      if (step(y.current, dt, chase.current)) moving = true;
+      if (step(leanX.current, dt, LEAN_SPRING)) moving = true;
+      if (step(leanY.current, dt, LEAN_SPRING)) moving = true;
 
       const speed = dt > 0 ? Math.hypot(x.current.value - px, y.current.value - py) / dt : 0;
       px = x.current.value;
@@ -122,8 +138,8 @@ export default function Wall({
 
       const el = stage.current;
       if (el) {
-        el.style.transform = `translate3d(${x.current.value + lean.current.x}px,${
-          y.current.value + lean.current.y
+        el.style.transform = `translate3d(${x.current.value + leanX.current.value}px,${
+          y.current.value + leanY.current.value
         }px,0)`;
         const want = blur.current ? `blur(${blur.current.toFixed(2)}px)` : "";
         if (el.style.filter !== want) el.style.filter = want;
@@ -152,6 +168,7 @@ export default function Wall({
     d.lt = performance.now();
     d.vx = d.vy = d.moved = 0;
     dragging.current = true;
+    chase.current = TRACK_SPRING;
     paint();
 
     const move = (ev: PointerEvent) => {
@@ -193,10 +210,11 @@ export default function Wall({
 
   const onMove = (e: React.PointerEvent) => {
     if (dragging.current || e.pointerType !== "mouse" || !box.w) return;
-    lean.current = {
-      x: (0.5 - e.clientX / box.w) * 2 * PARALLAX,
-      y: (0.5 - (e.clientY - (host.current?.getBoundingClientRect().top ?? 0)) / box.h) * 2 * PARALLAX,
-    };
+    leanX.current.target = (0.5 - e.clientX / box.w) * 2 * PARALLAX;
+    leanY.current.target =
+      (0.5 - (e.clientY - (host.current?.getBoundingClientRect().top ?? 0)) / box.h) *
+      2 *
+      PARALLAX;
     paint();
   };
 
@@ -222,9 +240,12 @@ export default function Wall({
       const dy = takeY ? e.deltaY : 0;
       if (!dx && !dy) return;
       e.preventDefault();
-      x.current.value = x.current.target = x.current.value - dx;
-      y.current.value = y.current.target = y.current.value - dy;
-      x.current.velocity = y.current.velocity = 0;
+      // Move the target and let the spring follow. Applying the delta to the
+      // value directly tracked the device 1:1, and a trackpad delivers its
+      // deltas in bursts, so the field advanced in steps.
+      chase.current = CHASE_SPRING;
+      x.current.target -= dx;
+      y.current.target -= dy;
       paint();
     };
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -248,8 +269,8 @@ export default function Wall({
 
   // ── which cells are on screen ───────────────────────────────────
   const cell = box.cell;
-  const ox = x.current.value + lean.current.x;
-  const oy = y.current.value + lean.current.y;
+  const ox = x.current.value + leanX.current.value;
+  const oy = y.current.value + leanY.current.value;
   const c0 = Math.floor(-ox / cell) - 1;
   const r0 = Math.floor(-oy / cell) - 1;
   const cols = box.w ? Math.ceil(box.w / cell) + 2 : 0;
@@ -273,7 +294,8 @@ export default function Wall({
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerLeave={() => {
-          lean.current = { x: 0, y: 0 };
+          leanX.current.target = 0;
+          leanY.current.target = 0;
           paint();
         }}
         role="group"
