@@ -15,10 +15,12 @@ import {
 } from "@/lib/motion";
 
 /** Cell pitch. The field is a lattice of these, extending in every direction.
- *  Scaled to the window so a big screen shows a denser wall rather than the
- *  same handful of pieces blown up. */
-const CELL = 370;
-const CELL_SM = 215;
+ *  Sized so a piece comes out about 250px across on a desktop. The window
+ *  height still caps it — on a short screen a 490px pitch would leave barely
+ *  a row and a half in view — so below about 780px tall the pieces shrink
+ *  rather than the field emptying out. */
+const CELL = 490;
+const CELL_SM = 284;
 /** Clear space kept around every piece, as a fraction of the cell. Two
  *  neighbours are always at least twice this apart. */
 const PAD = 0.075;
@@ -118,11 +120,11 @@ export default function Wall({
       // field beneath the index left it unreadable on artwork, and the paper
       // panel I put behind it read as a slab dropped on the work.
       const w = el.clientWidth;
-      cellRef.current = w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4));
+      cellRef.current = w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 1.6));
       setBox({
         w,
         h: el.clientHeight,
-        cell: w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 2.4)),
+        cell: w < 640 ? CELL_SM : Math.round(Math.min(CELL, el.clientHeight / 1.6)),
       });
     };
     measure();
