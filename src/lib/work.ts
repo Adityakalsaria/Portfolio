@@ -4,7 +4,7 @@ import { MANUAL } from "./manual";
 
 export type Shot = { src: string; width: number; height: number };
 
-/** A shot in the sphere or grid, which may open its source and may be the
+/** A shot in the wall or grid, which may open its source and may be the
  *  poster frame of a video rather than a still. */
 export type SphereShot = Shot & {
   href?: string;

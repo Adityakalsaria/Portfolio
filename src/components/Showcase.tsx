@@ -1,31 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import ImageSphereView from "./ImageSphereView";
+import Wall from "./Wall";
 import Gallery from "./Gallery";
 import type { Shot, SphereShot } from "@/lib/work";
 import type { Group } from "@/lib/layout";
 
-type Mode = "scroll" | "grid" | "sphere";
+type Mode = "scroll" | "grid" | "wall";
 
 /**
  * Three ways through a project's images.
  *
  * Carousel and Grid are the same component in two layouts, so switching
- * between them moves the items rather than replacing them. The sphere is its
- * own thing — a three.js cloud — and breaks out to the full viewport width,
- * since at the 36rem column the planes crowd each other.
+ * between them moves the items rather than replacing them. The Wall is its
+ * own thing: fixed cells that each hold a piece for a few seconds before the
+ * next takes its place, so the whole set is seen without scrolling.
  */
 export default function Showcase({
   shots,
-  sphereShots,
+  allShots,
   gridShots,
   title,
   groups,
 }: {
   shots: Shot[];
-  /** What the sphere shows, when it is more than the scroll's own images. */
-  sphereShots?: SphereShot[];
+  /** Everything, where a view shows more than the scroll's own images. */
+  allShots?: SphereShot[];
   /** What the grid shows. The posts, where a project has them. */
   gridShots?: SphereShot[];
   /** Campaign runs over the same list. */
@@ -38,12 +38,12 @@ export default function Showcase({
   // type rather than letting the fallback narrow it.
   const tiles: SphereShot[] = gridShots?.length
     ? gridShots
-    : (sphereShots ?? shots);
+    : (allShots ?? shots);
 
   return (
     <>
       <div className="mode-switch" role="group" aria-label="View">
-        {(["scroll", "grid", "sphere"] as Mode[]).map((m) => (
+        {(["scroll", "grid", "wall"] as Mode[]).map((m) => (
           <button
             key={m}
             type="button"
@@ -51,13 +51,13 @@ export default function Showcase({
             aria-pressed={mode === m}
             className={mode === m ? "mode-btn is-on" : "mode-btn"}
           >
-            {m === "scroll" ? "Carousel" : m === "grid" ? "Grid" : "Sphere"}
+            {m === "scroll" ? "Carousel" : m === "grid" ? "Grid" : "Wall"}
           </button>
         ))}
       </div>
 
-      {mode === "sphere" ? (
-        <ImageSphereView shots={sphereShots ?? shots} title={title} />
+      {mode === "wall" ? (
+        <Wall shots={(allShots ?? shots) as never} title={title} />
       ) : (
         // One component for both: switching between them is a retarget, not
         // an unmount, so the items travel rather than blink.

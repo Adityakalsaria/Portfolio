@@ -46,7 +46,7 @@ export default async function ProjectPage({
     project.shots ??
     [{ src: project.cover, width: project.width ?? 4, height: project.height ?? 3 }];
 
-  // The posts live in the sphere, where their clips play on the plane, rather
+  // The posts join the grid and the wall, where their clips play in place,
   // than as a second list under the work.
   const postShots: SphereShot[] = (project.posts ?? [])
     .filter((p) => p.media)
@@ -58,7 +58,7 @@ export default async function ProjectPage({
       video: p.video,
       clip: p.clip ?? undefined,
     }));
-  const sphereShots = [...flat, ...postShots];
+  const allShots = [...flat, ...postShots];
 
   const sections = project.sections ?? [];
   // Runs over the flat list: each campaign's start and length.
@@ -94,8 +94,8 @@ export default async function ProjectPage({
             separate galleries and nine view switches. */}
         <Showcase
           shots={flat}
-          sphereShots={sphereShots}
-          gridShots={sphereShots}
+          allShots={allShots}
+          gridShots={allShots}
           groups={groups}
           title={project.title}
         />
