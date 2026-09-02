@@ -785,3 +785,6 @@ a { color: inherit; }
 /* Nothing above the work: no header, no band, no column padding. The left
    panel is the only paper on the page. */
 .doc:has(.mode-switch) { padding-top: 0; padding-bottom: 0; }
+/* The wall runs to the top edge; the grid begins on the Back link's line, so
+   its first campaign heading and the index start together. */
+.gallery.is-grid { margin-top: 5.5rem; }
