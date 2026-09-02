@@ -6,6 +6,21 @@ export type Shot = { src: string; width: number; height: number };
 
 /** A shot in the wall or grid, which may open its source and may be the
  *  poster frame of a video rather than a still. */
+/**
+ * Taller than this and it is a page, not a graphic.
+ *
+ * A landing page is many times taller than it is wide. Fitted whole it comes
+ * out a 100px sliver in the wall and 227px across when opened — a 4288px
+ * design at 227px. So a page is cropped to its hero in a tile and scrolled
+ * when opened, rather than shrunk until it fits.
+ */
+export const PAGE_RATIO = 1.7;
+/** The proportions a page is shown at in a tile, cropped from its top. */
+export const PAGE_TILE_ASPECT = 0.78;
+
+export const isPage = (s: { width: number; height: number }) =>
+  s.height / s.width > PAGE_RATIO;
+
 export type SphereShot = Shot & {
   /** The campaign this belongs to, shown as the frame's name when opened. */
   name?: string;

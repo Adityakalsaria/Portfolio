@@ -31,6 +31,16 @@ const OUT = `public/work/marketing-assets/${SLUG}`;
  * 3200 covers that with room and only shrinks the very largest sources.
  */
 const MAX = 3200;
+/**
+ * A page is scaled by its width, not its longest edge.
+ *
+ * A landing page capture is many times taller than it is wide, so the
+ * longest-edge cap would have driven its width down — a 787x4096 page would
+ * have come out 615 wide, narrower than the source and unreadable. Below
+ * this ratio nothing changes.
+ */
+const PAGE_RATIO = 1.7;
+const MAX_PAGE_W = 1600;
 /** 95 rather than 88, and the slowest encoder pass, which buys quality per
  *  byte rather than just spending more bytes. */
 const QUALITY = "95";
@@ -94,15 +104,18 @@ for (const dir of dirs) {
       continue;
     }
     // A 1568x196 export is not a wide banner, it is several designs merged
-    // into one strip. Imported whole it shows as one unreadable sliver, so
-    // say so rather than shipping it silently.
-    const ratio = Math.max(w / h, h / w);
+    // into one strip. Only ever wide: a page is legitimately many times
+    // taller than it is wide, and warning on those was crying wolf.
+    const ratio = w / h;
     if (ratio > 4) {
       console.log(`  WARN  ${name} — ${w}x${h}, ratio ${ratio.toFixed(1)}. Several images merged into one file?`);
     }
     n += 1;
     const tmp = path.join(OUT, `tmp-${n}.webp`);
-    const scale = Math.min(1, MAX / Math.max(w, h));
+    const scale =
+      h / w > PAGE_RATIO
+        ? Math.min(1, MAX_PAGE_W / w)
+        : Math.min(1, MAX / Math.max(w, h));
     await run("/opt/homebrew/bin/cwebp", [
       "-q", "88", "-resize", String(Math.round(w * scale)), String(Math.round(h * scale)),
       "-quiet", src, "-o", tmp,

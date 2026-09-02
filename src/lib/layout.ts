@@ -1,4 +1,4 @@
-import type { SphereShot } from "./work";
+import { PAGE_TILE_ASPECT, isPage, type SphereShot } from "./work";
 
 /**
  * The room the fixed index panel needs on the left.
@@ -128,7 +128,9 @@ export function gridLayout(
       if (!s) continue;
       let col = 0;
       for (let c = 1; c < columns; c++) if (heights[c] < heights[col]) col = c;
-      const h = colW / (s.width / s.height);
+      // A page keeps a card's height here and is cropped to its hero by the
+      // cell; its own proportions would make one tile as tall as the band.
+      const h = colW / (isPage(s) ? PAGE_TILE_ASPECT : s.width / s.height);
       boxes[i] = { x: left + col * (colW + gap), y: heights[col], width: colW, height: h };
       heights[col] += h + gap;
     }

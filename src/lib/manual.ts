@@ -375,7 +375,33 @@ const SAMPLE_SHOTS = [
     { src: "/work/marketing-assets/sample/sample-04.webp", width: 1602, height: 902 },
 ];
 
+const LANDING_SHOTS = [
+  { src: "/work/marketing-assets/landing/landing-01.cfc4b5fb.webp", width: 787, height: 4096 },
+  { src: "/work/marketing-assets/landing/landing-02.e82c8c48.webp", width: 781, height: 1798 },
+  { src: "/work/marketing-assets/landing/landing-03.d5d8dc37.webp", width: 934, height: 4096 },
+  { src: "/work/marketing-assets/landing/landing-04.d4d4cd9e.webp", width: 934, height: 3316 },
+  { src: "/work/marketing-assets/landing/landing-05.2768d2c9.webp", width: 781, height: 5071 },
+  { src: "/work/marketing-assets/landing/landing-06.a7c56ccf.webp", width: 788, height: 5182 },
+];
+
 export const MANUAL: Category[] = [
+  {
+    id: "landing-pages",
+    name: "Landing Pages",
+    projects: [
+      {
+        slug: "kosh-landing",
+        title: "KOSH landing pages",
+        intro:
+          "Marketing site and campaign pages for KOSH — the account, the card, " +
+          "the Odyssey launch and the referral pages.",
+        cover: LANDING_SHOTS[0].src,
+        width: LANDING_SHOTS[0].width,
+        height: LANDING_SHOTS[0].height,
+        shots: LANDING_SHOTS,
+      },
+    ],
+  },
   {
     id: "marketing-assets",
     name: "Marketing Assets",

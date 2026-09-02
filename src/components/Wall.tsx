@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { SphereShot } from "@/lib/work";
+import { PAGE_TILE_ASPECT, isPage, type SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
 import {
@@ -336,7 +336,10 @@ export default function Wall({
       >
         <div ref={stage} className="wall-stage">
           {cells.map(({ c, r, shot }) => {
-            const aspect = shot.width / shot.height;
+            // A page is laid out as a card and cropped to its hero; fitted
+            // whole it would be a sliver among the graphics.
+            const page = isPage(shot);
+            const aspect = page ? PAGE_TILE_ASPECT : shot.width / shot.height;
             // Constant area, not a random scale. Scaling each cell made a
             // landscape twice the size of a portrait beside it and the field
             // read as inconsistent rather than varied. Equal area gives every
@@ -384,7 +387,14 @@ export default function Wall({
                     <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={shot.src} alt="" loading="lazy" decoding="async" draggable={false} />
+                    <img
+                      className={page ? "is-page" : undefined}
+                      src={shot.src}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                    />
                   )}
                 </span>
               </button>

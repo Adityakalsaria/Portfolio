@@ -837,3 +837,27 @@ a { color: inherit; }
   font-size: 0.75rem;
   white-space: nowrap;
 }
+
+/* ── Pages ───────────────────────────────────────────────────────
+   A landing page is cropped to its hero in a tile — its own proportions
+   would make it a sliver among the graphics — and scrolled when opened. */
+.wall-piece img.is-page,
+.gallery-cell img.is-page {
+  object-fit: cover;
+  object-position: top center;
+}
+.expander-scroll {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  border-radius: 4px;
+  background: var(--surface);
+}
+.expander-page {
+  display: block;
+  width: 100%;
+  height: auto;
+}
