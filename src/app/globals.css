@@ -322,12 +322,13 @@ a { color: inherit; }
 /* View switch on a project page. */
 /* Out of the flow and into the corner, over the work. Inverts against it
    like the index does, so it reads on anything. */
-/* Beside Back, on its line. The offset is the panel's own padding plus the
-   width of the Back label, which is fixed text at 51px; the switch is taller
-   than the line, so it is pulled up by half the difference to centre on it. */
+/* Beside Back and clear of it, on its line. The offset is the panel's own
+   padding plus room for the Back label — fixed text at 51px — and a gap; the
+   switch is taller than the line, so it is pulled up by half the difference
+   to centre on it. */
 .mode-switch {
   position: fixed;
-  left: calc(clamp(1.5rem, 5vw, 7rem) + 4rem);
+  left: calc(clamp(1.5rem, 5vw, 7rem) + 6rem);
   top: 5.5rem;
   margin-top: -0.47rem;
   z-index: 61;
@@ -357,7 +358,7 @@ a { color: inherit; }
 @media (max-width: 74rem) {
   .mode-switch {
     top: 4.5rem;
-    left: calc(max(1.25rem, 50% - 18rem) + 4rem);
+    left: calc(max(1.25rem, 50% - 18rem) + 6rem);
   }
 }
 .sr-only {
