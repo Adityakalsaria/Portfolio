@@ -4,38 +4,35 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
-import { OPEN_SPRING, spring, step } from "@/lib/motion";
+import { TRACK_SPRING, easeBlur, motionBlur, spring, step } from "@/lib/motion";
 
-/** How long a piece holds a slot before the next one takes it. */
-const HOLD_MS = 4200;
-/** Spread the swaps out so the wall is never still and never churns at once. */
-const STAGGER_MS = 380;
+/** Cell pitch. The field is a lattice of these, extending in every direction. */
+const CELL = 300;
+const CELL_SM = 190;
+/** How far the field leans toward the cursor, in px. */
+const PARALLAX = 44;
 
-type Slot = {
-  /** Index into shots of what is showing, and what is arriving. */
-  now: number;
-  next: number | null;
-  /** 0 while `now` holds the slot, 1 once `next` has fully replaced it. */
-  p: ReturnType<typeof spring>;
-};
+/** Positive modulo — JS % keeps the sign, which breaks indexing past zero. */
+const mod = (n: number, m: number) => ((n % m) + m) % m;
 
-function gridFor(vw: number, vh: number) {
-  const cols = vw < 640 ? 2 : vw < 1024 ? 3 : vw < 1440 ? 4 : 5;
-  const rows = vh < 700 ? 2 : 3;
-  return { cols, rows };
+/** Deterministic 0–1 from a lattice coordinate. Stable while panning, and the
+ *  same on the server and the client, which random would not be. */
+function hash(col: number, row: number): number {
+  const h = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
+  return h - Math.floor(h);
 }
 
 /**
- * A wall of work that keeps turning over.
+ * An endless wall of work.
  *
- * Fixed cells, each holding one piece for a few seconds before the next takes
- * its place — so the whole set is seen without anyone scrolling, and the page
- * is never quite still. The swaps are staggered per cell rather than run in
- * lockstep, which is what stops it reading as a slideshow.
+ * A lattice rather than a list: which piece sits at a coordinate is derived
+ * from the coordinate itself, so the field repeats outward forever in every
+ * direction and there is nothing to reach the end of. Only the cells inside
+ * the viewport are rendered, so "infinite" costs about thirty elements.
  *
- * Replaces the sphere: the same job (show everything at once, invite a click)
- * without a WebGL context, and openable by the same expander as every other
- * view.
+ * Drag to move it, and it leans toward the cursor at rest. Replaces the
+ * sphere: the same job — everything at once, one click in — without a WebGL
+ * context.
  */
 export default function Wall({
   shots,
@@ -45,96 +42,141 @@ export default function Wall({
   title: string;
 }) {
   const host = useRef<HTMLDivElement>(null);
-  const cells = useRef<(HTMLElement | null)[]>([]);
-  const slots = useRef<Slot[]>([]);
-  const cursor = useRef(0);
+  const stage = useRef<HTMLDivElement>(null);
+  const x = useRef(spring(0));
+  const y = useRef(spring(0));
+  /** Cursor lean, kept apart from the pan so a drag does not fight it. */
+  const lean = useRef({ x: 0, y: 0 });
+  const blur = useRef(0);
   const haptic = useHaptics();
 
-  const [grid, setGrid] = useState(() => ({ cols: 5, rows: 3 }));
+  const [box, setBox] = useState({ w: 0, h: 0, cell: CELL });
   const [, force] = useState(0);
   const [open, setOpen] = useState<{ shot: SphereShot; from: Rect; preview?: string } | null>(
     null
   );
 
-  const count = grid.cols * grid.rows;
-
-  // Seed one slot per cell, each starting on a different piece.
-  if (slots.current.length !== count) {
-    slots.current = Array.from({ length: count }, (_, i) => ({
-      now: i % shots.length,
-      next: null,
-      p: spring(0),
-    }));
-    cursor.current = count % shots.length;
-  }
-
   useEffect(() => {
-    const onResize = () =>
-      setGrid((prev) => {
-        const next = gridFor(window.innerWidth, window.innerHeight);
-        return prev.cols === next.cols && prev.rows === next.rows ? prev : next;
-      });
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const measure = () => {
+      const el = host.current;
+      if (!el) return;
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      setBox({ w, h, cell: w < 640 ? CELL_SM : CELL });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (host.current) ro.observe(host.current);
+    return () => ro.disconnect();
   }, []);
 
-  // ── the swap loop ───────────────────────────────────────────────
+  // ── the loop ────────────────────────────────────────────────────
   const running = useRef(false);
+  const dragging = useRef(false);
   const paint = useCallback(() => {
     if (running.current) return;
     running.current = true;
     let last = performance.now();
+    let px = x.current.value;
+    let py = y.current.value;
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      let moving = false;
-      slots.current.forEach((s, i) => {
-        if (s.next === null) return;
-        if (step(s.p, dt, OPEN_SPRING)) moving = true;
-        const el = cells.current[i];
-        if (el) el.style.setProperty("--p", String(s.p.value));
-        if (s.p.value > 0.995) {
-          // Arrived: the incoming piece becomes the resident one.
-          s.now = s.next;
-          s.next = null;
-          s.p.value = 0;
-          s.p.target = 0;
-          s.p.velocity = 0;
-          if (el) el.style.setProperty("--p", "0");
-          force((n) => n + 1);
-        }
-      });
+      let moving = dragging.current;
+      if (step(x.current, dt, TRACK_SPRING)) moving = true;
+      if (step(y.current, dt, TRACK_SPRING)) moving = true;
+
+      const speed = dt > 0 ? Math.hypot(x.current.value - px, y.current.value - py) / dt : 0;
+      px = x.current.value;
+      py = y.current.value;
+      blur.current = easeBlur(blur.current, motionBlur(speed), dt);
+      if (blur.current > 0) moving = true;
+
+      const el = stage.current;
+      if (el) {
+        el.style.transform = `translate3d(${x.current.value + lean.current.x}px,${
+          y.current.value + lean.current.y
+        }px,0)`;
+        const want = blur.current ? `blur(${blur.current.toFixed(2)}px)` : "";
+        if (el.style.filter !== want) el.style.filter = want;
+      }
+      // Re-render when the pan has carried a new row or column into view.
+      force((n) => n + 1);
       if (moving) requestAnimationFrame(tick);
       else running.current = false;
     };
     requestAnimationFrame(tick);
   }, []);
 
-  useEffect(() => {
-    if (shots.length <= count) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  // ── drag ────────────────────────────────────────────────────────
+  const drag = useRef({ id: -1, sx: 0, sy: 0, ox: 0, oy: 0, lx: 0, ly: 0, lt: 0, vx: 0, vy: 0, moved: 0 });
+  const swallowClick = useRef(false);
 
-    const timers = slots.current.map((_, i) =>
-      setInterval(
-        () => {
-          const s = slots.current[i];
-          if (!s || s.next !== null || open) return;
-          // Walk the pool rather than picking at random, so every piece gets
-          // its turn instead of some never appearing.
-          s.next = cursor.current;
-          cursor.current = (cursor.current + 1) % shots.length;
-          s.p.target = 1;
-          paint();
-          force((n) => n + 1);
-        },
-        HOLD_MS + i * STAGGER_MS
-      )
-    );
-    return () => timers.forEach(clearInterval);
-  }, [count, shots.length, paint, open]);
+  const onDown = (e: React.PointerEvent) => {
+    if (open) return;
+    swallowClick.current = false;
+    const d = drag.current;
+    d.id = e.pointerId;
+    d.sx = d.lx = e.clientX;
+    d.sy = d.ly = e.clientY;
+    d.ox = x.current.value;
+    d.oy = y.current.value;
+    d.lt = performance.now();
+    d.vx = d.vy = d.moved = 0;
+    dragging.current = true;
+    paint();
+
+    const move = (ev: PointerEvent) => {
+      if (!dragging.current || d.id !== ev.pointerId) return;
+      const now = performance.now();
+      const dt = Math.max(1, now - d.lt);
+      d.vx = d.vx * 0.7 + ((ev.clientX - d.lx) / dt) * 0.3;
+      d.vy = d.vy * 0.7 + ((ev.clientY - d.ly) / dt) * 0.3;
+      d.lx = ev.clientX;
+      d.ly = ev.clientY;
+      d.lt = now;
+      d.moved = Math.max(d.moved, Math.hypot(ev.clientX - d.sx, ev.clientY - d.sy));
+      // The hand is authoritative: move the target with the value, or the
+      // spring pulls back against the drag every frame.
+      x.current.value = x.current.target = d.ox + (ev.clientX - d.sx);
+      y.current.value = y.current.target = d.oy + (ev.clientY - d.sy);
+      x.current.velocity = y.current.velocity = 0;
+    };
+    const up = (ev: PointerEvent) => {
+      if (d.id !== ev.pointerId) return;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      dragging.current = false;
+      d.id = -1;
+      swallowClick.current = d.moved > 6;
+      // Carry the throw. There is nothing to snap to on an endless field, so
+      // the target is where the momentum would take it.
+      x.current.velocity = d.vx * 1000;
+      y.current.velocity = d.vy * 1000;
+      x.current.target = x.current.value + d.vx * 260;
+      y.current.target = y.current.value + d.vy * 260;
+      paint();
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  };
+
+  const onMove = (e: React.PointerEvent) => {
+    if (dragging.current || e.pointerType !== "mouse" || !box.w) return;
+    lean.current = {
+      x: (0.5 - e.clientX / box.w) * 2 * PARALLAX,
+      y: (0.5 - (e.clientY - (host.current?.getBoundingClientRect().top ?? 0)) / box.h) * 2 * PARALLAX,
+    };
+    paint();
+  };
 
   const openAt = (shot: SphereShot, el: HTMLElement) => {
+    if (swallowClick.current) {
+      swallowClick.current = false;
+      return;
+    }
     const media = el.querySelector("img, video");
     const r = (media ?? el).getBoundingClientRect();
     haptic("nudge");
@@ -145,34 +187,73 @@ export default function Wall({
     });
   };
 
+  // ── which cells are on screen ───────────────────────────────────
+  const cell = box.cell;
+  const ox = x.current.value + lean.current.x;
+  const oy = y.current.value + lean.current.y;
+  const c0 = Math.floor(-ox / cell) - 1;
+  const r0 = Math.floor(-oy / cell) - 1;
+  const cols = box.w ? Math.ceil(box.w / cell) + 2 : 0;
+  const rows = box.h ? Math.ceil(box.h / cell) + 2 : 0;
+
+  const cells = [];
+  for (let r = r0; r < r0 + rows; r++) {
+    for (let c = c0; c < c0 + cols; c++) {
+      // Coprime multipliers, so neighbours are never the same piece and the
+      // repeat does not fall into visible rows or columns.
+      const i = mod(c * 7 + r * 13, shots.length);
+      cells.push({ c, r, shot: shots[i] });
+    }
+  }
+
   return (
     <>
       <div
         ref={host}
         className="wall"
-        style={{ gridTemplateColumns: `repeat(${grid.cols}, 1fr)` }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerLeave={() => {
+          lean.current = { x: 0, y: 0 };
+          paint();
+        }}
         role="group"
         aria-label={`${title}, ${shots.length} pieces`}
       >
-        {slots.current.map((s, i) => {
-          const cur = shots[s.now];
-          const inc = s.next === null ? null : shots[s.next];
-          return (
-            <button
-              key={i}
-              type="button"
-              ref={(el) => {
-                cells.current[i] = el;
-              }}
-              className="wall-cell"
-              onClick={(e) => openAt(cur, e.currentTarget)}
-              aria-label="Open image"
-            >
-              <Piece shot={cur} role="out" scale={slotScale(i)} />
-              {inc && <Piece shot={inc} role="in" scale={slotScale(i)} />}
-            </button>
-          );
-        })}
+        <div ref={stage} className="wall-stage">
+          {cells.map(({ c, r, shot }) => {
+            const s = 0.55 + hash(c, r) * 0.4;
+            const aspect = shot.width / shot.height;
+            const w = cell * s * (aspect > 1 ? 1 : aspect);
+            return (
+              <button
+                key={`${c}:${r}`}
+                type="button"
+                className="wall-cell"
+                style={{
+                  left: c * cell,
+                  top: r * cell,
+                  width: cell,
+                  height: cell,
+                }}
+                onClick={(e) => openAt(shot, e.currentTarget)}
+                aria-label="Open image"
+              >
+                <span
+                  className="wall-piece"
+                  style={{ width: w, aspectRatio: aspect }}
+                >
+                  {shot.clip ? (
+                    <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={shot.src} alt="" loading="lazy" decoding="async" draggable={false} />
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
       {open && (
         <Expander
@@ -183,50 +264,5 @@ export default function Wall({
         />
       )}
     </>
-  );
-}
-
-/**
- * A stable per-slot size, so cells do not all fill edge to edge.
- *
- * Hashed from the slot index rather than random: the server and the client
- * have to agree on it, and a random value would differ between them and
- * throw a hydration mismatch. Between 0.62 and 1 — the reference sits its
- * pieces at around half their cell, and the unevenness plus the space it
- * leaves is most of what separates a wall of artefacts from a grid of tiles.
- */
-function slotScale(i: number): number {
-  const h = Math.sin(i * 12.9898) * 43758.5453;
-  return 0.62 + (h - Math.floor(h)) * 0.38;
-}
-
-/**
- * One piece inside a cell.
- *
- * Sized by aspect rather than cropped, so a banner stays a banner and a
- * square stays square.
- */
-function Piece({
-  shot,
-  role,
-  scale,
-}: {
-  shot: SphereShot;
-  role: "in" | "out";
-  scale: number;
-}) {
-  const aspect = shot.width / shot.height;
-  return (
-    <span
-      className={`wall-piece is-${role}`}
-      style={{ aspectRatio: aspect, "--s": scale } as React.CSSProperties}
-    >
-      {shot.clip ? (
-        <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={shot.src} alt="" loading="lazy" decoding="async" />
-      )}
-    </span>
   );
 }
