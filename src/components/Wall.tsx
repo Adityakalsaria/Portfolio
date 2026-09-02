@@ -19,6 +19,16 @@ import {
  *  same handful of pieces blown up. */
 const CELL = 320;
 const CELL_SM = 190;
+/** Clear space kept around every piece, as a fraction of the cell. Two
+ *  neighbours are always at least twice this apart. */
+const PAD = 0.09;
+/** Side of the square each piece is worth, within the padded box. Every piece
+ *  gets this area whatever its proportions.
+ *
+ *  Sized so even a 3:1 banner fits the box without being capped — above
+ *  about 0.6 the widest pieces were clipped to the box and lost area, which
+ *  put a 1.5x spread back into a field meant to be even. */
+const AREA = 0.6;
 /** How far the field leans toward the cursor, in px. */
 const PARALLAX = 44;
 
@@ -324,21 +334,30 @@ export default function Wall({
       >
         <div ref={stage} className="wall-stage">
           {cells.map(({ c, r, shot }) => {
-            const s = 0.5 + hash(c, r) * 0.45;
-            // Nudged off the lattice, stably per coordinate, so rows do not
-            // line up and the field reads as scattered rather than ruled.
-            const jx = (hash(c + 31, r) - 0.5) * cell * 0.22;
-            const jy = (hash(c, r + 57) - 0.5) * cell * 0.34;
             const aspect = shot.width / shot.height;
-            const w = cell * s * (aspect > 1 ? 1 : aspect);
+            // Constant area, not a random scale. Scaling each cell made a
+            // landscape twice the size of a portrait beside it and the field
+            // read as inconsistent rather than varied. Equal area gives every
+            // piece the same visual weight while its shape stays its own.
+            //
+            // Fitted inside a padded box rather than the whole cell, so there
+            // is always clear space around it, and the jitter is bounded by
+            // whatever room is left — a piece can never cross into its
+            // neighbour's.
+            const box = cell * (1 - PAD * 2);
+            const jr = (n: number) => hash(c + n, r + n * 7) - 0.5;
+            const area = (box * AREA) ** 2;
+            const raw = Math.sqrt(area * aspect);
+            const fit = Math.min(1, box / raw, box / (raw / aspect));
+            const w = raw * fit;
             return (
               <button
                 key={`${c}:${r}`}
                 type="button"
                 className="wall-cell"
                 style={{
-                  left: c * cell + jx,
-                  top: r * cell + jy,
+                  left: c * cell + jr(31) * (box - w),
+                  top: r * cell + jr(57) * (box - w / aspect),
                   width: cell,
                   height: cell,
                 }}

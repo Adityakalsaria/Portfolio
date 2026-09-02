@@ -327,7 +327,9 @@ a { color: inherit; }
 .mode-switch {
   position: fixed;
   left: clamp(1.5rem, 5vw, 7rem);
-  bottom: 2.5rem;
+  /* The same distance from the bottom that Back sits from the top, so the
+     panel is bracketed evenly. */
+  bottom: 5.5rem;
   z-index: 61;
   display: flex;
   gap: 0.2rem;
@@ -734,6 +736,13 @@ a { color: inherit; }
   background: none;
   cursor: pointer;
 }
+/* The ring hugs the picture, not the cell it sits in — the cell is much
+   larger than the piece, so a ring on it floated well clear of the artwork. */
+.wall-cell:focus-visible { outline: none; }
+.wall-cell:focus-visible .wall-piece {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 3px;
+}
 .wall-piece {
   display: block;
   max-width: 100%;
@@ -786,5 +795,7 @@ a { color: inherit; }
    panel is the only paper on the page. */
 .doc:has(.mode-switch) { padding-top: 0; padding-bottom: 0; }
 /* The wall runs to the top edge; the grid begins on the Back link's line, so
-   its first campaign heading and the index start together. */
-.gallery.is-grid { margin-top: 5.5rem; }
+   its first campaign heading and the index start together. It ends well
+   short of the bottom, so the last row is not pinned to the window edge at
+   the end of the scroll. */
+.gallery.is-grid { margin-top: 5.5rem; margin-bottom: 7rem; }
