@@ -69,6 +69,13 @@ export default async function ProjectPage({
     },
     []
   );
+  // Anything past the sections — the posts — gets an untitled run of its own.
+  // gridLayout only positions indices inside a run, so without this the
+  // clips would have no box at all on a project that has both.
+  const covered = groups.reduce((n, g) => n + g.count, 0);
+  if (allShots.length > covered) {
+    groups.push({ title: "", start: covered, count: allShots.length - covered });
+  }
 
 
   return (

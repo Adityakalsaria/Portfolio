@@ -292,29 +292,65 @@ const POLYGON_SECTIONS = [
 /** Flat run of every Polygon image, for the views that do not group. */
 const POLYGON_SHOTS = POLYGON_SECTIONS.flatMap((s) => s.shots);
 
-const KOSH_SHOTS = [
-  { src: "/work/marketing-assets/kosh/kosh-01.3256969b.webp", width: 1920, height: 2366 },
-  { src: "/work/marketing-assets/kosh/kosh-02.ee30746e.webp", width: 1920, height: 2366 },
-  { src: "/work/marketing-assets/kosh/kosh-03.19e830e7.webp", width: 1920, height: 2366 },
-  { src: "/work/marketing-assets/kosh/kosh-04.87a9bd0d.webp", width: 1920, height: 2366 },
-  { src: "/work/marketing-assets/kosh/kosh-05.1d72a903.webp", width: 1920, height: 1080 },
-  { src: "/work/marketing-assets/kosh/kosh-06.b23cb180.webp", width: 2400, height: 1800 },
-  { src: "/work/marketing-assets/kosh/kosh-07.908adab3.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-08.27fb0839.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-09.5eb45000.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-10.6dabd1f6.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-11.469c5a6d.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-12.f1d96ee4.webp", width: 2160, height: 1215 },
-  { src: "/work/marketing-assets/kosh/kosh-13.b0869fd0.webp", width: 2160, height: 1293 },
-  { src: "/work/marketing-assets/kosh/kosh-14.dc02d262.webp", width: 2160, height: 1215 },
-  { src: "/work/marketing-assets/kosh/kosh-15.a1a11379.webp", width: 2160, height: 1293 },
-  { src: "/work/marketing-assets/kosh/kosh-16.80b1313f.webp", width: 2160, height: 1134 },
-  { src: "/work/marketing-assets/kosh/kosh-17.b6ff2aff.webp", width: 2160, height: 1215 },
-  { src: "/work/marketing-assets/kosh/kosh-18.3da1235d.webp", width: 2160, height: 2662 },
-  { src: "/work/marketing-assets/kosh/kosh-19.223bdbe1.webp", width: 2160, height: 1345 },
-  { src: "/work/marketing-assets/kosh/kosh-20.12d982a0.webp", width: 2160, height: 2160 },
-  { src: "/work/marketing-assets/kosh/kosh-21.3e1c356c.webp", width: 2160, height: 1215 },
+const KOSH_SECTIONS = [
+  {
+    title: "KOSH",
+    shots: [
+      { src: "/work/marketing-assets/kosh/kosh-01.62f37b5f.webp", width: 1920, height: 2366 },
+      { src: "/work/marketing-assets/kosh/kosh-02.f51ce5dc.webp", width: 1920, height: 2366 },
+      { src: "/work/marketing-assets/kosh/kosh-03.9adeb1c3.webp", width: 1920, height: 2366 },
+      { src: "/work/marketing-assets/kosh/kosh-04.dadb09ab.webp", width: 1920, height: 2366 },
+      { src: "/work/marketing-assets/kosh/kosh-05.9c495050.webp", width: 1920, height: 1080 },
+      { src: "/work/marketing-assets/kosh/kosh-06.b67d26dd.webp", width: 2400, height: 1800 },
+      { src: "/work/marketing-assets/kosh/kosh-07.57c064ad.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-08.d3352c42.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-09.e1691163.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-10.3600a084.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-11.cd64f09f.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-12.701f3a4b.webp", width: 2160, height: 1215 },
+      { src: "/work/marketing-assets/kosh/kosh-13.08ce80ac.webp", width: 2160, height: 1293 },
+      { src: "/work/marketing-assets/kosh/kosh-14.c575a9e9.webp", width: 2160, height: 1215 },
+      { src: "/work/marketing-assets/kosh/kosh-15.dece58cd.webp", width: 2160, height: 1293 },
+      { src: "/work/marketing-assets/kosh/kosh-16.bdab50ab.webp", width: 2160, height: 1134 },
+      { src: "/work/marketing-assets/kosh/kosh-17.d52a2ebb.webp", width: 2160, height: 1215 },
+      { src: "/work/marketing-assets/kosh/kosh-18.15340a69.webp", width: 2160, height: 2662 },
+      { src: "/work/marketing-assets/kosh/kosh-19.c515e42e.webp", width: 2160, height: 1345 },
+      { src: "/work/marketing-assets/kosh/kosh-20.e71b5174.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/kosh/kosh-21.73e35e80.webp", width: 2160, height: 1215 },
+    ],
+  },
+  {
+    title: "Copperx",
+    shots: [
+      { src: "/work/marketing-assets/kosh/kosh-22.3af8640f.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-23.2224cfbd.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-24.5199b0ab.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-25.ef89882a.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-26.ab912bd2.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-27.2d889c0f.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-28.202875dd.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-29.b289c925.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-30.6711e624.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-31.88b7ee34.webp", width: 2114, height: 1190 },
+      { src: "/work/marketing-assets/kosh/kosh-32.ab1ff2f9.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-33.0d8e49b7.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-34.37f824ef.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-35.d03ce730.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-36.50ed0949.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-37.553af989.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-38.898b1707.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-39.e7e7ba5f.webp", width: 1691, height: 951 },
+      { src: "/work/marketing-assets/kosh/kosh-40.597c731d.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-41.f7761b1f.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-42.2da640ae.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-43.a1816aa6.webp", width: 2114, height: 1189 },
+      { src: "/work/marketing-assets/kosh/kosh-44.79ba5213.webp", width: 2114, height: 1190 },
+    ],
+  },
 ];
+
+/** Flat run of every KOSH image, for the views that do not group. */
+const KOSH_SHOTS = KOSH_SECTIONS.flatMap((s) => s.shots);
 
 /** Stand-in work, so a category with siblings can be seen behaving. Delete
  *  this and its images under public/work/marketing-assets/sample when there
@@ -333,9 +369,10 @@ export const MANUAL: Category[] = [
     projects: [
       {
         slug: "kosh-work",
-        title: "KOSH work",
+        title: "KOSH (prev-Copperx)",
         intro:
           "Marketing and social assets for KOSH — launch announcements, card reveals and campaign graphics.",
+        sections: KOSH_SECTIONS,
         cover: KOSH_SHOTS[0].src,
         width: KOSH_SHOTS[0].width,
         height: KOSH_SHOTS[0].height,
