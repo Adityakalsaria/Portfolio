@@ -322,14 +322,14 @@ a { color: inherit; }
 /* View switch on a project page. */
 /* Out of the flow and into the corner, over the work. Inverts against it
    like the index does, so it reads on anything. */
-/* At the foot of the left panel, on its paper — so it needs no ground of
-   its own and sits with the index rather than floating over the work. */
+/* Beside Back, on its line. The offset is the panel's own padding plus the
+   width of the Back label, which is fixed text at 51px; the switch is taller
+   than the line, so it is pulled up by half the difference to centre on it. */
 .mode-switch {
   position: fixed;
-  left: clamp(1.5rem, 5vw, 7rem);
-  /* The same distance from the bottom that Back sits from the top, so the
-     panel is bracketed evenly. */
-  bottom: 5.5rem;
+  left: calc(clamp(1.5rem, 5vw, 7rem) + 4rem);
+  top: 5.5rem;
+  margin-top: -0.47rem;
   z-index: 61;
   display: flex;
   gap: 0.2rem;
@@ -349,6 +349,11 @@ a { color: inherit; }
 .mode-icon { width: 0.95rem; height: 0.95rem; fill: currentColor; display: block; }
 .mode-btn:hover { color: var(--ink); }
 .mode-btn.is-on { color: var(--ink); background: var(--surface); }
+/* Below the panel's breakpoint the index is in the flow with less headroom,
+   so the switch meets Back on its line there instead. */
+@media (max-width: 74rem) {
+  .mode-switch { top: 4.5rem; }
+}
 .sr-only {
   position: absolute;
   width: 1px;
