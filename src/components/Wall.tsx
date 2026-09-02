@@ -15,12 +15,12 @@ import {
 } from "@/lib/motion";
 
 /** Cell pitch. The field is a lattice of these, extending in every direction.
- *  Sized so a piece comes out about 250px across on a desktop. The window
- *  height still caps it — on a short screen a 490px pitch would leave barely
- *  a row and a half in view — so below about 780px tall the pieces shrink
- *  rather than the field emptying out. */
-const CELL = 490;
-const CELL_SM = 284;
+ *  Sized so a piece comes out about 200px across on a desktop — the pitch is
+ *  the piece divided by AREA and the padding, which is why it is not a round
+ *  number. The window height still caps it on a short screen, so the field
+ *  never thins to a row and a half. */
+const CELL = 392;
+const CELL_SM = 227;
 /** Clear space kept around every piece, as a fraction of the cell. Two
  *  neighbours are always at least twice this apart. */
 const PAD = 0.075;
