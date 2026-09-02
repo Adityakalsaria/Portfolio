@@ -799,3 +799,55 @@ a { color: inherit; }
    short of the bottom, so the last row is not pinned to the window edge at
    the end of the scroll. */
 .gallery.is-grid { margin-top: 5.5rem; margin-bottom: 7rem; }
+
+/* ── Selection frame ─────────────────────────────────────────────
+   Figma's chrome around the opened piece. Fades in with --p so it arrives
+   as the frame lands rather than being there before it. */
+.expander-frame { overflow: visible; }
+.expander-media { border-radius: 4px; }
+/* One box for the whole selection, exactly the frame, so every corner
+   measures against the same thing. */
+.sel {
+  position: absolute;
+  inset: 0;
+  opacity: var(--p, 0);
+  pointer-events: none;
+  box-shadow: 0 0 0 1px var(--sel, #0d99ff);
+  border-radius: 4px;
+}
+.sel-handle,
+.sel-name,
+.sel-size { position: absolute; }
+.sel-handle {
+  width: 7px;
+  height: 7px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--sel, #0d99ff);
+  border-radius: 1px;
+}
+.sel-handle.tl { left: 0; top: 0; transform: translate(-50%, -50%); }
+.sel-handle.tr { right: 0; top: 0; transform: translate(50%, -50%); }
+.sel-handle.bl { left: 0; bottom: 0; transform: translate(-50%, 50%); }
+.sel-handle.br { right: 0; bottom: 0; transform: translate(50%, 50%); }
+/* The name sits on the top edge, the size under the bottom one, both clear
+   of the artwork so neither covers it. */
+.sel-name {
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 7px;
+  color: var(--sel, #0d99ff);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.sel-size {
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 9px;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  background: var(--sel, #0d99ff);
+  color: #fff;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}

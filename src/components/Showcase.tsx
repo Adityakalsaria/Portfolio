@@ -60,9 +60,15 @@ export default function Showcase({
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
-  const tiles: SphereShot[] = gridShots?.length
-    ? gridShots
-    : (allShots ?? shots);
+  const base: SphereShot[] = gridShots?.length ? gridShots : (allShots ?? shots);
+  // Tag each with its campaign, so an opened frame can name itself the way a
+  // Figma frame does.
+  const tiles: SphereShot[] = groups?.length
+    ? base.map((s, i) => {
+        const g = groups.find((x) => i >= x.start && i < x.start + x.count);
+        return g ? { ...s, name: g.title } : s;
+      })
+    : base;
 
   return (
     <>
@@ -83,7 +89,7 @@ export default function Showcase({
       </div>
 
       {mode === "wall" ? (
-        <Wall shots={(allShots ?? shots) as never} title={title} />
+        <Wall shots={tiles} title={title} />
       ) : (
         // One component for both: switching between them is a retarget, not
         // an unmount, so the items travel rather than blink.

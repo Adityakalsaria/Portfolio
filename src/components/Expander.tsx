@@ -181,6 +181,22 @@ export default function Expander({
             <img className="expander-media" src={shot.src} alt="" decoding="async" />
           </>
         )}
+        {/* Figma's selection chrome: the frame's edge, its corners, its name
+            and its true pixel size — which is the asset's own, not the size
+            it happens to be drawn at here.
+            All of it in one overlay rather than as siblings of the media:
+            loose, the handles resolved against different containing blocks
+            and two of the four landed off the corner. */}
+        <span className="sel" aria-hidden>
+          <span className="sel-handle tl" />
+          <span className="sel-handle tr" />
+          <span className="sel-handle bl" />
+          <span className="sel-handle br" />
+          {shot.name && <span className="sel-name">{shot.name}</span>}
+          <span className="sel-size">
+            {shot.width} × {shot.height}
+          </span>
+        </span>
       </div>
       {!closing && shot.href && (
         <a

@@ -7,6 +7,8 @@ export type Shot = { src: string; width: number; height: number };
 /** A shot in the wall or grid, which may open its source and may be the
  *  poster frame of a video rather than a still. */
 export type SphereShot = Shot & {
+  /** The campaign this belongs to, shown as the frame's name when opened. */
+  name?: string;
   href?: string;
   video?: boolean;
   /** Local MP4, played on the plane once it is focused. */
