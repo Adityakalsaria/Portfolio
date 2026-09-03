@@ -6,33 +6,9 @@ export type Shot = { src: string; width: number; height: number };
 
 /** A shot in the wall or grid, which may open its source and may be the
  *  poster frame of a video rather than a still. */
-/**
- * Taller than this and it is a page, not a graphic.
- *
- * A landing page is many times taller than it is wide. Fitted whole it comes
- * out a 100px sliver in the wall and 227px across when opened — a 4288px
- * design at 227px. So a page is cropped to its hero in a tile and scrolled
- * when opened, rather than shrunk until it fits.
- */
-export const PAGE_RATIO = 1.7;
-/** The proportions a page is shown at in a tile, cropped from its top. */
-export const PAGE_TILE_ASPECT = 0.78;
-
-export const isPage = (s: { width: number; height: number }) =>
-  s.height / s.width > PAGE_RATIO;
-
 export type SphereShot = Shot & {
   /** The campaign this belongs to, shown as the frame's name when opened. */
   name?: string;
-  /**
-   * A tall page, cut into stackable segments.
-   *
-   * WebP cannot exceed 16383px in either direction, and a 16400px page
-   * captured at 2x is 32796 tall. One file would have to come down to about
-   * 1438px wide to fit — softer than a retina viewer wants — so it is stored
-   * at full width in pieces and stacked back together seamlessly.
-   */
-  parts?: Shot[];
   href?: string;
   video?: boolean;
   /** Local MP4, played on the plane once it is focused. */
@@ -70,7 +46,6 @@ export type Category = {
  * Aliases map the Figma page slugs onto them.
  */
 const CANONICAL: { id: string; name: string; aliases: string[] }[] = [
-  { id: "landing-pages", name: "Landing Pages", aliases: ["landing-page", "landing-pages"] },
   { id: "marketing-assets", name: "Visual design", aliases: ["marketing-assets", "marketing-aseets", "marketing"] },
   { id: "product", name: "Product", aliases: ["product"] },
   { id: "ui", name: "UI", aliases: ["ui"] },

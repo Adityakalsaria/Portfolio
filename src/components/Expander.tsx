@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { isPage, type SphereShot } from "@/lib/work";
+import type { SphereShot } from "@/lib/work";
 import {
   CLOSE_SPRING,
   OPEN_SPRING,
@@ -48,19 +48,11 @@ export default function Expander({
     // Target: the largest centred box the viewport allows, at the shot's own
     // proportions. Recomputed each frame so a resize mid-flight still lands.
     const target = (): Rect => {
-      // A page opens as a window at a readable width and scrolls inside it.
-      // Fitted whole it would be 227px across, which is a 4288px design shown
-      // at a twentieth of its size.
-      const box = isPage(shot)
-        ? {
-            width: Math.min(window.innerWidth * 0.92, shot.width, 920),
-            height: window.innerHeight * 0.86,
-          }
-        : contain(
-            shot.width / shot.height,
-            Math.min(window.innerWidth * 0.92, 1400),
-            window.innerHeight * 0.84
-          );
+      const box = contain(
+        shot.width / shot.height,
+        Math.min(window.innerWidth * 0.92, 1400),
+        window.innerHeight * 0.84
+      );
       return {
         x: (window.innerWidth - box.width) / 2,
         y: (window.innerHeight - box.height) / 2,
@@ -180,21 +172,13 @@ export default function Expander({
                 it the frame opened empty and stayed that way for 80-150ms
                 while the large version was fetched — the "slow" part of
                 opening was never the animation. */}
-            {preview && !isPage(shot) && (
+            {preview && (
               <img className="expander-media expander-preview" src={preview} alt="" />
             )}
             {/* A plain img on the original file — see expandedUrl. Going
                 through next/image here bought a smaller payload at the cost
-                of a transcode the reader waits on.
-                A page scrolls inside its own box; the chrome sits outside it,
-                so the two cannot share an overflow. */}
-            {isPage(shot) ? (
-              <span className="expander-scroll" data-lenis-prevent>
-                <img className="expander-page" src={shot.src} alt="" decoding="async" />
-              </span>
-            ) : (
-              <img className="expander-media" src={shot.src} alt="" decoding="async" />
-            )}
+                of a transcode the reader waits on. */}
+            <img className="expander-media" src={shot.src} alt="" decoding="async" />
           </>
         )}
         {/* Figma's selection chrome: the frame's edge, its corners, its name
