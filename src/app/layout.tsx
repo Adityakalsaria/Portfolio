@@ -6,10 +6,12 @@ import Haptics from "@/components/Haptics";
 import { PROFILE } from "@/lib/cv";
 
 /**
- * Saans (Displaay). These are TRIAL files and are deliberately not committed —
- * the repo is public, and redistributing them is not something the trial
- * covers. See README for how to restore them locally; a web licence is
- * required before this ships anywhere public.
+ * Saans (Displaay), committed so the site builds from a clean checkout — a
+ * host clones the repo rather than copying this machine's disk, and a missing
+ * font file fails the build outright rather than falling back.
+ *
+ * Only the two weights the design uses are here. Italic is carried for <em>,
+ * which nothing sets explicitly but prose can still produce.
  */
 const saans = localFont({
   src: [
