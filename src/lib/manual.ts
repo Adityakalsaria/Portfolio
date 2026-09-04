@@ -365,16 +365,6 @@ const KOSH_SECTIONS = [
 /** Flat run of every KOSH image, for the views that do not group. */
 const KOSH_SHOTS = KOSH_SECTIONS.flatMap((s) => s.shots);
 
-/** Stand-in work, so a category with siblings can be seen behaving. Delete
- *  this and its images under public/work/marketing-assets/sample when there
- *  is real work to put in its place. */
-const SAMPLE_SHOTS = [
-    { src: "/work/marketing-assets/sample/sample-01.webp", width: 1602, height: 1002 },
-    { src: "/work/marketing-assets/sample/sample-02.webp", width: 1602, height: 1602 },
-    { src: "/work/marketing-assets/sample/sample-03.webp", width: 1202, height: 1602 },
-    { src: "/work/marketing-assets/sample/sample-04.webp", width: 1602, height: 902 },
-];
-
 export const MANUAL: Category[] = [
   {
     id: "marketing-assets",
@@ -428,16 +418,6 @@ export const MANUAL: Category[] = [
         cover: POLYGON_SHOTS[0].src,
         width: POLYGON_SHOTS[0].width,
         height: POLYGON_SHOTS[0].height,
-      },
-      {
-        slug: "sample-project",
-        title: "Placeholder project",
-        intro:
-          "Stand-in work, here so the category's project list has something to show. Replace when there is real work for it.",
-        cover: SAMPLE_SHOTS[0].src,
-        width: SAMPLE_SHOTS[0].width,
-        height: SAMPLE_SHOTS[0].height,
-        shots: SAMPLE_SHOTS,
       },
     ],
   },

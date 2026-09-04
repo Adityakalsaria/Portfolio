@@ -7,6 +7,26 @@
   --line:   #e8e8e8;
   --tick:   #ededeb;
   --surface:#f4f4f4;
+
+  /* The veil behind the index.
+   *
+   * A layer blur, the way Figma means it: the shape's own pixels are blurred,
+   * so it dissolves at its edges. Not a backdrop blur, which blurs what is
+   * behind the shape and leaves the shape itself ending on a hard line — the
+   * difference is the whole look.
+   *
+   *   --veil-blur    how far it dissolves
+   *   --veil-tint    the shape's colour
+   *   --veil-form    its outline before blurring; pick one of the two
+   *
+   *     --veil-rect      a column, dissolving on its inner edge
+   *     --veil-ellipse   an oval, dissolving all round
+   */
+  --veil-blur: 70px;
+  --veil-tint: var(--paper);
+  --veil-rect: 0;
+  --veil-ellipse: 50%;
+  --veil-form: var(--veil-rect);
 }
 
 @theme inline {
@@ -293,15 +313,40 @@ a { color: inherit; }
     /* Above the full-bleed media, which otherwise scrolls up under the fixed
        rail and swallows every click on the index. */
     z-index: 60;
-     /* A solid column the full height of the window. The field runs beneath
-       it, so the index reads without inverting. */
+    /* A column the full height of the window. The field runs beneath it, so
+       the index reads without inverting. The panel itself is transparent —
+       the veil below is the single overlay that covers the work. */
     top: 0;
     bottom: 0;
     left: 0;
     width: clamp(15rem, 23vw, 21rem);
     margin: 0;
     padding: 5.5rem 2rem 2rem clamp(1.5rem, 5vw, 7rem);
-    background: var(--paper);
+    isolation: isolate;
+  }
+
+  /* One shape behind the index, blurred into itself.
+   *
+   * It is hung well past the top, left and bottom of the window so those
+   * three edges dissolve off-screen and only the inner one is seen falling
+   * away. A blurred rectangle placed flush would go soft on all four sides
+   * and leave the window's own edges looking unfinished.
+   *
+   * A sibling of .pnav rather than a child: filtering an element makes it a
+   * containing block and a stacking context, and the index has to stay above
+   * it and unblurred. */
+  .veil {
+    display: block;
+    position: fixed;
+    top: calc(var(--veil-blur) * -2);
+    bottom: calc(var(--veil-blur) * -2);
+    left: calc(var(--veil-blur) * -2);
+    z-index: 59;
+    width: calc(clamp(15rem, 23vw, 21rem) + var(--veil-blur));
+    pointer-events: none;
+    background: var(--veil-tint);
+    border-radius: var(--veil-form);
+    filter: blur(var(--veil-blur));
   }
 }
 

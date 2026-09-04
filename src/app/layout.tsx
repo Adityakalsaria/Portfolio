@@ -21,7 +21,20 @@ const saans = localFont({
   fallback: ["Inter", "system-ui", "sans-serif"],
 });
 
+/** Where a relative OG or twitter image resolves against.
+ *
+ *  Vercel sets VERCEL_PROJECT_PRODUCTION_URL to the project's stable domain on
+ *  every deploy, so previews and production both point at the live site rather
+ *  than at the preview's own throwaway hostname. Set NEXT_PUBLIC_SITE_URL to
+ *  override it once there is a custom domain. */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: `${PROFILE.name}`,
   description:
     "Self-taught designer working across visual design, 3D, motion, icons and art direction. Currently at KOSH.",

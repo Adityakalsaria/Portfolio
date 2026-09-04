@@ -21,29 +21,33 @@ export default function ProjectNav({
   const showSiblings = siblings.length > 1;
 
   return (
-    <nav className="pnav">
-      <Link href="/" className="pnav-index link">
-        ↩ Back
-      </Link>
+    <>
+      {/* The veil is a sibling of the rail, not a child of it: filtering an
+          element blurs its whole subtree, and the index has to stay sharp. */}
+      <span className="veil" aria-hidden />
+      <nav className="pnav">
+        <Link href="/" className="pnav-index link">
+          ↩ Back
+        </Link>
 
-      {showSiblings && (
-        <ul className="pnav-list">
-          {siblings.map((p) => (
-            <li key={p.slug}>
-              {p.slug === currentSlug ? (
-                <span className="pnav-item is-on" aria-current="page">
-                  {p.title}
-                </span>
-              ) : (
-                <Link href={`/work/${p.slug}`} className="pnav-item">
-                  {p.title}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-
-    </nav>
+        {showSiblings && (
+          <ul className="pnav-list">
+            {siblings.map((p) => (
+              <li key={p.slug}>
+                {p.slug === currentSlug ? (
+                  <span className="pnav-item is-on" aria-current="page">
+                    {p.title}
+                  </span>
+                ) : (
+                  <Link href={`/work/${p.slug}`} className="pnav-item">
+                    {p.title}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
+    </>
   );
 }
