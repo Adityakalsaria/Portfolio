@@ -8,6 +8,14 @@
   --tick:   #ededeb;
   --surface:#f4f4f4;
 
+  /* How much room the fixed index panel takes on the left.
+   *
+   * One dial, because three things have to agree on it: the panel, the veil
+   * that covers the work behind it, and railReserve in lib/layout.ts, which
+   * keeps the grid from packing its first column underneath. They drifted
+   * apart once already when the number was written out three times. */
+  --rail-w: clamp(17rem, 26vw, 24rem);
+
   /* The veil behind the index.
    *
    * A layer blur, the way Figma means it: the shape's own pixels are blurred,
@@ -319,7 +327,7 @@ a { color: inherit; }
     top: 0;
     bottom: 0;
     left: 0;
-    width: clamp(15rem, 23vw, 21rem);
+    width: var(--rail-w);
     margin: 0;
     padding: 5.5rem 2rem 2rem clamp(1.5rem, 5vw, 7rem);
     isolation: isolate;
@@ -332,6 +340,13 @@ a { color: inherit; }
    * away. A blurred rectangle placed flush would go soft on all four sides
    * and leave the window's own edges looking unfinished.
    *
+   * The width is the reason it used to look narrow. Blurring by B turns a
+   * hard edge into a ramp reaching B either side of it, so for the veil to
+   * still be solid at the panel's edge its own edge has to sit B further
+   * right — and the left overhang of 2B has to be paid for on top. Hence
+   * rail + 3B. At rail + B, which is what this was, the ramp began 2B inside
+   * the panel and the work showed through behind the index.
+   *
    * A sibling of .pnav rather than a child: filtering an element makes it a
    * containing block and a stacking context, and the index has to stay above
    * it and unblurred. */
@@ -342,7 +357,7 @@ a { color: inherit; }
     bottom: calc(var(--veil-blur) * -2);
     left: calc(var(--veil-blur) * -2);
     z-index: 59;
-    width: calc(clamp(15rem, 23vw, 21rem) + var(--veil-blur));
+    width: calc(var(--rail-w) + var(--veil-blur) * 3);
     pointer-events: none;
     background: var(--veil-tint);
     border-radius: var(--veil-form);

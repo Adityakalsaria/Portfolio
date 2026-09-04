@@ -4,12 +4,13 @@ import type { SphereShot } from "./work";
  * The room the fixed index panel needs on the left.
  *
  * It is only fixed at 74rem and up; below that it sits in the flow and needs
- * nothing. Mirrors its own CSS, which is a solid column at left: 0 with
- * width: clamp(15rem, 23vw, 21rem) — so this has to move whenever that does.
+ * nothing. Mirrors --rail-w in globals.css, clamp(17rem, 26vw, 24rem), which
+ * cannot be read from here because the layout runs before paint — so the two
+ * have to be changed together.
  */
 export function railReserve(vw: number): number {
   if (vw < 1184) return 0;
-  const panel = Math.min(Math.max(240, vw * 0.23), 336);
+  const panel = Math.min(Math.max(272, vw * 0.26), 384);
   return panel + 24;
 }
 
