@@ -673,6 +673,8 @@ a { color: inherit; }
   /* Above .pnav, which is also fixed at 60 — at equal z-index the index rail
      won the stack and ate every click on the scrim behind it. */
   z-index: 90;
+  /* Horizontal swipes are ours, to step; the page is not scrolling under it. */
+  touch-action: none;
 }
 /* Opaque paper, not a wash over the page: the opened item gets the screen to
    itself rather than the grid ghosting through behind it. Still fades in on
@@ -706,7 +708,8 @@ a { color: inherit; }
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 1.25rem;
+  /* Top, not the bottom: the step arrows live there. */
+  top: 1.25rem;
   text-align: center;
   font-size: 0.8125rem;
 }
@@ -777,6 +780,33 @@ a { color: inherit; }
      frame's transform makes it a stacking context, so -1 stays inside it. */
   z-index: -1;
 }
+/* The real file, fading in over the thumbnail once it has arrived. */
+.expander-full { transition: opacity 0.18s ease; }
+
+/* Previous and next, under the picture. Small and round, on the same white as
+   the view switch, and fading in with the opening like everything else. */
+.expander-nav {
+  position: absolute;
+  left: 50%;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  opacity: var(--p, 0);
+}
+.expander-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--line), 0 6px 20px rgb(0 0 0 / 0.14);
+  transition: background-color 0.2s ease;
+}
+.expander-nav-btn:hover { background: var(--surface); }
 
 /* ── Wall ────────────────────────────────────────────────────────
    An endless lattice. The host is a window onto it; the stage inside is

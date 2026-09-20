@@ -1,12 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Wall from "./Wall";
 import Gallery from "./Gallery";
 import type { Shot, SphereShot } from "@/lib/work";
 import type { Group } from "@/lib/layout";
 
 type Mode = "wall" | "grid";
+
+/** Phone width, matching the wall's own small-screen breakpoint. */
+const PHONE = "(max-width: 40rem)";
+
+/** Whether the screen is phone width. null on the server and until the client
+ *  has hydrated, when it is not yet known. */
+function usePhone(): boolean | null {
+  return useSyncExternalStore(
+    (notify) => {
+      const q = window.matchMedia(PHONE);
+      q.addEventListener("change", notify);
+      return () => q.removeEventListener("change", notify);
+    },
+    () => window.matchMedia(PHONE).matches,
+    () => null
+  );
+}
 
 /**
  * Three ways through a project's images.
@@ -36,7 +53,14 @@ export default function Showcase({
   gridOnly?: boolean;
 }) {
   const [picked, setMode] = useState<Mode>("wall");
-  const mode: Mode = gridOnly ? "grid" : picked;
+  const phone = usePhone();
+  // The grid alone where the wall has no place: on a phone, and for work read
+  // as screens. Neither has a view switch.
+  const gridAlone = gridOnly || phone === true;
+  const mode: Mode = gridAlone ? "grid" : picked;
+  // Until the screen size is known, draw neither view: the wall would flash
+  // on a phone before giving way to the grid.
+  const pending = !gridOnly && phone === null;
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
@@ -52,7 +76,7 @@ export default function Showcase({
 
   return (
     <>
-      {!gridOnly && (
+      {!gridAlone && !pending && (
         <div className="mode-switch" role="group" aria-label="View">
           {(["wall", "grid"] as Mode[]).map((m) => (
             <button
@@ -69,7 +93,7 @@ export default function Showcase({
         </div>
       )}
 
-      {mode === "wall" ? (
+      {pending ? null : mode === "wall" ? (
         <Wall shots={tiles} title={title} />
       ) : (
         // One component for both: switching between them is a retarget, not

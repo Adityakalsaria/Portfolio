@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/optimize.mjs --stills",
     "dev": "next dev",
+    "prebuild": "node scripts/optimize.mjs --stills",
     "build": "next build",
+    "optimize": "node scripts/optimize.mjs",
     "start": "next start",
     "lint": "eslint",
     "figma:import": "node scripts/figma-import.mjs",
@@ -18,6 +21,7 @@
     "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "^0.35.4",
     "split-type": "^0.3.4",
     "web-haptics": "^0.0.6"
   },

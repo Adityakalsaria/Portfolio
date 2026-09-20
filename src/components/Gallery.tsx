@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import type { SphereShot } from "@/lib/work";
+import { thumb, tileClip, tileSrcSet, type SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
 import {
@@ -558,13 +557,21 @@ export default function Gallery({
               {s.clip ? (
                 <GalleryClip shot={s} />
               ) : (
-                <Image
-                  src={s.src}
-                  alt={`${title}, ${i + 1} of ${shots.length}`}
-                  fill
+                // A pre-sized thumbnail from the CDN rather than the runtime
+                // optimizer, whose first request for each size is a transform.
+                // The first screenful is eager and high priority; the rest wait
+                // until they are near.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={thumb(s.src, 480)}
+                  srcSet={tileSrcSet(s.src)}
                   sizes="(max-width: 40rem) 50vw, 340px"
-                  className="object-cover"
+                  alt={`${title}, ${i + 1} of ${shots.length}`}
+                  loading={i < 8 ? "eager" : "lazy"}
+                  fetchPriority={i < 8 ? "high" : "auto"}
+                  decoding="async"
                   draggable={false}
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               )}
               {s.clip && <span className="post-play" aria-hidden />}
@@ -608,8 +615,8 @@ function GalleryClip({ shot }: { shot: SphereShot }) {
     <video
       ref={ref}
       className="absolute inset-0 h-full w-full object-cover"
-      poster={shot.src}
-      src={near ? shot.clip : undefined}
+      poster={thumb(shot.src, 960)}
+      src={near && shot.clip ? tileClip(shot.clip) : undefined}
       preload="none"
       loop
       muted

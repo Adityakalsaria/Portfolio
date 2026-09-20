@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
+      // The tweet media is named by tweet id, so a file never changes under
+      // its name either.
+      {
+        source: "/posts/:path+",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
     ];
   },
 };

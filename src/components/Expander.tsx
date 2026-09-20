@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { SphereShot } from "@/lib/work";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { hasMedium, thumb, type SphereShot } from "@/lib/work";
 import {
   CLOSE_SPRING,
+  LAYOUT_SPRING,
   OPEN_SPRING,
   contain,
   lerp,
@@ -14,6 +15,45 @@ import {
 } from "@/lib/motion";
 
 export type Rect = { x: number; y: number; width: number; height: number };
+
+/**
+ * One still, in two layers: a small thumbnail underneath, which is already in
+ * the cache and paints at once, and the real file above it, which fades in
+ * when it has arrived. Remounted for each shot (see the key where it is used),
+ * so stepping to another never leaves the last picture on screen, squeezed
+ * into the new one's box, while the next one loads.
+ *
+ * Originals wider than 2000px also have a 1600px size, and the browser picks
+ * between the two by the width the picture is actually drawn at, so a laptop
+ * screen is not made to fetch the 3200px file.
+ */
+function Still({ shot, preview, width }: { shot: SphereShot; preview: string; width: number }) {
+  const [loaded, setLoaded] = useState(false);
+  const full = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    // Already in the cache, so the load event went by before this ran.
+    if (full.current?.complete && full.current.naturalWidth) setLoaded(true);
+  }, []);
+  const medium = hasMedium(shot);
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="expander-media expander-preview" src={preview} alt="" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={full}
+        className="expander-media expander-full"
+        src={shot.src}
+        srcSet={medium ? `${thumb(shot.src, 1600)} 1600w, ${shot.src} ${shot.width}w` : undefined}
+        sizes={medium ? `${Math.round(width)}px` : undefined}
+        alt=""
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        style={{ opacity: loaded ? 1 : 0 }}
+      />
+    </>
+  );
+}
 
 /**
  * Opens one item by growing it out of the rect it already occupies.
@@ -51,6 +91,25 @@ export default function Expander({
   const blurRef = useRef(0);
   const opened = useRef(false);
   const [closing, setClosing] = useState(false);
+  // Stepping to another shot: the frame glides from the box the last one had to
+  // the box of the new one, instead of jumping.
+  const seen = useRef(shot);
+  const morph = useRef(spring(1));
+  const prevTo = useRef<Rect | null>(null);
+  const lastTo = useRef<Rect | null>(null);
+  // A touch swipe that has just stepped, so the tap it ends with does not also close.
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  // The width the picture is drawn at, in CSS px, for choosing between its sizes.
+  const drawnWidth = useMemo(
+    () =>
+      contain(
+        shot.width / shot.height,
+        Math.min(window.innerWidth * 0.92, 1400),
+        window.innerHeight * 0.84
+      ).width,
+    [shot]
+  );
 
   useEffect(() => {
     // Target: the largest centred box the viewport allows, at the shot's own
@@ -76,6 +135,11 @@ export default function Expander({
     if (!opened.current) {
       opened.current = true;
       p.current.target = 1;
+    }    if (seen.current !== shot) {
+      seen.current = shot;
+      prevTo.current = lastTo.current;
+      morph.current = spring(0);
+      morph.current.target = 1;
     }
     let raf = 0;
     let last = performance.now();
@@ -86,7 +150,19 @@ export default function Expander({
       const closing = p.current.target === 0;
       const moving = step(p.current, dt, closing ? CLOSE_SPRING : OPEN_SPRING);
       const t = p.current.value;
-      const to = target();
+      let to = target();
+      if (prevTo.current && morph.current.value < 0.999) {
+        step(morph.current, dt, LAYOUT_SPRING);
+        const m = morph.current.value;
+        const a = prevTo.current;
+        to = {
+          x: lerp(a.x, to.x, m),
+          y: lerp(a.y, to.y, m),
+          width: lerp(a.width, to.width, m),
+          height: lerp(a.height, to.height, m),
+        };
+      }
+      lastTo.current = to;
       const el = frame.current;
       if (el) {
         el.style.transform = `translate3d(${lerp(from.x, to.x, t)}px, ${lerp(
@@ -131,6 +207,14 @@ export default function Expander({
     setClosing(true);
     p.current.target = 0;
   };
+  /** For taps on the scrim and the picture: not the tap a swipe ends on. */
+  const tapClose = () => {
+    if (swiped.current) {
+      swiped.current = false;
+      return;
+    }
+    close();
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -147,15 +231,42 @@ export default function Expander({
   }, []);
 
   return (
-    <div ref={root} className="expander" role="dialog" aria-modal="true">
-      <button className="expander-scrim" onClick={close} aria-label="Close" />
+    <div
+      ref={root}
+      className="expander"
+      role="dialog"
+      aria-modal="true"
+      // A horizontal swipe steps, like the arrow keys. Touch only: a mouse drag
+      // is not a gesture here. The distance and the ratio keep a scroll or a
+      // sloppy tap from counting.
+      onPointerDown={(e) => {
+        if (e.pointerType === "mouse") return;
+        swipe.current = { x: e.clientX, y: e.clientY };
+        swiped.current = false;
+      }}
+      onPointerUp={(e) => {
+        const start = swipe.current;
+        swipe.current = null;
+        if (!start) return;
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+          swiped.current = true;
+          stepRef.current?.(dx < 0 ? 1 : -1);
+        }
+      }}
+      onPointerCancel={() => {
+        swipe.current = null;
+      }}
+    >
+      <button className="expander-scrim" onClick={tapClose} aria-label="Close" />
       {/* A still closes when clicked, like the scrim — an opened image that
           swallows a click reads as stuck. A clip does not: those clicks
           belong to its controls. */}
       <div
         ref={frame}
         className="expander-frame"
-        onClick={shot.clip ? undefined : close}
+        onClick={shot.clip ? undefined : tapClose}
         style={shot.clip ? undefined : { cursor: "zoom-out" }}
       >
         {shot.clip ? (
@@ -180,19 +291,12 @@ export default function Expander({
             controls
           />
         ) : (
-          <>
-            {/* Underneath, and already decoded: the tile's own image. Without
-                it the frame opened empty and stayed that way for 80-150ms
-                while the large version was fetched — the "slow" part of
-                opening was never the animation. */}
-            {preview && (
-              <img className="expander-media expander-preview" src={preview} alt="" />
-            )}
-            {/* A plain img on the original file — see expandedUrl. Going
-                through next/image here bought a smaller payload at the cost
-                of a transcode the reader waits on. */}
-            <img className="expander-media" src={shot.src} alt="" decoding="async" />
-          </>
+          <Still
+            key={shot.src}
+            shot={shot}
+            preview={preview || thumb(shot.src, 960)}
+            width={drawnWidth}
+          />
         )}
         {/* Figma's selection chrome: the frame's edge, its corners, its name
             and its name.
@@ -216,6 +320,29 @@ export default function Expander({
         >
           Watch this post on X ↗
         </a>
+      )}
+      {onStep && (
+        <div className="expander-nav">
+          {([-1, 1] as const).map((dir) => (
+            <button
+              key={dir}
+              type="button"
+              className="expander-nav-btn"
+              aria-label={dir < 0 ? "Previous" : "Next"}
+              onClick={() => !closing && onStep(dir)}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <path
+                  d={dir < 0 ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"}
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

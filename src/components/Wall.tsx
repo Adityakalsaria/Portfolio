@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image, { getImageProps } from "next/image";
-import type { SphereShot } from "@/lib/work";
+import { thumb, tileClip, tileSrcSet, type SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
 import {
@@ -358,8 +357,8 @@ export default function Wall({
    * The wall is endless and every piece comes round again, so whatever is not
    * on screen now is about to be. After the page has loaded and the browser is
    * idle, the remaining stills are fetched a few at a time at low priority,
-   * through the same optimizer URL the pieces use so they arrive already
-   * cached and a pan never lands on an empty cell.
+   * with the same srcset the pieces use, so they arrive already cached and a
+   * pan never lands on an empty cell.
    */
   useEffect(() => {
     if (!box.w) return;
@@ -369,19 +368,13 @@ export default function Wall({
     const next = () => {
       if (stop) return;
       for (const s of queue.splice(0, 3)) {
-        const { props } = getImageProps({
-          src: s.src,
-          alt: "",
-          width: s.width,
-          height: s.height,
-          sizes: `${Math.ceil(pieceWidth(s.width / s.height, box.cell))}px`,
-        });
         const img = new window.Image();
         img.fetchPriority = "low";
         img.decoding = "async";
-        img.sizes = props.sizes ?? "";
-        img.srcset = props.srcSet ?? "";
-        img.src = props.src;
+        // The same srcset and sizes a tile uses, so it picks the same file.
+        img.sizes = `${Math.ceil(pieceWidth(s.width / s.height, box.cell))}px`;
+        img.srcset = tileSrcSet(s.src);
+        img.src = thumb(s.src, 480);
       }
       if (queue.length) timer = setTimeout(idle, 120);
     };
@@ -522,16 +515,26 @@ export default function Wall({
                   }}
                 >
                   {shot.clip ? (
-                    <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
+                    // The short silent loop, not the full clip: this plays in a
+                    // box about 200px across. The full clip is for the opened view.
+                    <video
+                      src={tileClip(shot.clip)}
+                      poster={thumb(shot.src, 960)}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
                   ) : (
-                    // Through the optimizer at the piece's own size: the original
-                    // is up to 3200px wide and a piece is about 200.
-                    <Image
-                      src={shot.src}
-                      alt=""
-                      width={shot.width}
-                      height={shot.height}
+                    // Pre-sized thumbnails from the CDN. On screen: eager and at
+                    // high priority. The ring kept around it waits, at low.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={thumb(shot.src, 480)}
+                      srcSet={tileSrcSet(shot.src)}
                       sizes={`${Math.ceil(w)}px`}
+                      alt=""
                       loading={visible ? "eager" : "lazy"}
                       fetchPriority={visible ? "high" : "low"}
                       decoding="async"

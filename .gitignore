@@ -7,3 +7,5 @@ out
 *.tsbuildinfo
 next-env.d.ts
 
+# derived by scripts/optimize.mjs on dev start and build
+public/**/*.w[0-9]*.webp

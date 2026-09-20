@@ -19,6 +19,20 @@ export type SphereShot = Shot & {
   href?: string;
 };
 
+/**
+ * Derived files written by scripts/optimize.mjs. Keep the sizes in step with it.
+ * Originals are never replaced: an opened image or clip still loads the
+ * untouched file, and these are what tiles load instead.
+ */
+export const thumb = (src: string, w: 480 | 960 | 1600) =>
+  src.replace(/\.webp$/, `.w${w}.webp`);
+/** Tile-sized srcset, for 1x and 2x screens. */
+export const tileSrcSet = (src: string) => `${thumb(src, 480)} 480w, ${thumb(src, 960)} 960w`;
+/** A short silent loop of a clip, for playing in a tile. */
+export const tileClip = (clip: string) => clip.replace(/\.mp4$/, ".tile.mp4");
+/** Whether a 1600px display size exists: only for originals well past it. */
+export const hasMedium = (s: { width: number }) => s.width > 2000;
+
 export type Section = {
   title: string;
   shots: Shot[];
