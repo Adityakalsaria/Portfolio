@@ -2,21 +2,23 @@ import WorkList from "@/components/WorkList";
 import Portrait from "@/components/Portrait";
 import RowTable from "@/components/RowTable";
 import Timeline from "@/components/Timeline";
-import { PROFILE, CLIENTS, byYear, type Entry } from "@/lib/cv";
+import { PROFILE, CLIENTS } from "@/lib/cv";
 
 const X = `https://x.com/${PROFILE.x}`;
-const DRIBBBLE = `https://dribbble.com/${PROFILE.dribbble}`;
 const LINKEDIN = `https://www.linkedin.com/in/${PROFILE.linkedin}`;
 
-const toGroups = (entries: Entry[]) =>
-  byYear(entries).map((g) => ({
-    name: g.name,
-    items: g.items.map((e) => ({
+// One group, flat: the year lives in each entry's period, so there is no
+// year gutter to group by.
+const clientRows = [
+  {
+    name: "",
+    items: CLIENTS.map((e) => ({
       key: e.title + e.year + e.period,
       title: e.company ? `${e.title}, ${e.company}` : e.title,
       meta: e.period,
     })),
-  }));
+  },
+];
 
 export default function Home() {
   return (
@@ -33,18 +35,20 @@ export default function Home() {
           motion, icon design and art direction.
         </p>
         <p>
-          I currently work at KOSH, formerly Copperx, as a product and brand
-          designer. I led the rebrand, and I design the exchange, the mobile app
-          and the campaigns around them.
+          I&rsquo;m currently building{" "}
+          <a className="link" href="https://mocraft.app" target="_blank" rel="noreferrer">
+            mocraft.app
+          </a>
+          , a 3D mockup studio where you put a screenshot on a phone, frame the
+          shot and export a still or a video. I&rsquo;m also helping Conscious
+          Engines with brand design. Previously, I was leading visual and UI design at KOSH, formerly
+          Copperx, where I led the rebrand and designed the exchange, the mobile
+          app and the campaigns around them.
         </p>
         <p>
           You can find me on{" "}
           <a className="link" href={X} target="_blank" rel="noreferrer">
             X
-          </a>
-          ,{" "}
-          <a className="link" href={DRIBBBLE} target="_blank" rel="noreferrer">
-            Dribbble
           </a>{" "}
           and{" "}
           <a className="link" href={LINKEDIN} target="_blank" rel="noreferrer">
@@ -68,7 +72,7 @@ export default function Home() {
       </section>
 
       <section>
-        <RowTable label="Freelance" groups={toGroups(CLIENTS)} />
+        <RowTable label="Freelance" groups={clientRows} flat />
       </section>
     </main>
   );

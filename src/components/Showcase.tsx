@@ -22,6 +22,7 @@ export default function Showcase({
   gridShots,
   title,
   groups,
+  gridOnly,
 }: {
   shots: Shot[];
   /** Everything, where a view shows more than the scroll's own images. */
@@ -31,8 +32,11 @@ export default function Showcase({
   /** Campaign runs over the same list. */
   groups?: Group[];
   title: string;
+  /** No wall and no view switch: the grid alone, for work read as screens. */
+  gridOnly?: boolean;
 }) {
-  const [mode, setMode] = useState<Mode>("wall");
+  const [picked, setMode] = useState<Mode>("wall");
+  const mode: Mode = gridOnly ? "grid" : picked;
 
   // A plain Shot has no href or video, so name the resolved list as the wider
   // type rather than letting the fallback narrow it.
@@ -48,20 +52,22 @@ export default function Showcase({
 
   return (
     <>
-      <div className="mode-switch" role="group" aria-label="View">
-        {(["wall", "grid"] as Mode[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => setMode(m)}
-            aria-pressed={mode === m}
-            className={mode === m ? "mode-btn is-on" : "mode-btn"}
-            title={m === "wall" ? "Wall" : "Grid"}
-          >
-            {m === "wall" ? "Wall" : "Grid"}
-          </button>
-        ))}
-      </div>
+      {!gridOnly && (
+        <div className="mode-switch" role="group" aria-label="View">
+          {(["wall", "grid"] as Mode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              aria-pressed={mode === m}
+              className={mode === m ? "mode-btn is-on" : "mode-btn"}
+              title={m === "wall" ? "Wall" : "Grid"}
+            >
+              {m === "wall" ? "Wall" : "Grid"}
+            </button>
+          ))}
+        </div>
+      )}
 
       {mode === "wall" ? (
         <Wall shots={tiles} title={title} />

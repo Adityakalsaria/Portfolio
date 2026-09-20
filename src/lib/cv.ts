@@ -39,15 +39,15 @@ export const EXPERIENCE: Entry[] = [
 ];
 
 export const CLIENTS: Entry[] = [
-  { year: "2025", title: "Dacoit.design", company: "UI design", period: "Jan — Jun" },
-  { year: "2024", title: "BoomFi", company: "Visual design", period: "Jun — Now" },
-  { year: "2024", title: "Flame.Live", company: "Visual design", period: "Nov — Feb 25" },
-  { year: "2024", title: "Superfluid", company: "Visual design", period: "Jul — Jan 25" },
-  { year: "2023", title: "Devfolio", company: "Visual / UI design", period: "Dec" },
-  { year: "2022", title: "MahaDAO", company: "UI design", period: "Dec — Feb 23" },
-  { year: "2022", title: "Infy Protocol", company: "Visual / UI design", period: "Aug — Oct" },
-  { year: "2021", title: "Timeswap", company: "Visual design", period: "Apr — Sep" },
-  { year: "2021", title: "Polytrade", company: "Illustration", period: "Apr — Jun" },
+  { year: "2025", title: "Dacoit.design", company: "UI design", period: "Jan — Jun 2025" },
+  { year: "2024", title: "BoomFi", company: "Visual design", period: "Jun 2024 — Feb 2025" },
+  { year: "2024", title: "Flame.Live", company: "Visual design", period: "Nov 2024 — Feb 2025" },
+  { year: "2024", title: "Superfluid", company: "Visual design", period: "Jul 2024 — Jan 2025" },
+  { year: "2023", title: "Devfolio", company: "Visual / UI design", period: "Dec 2023" },
+  { year: "2022", title: "MahaDAO", company: "UI design", period: "Dec 2022 — Feb 2023" },
+  { year: "2022", title: "Infy Protocol", company: "Visual / UI design", period: "Aug — Oct 2022" },
+  { year: "2021", title: "Timeswap", company: "Visual design", period: "Apr — Sep 2021" },
+  { year: "2021", title: "Polytrade", company: "Illustration", period: "Apr — Jun 2021" },
 ];
 
 /** Consecutive entries sharing a year become one group, newest first. */

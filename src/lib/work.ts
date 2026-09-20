@@ -2,20 +2,29 @@ import type { Post } from "./posts";
 import { GENERATED } from "./work.generated";
 import { MANUAL } from "./manual";
 
-export type Shot = { src: string; width: number; height: number };
+export type Shot = {
+  src: string;
+  width: number;
+  height: number;
+  /** Set when src is the poster frame of a video rather than a still. */
+  video?: boolean;
+  /** Local MP4, played in place once the shot is focused. */
+  clip?: string;
+};
 
-/** A shot in the wall or grid, which may open its source and may be the
- *  poster frame of a video rather than a still. */
+/** A shot in the wall or grid, which may open its source. */
 export type SphereShot = Shot & {
   /** The campaign this belongs to, shown as the frame's name when opened. */
   name?: string;
   href?: string;
-  video?: boolean;
-  /** Local MP4, played on the plane once it is focused. */
-  clip?: string;
 };
 
-export type Section = { title: string; shots: Shot[] };
+export type Section = {
+  title: string;
+  shots: Shot[];
+  /** Grid view: show the whole section on a single row. */
+  row?: boolean;
+};
 
 export type Project = {
   slug: string;
@@ -47,7 +56,6 @@ export type Category = {
  */
 const CANONICAL: { id: string; name: string; aliases: string[] }[] = [
   { id: "marketing-assets", name: "Visual design", aliases: ["marketing-assets", "marketing-aseets", "marketing"] },
-  { id: "product", name: "Product", aliases: ["product"] },
   { id: "ui", name: "UI", aliases: ["ui"] },
 ];
 
@@ -78,18 +86,9 @@ export const ALL_PROJECTS = CATEGORIES.flatMap((c) =>
   c.projects.map((p) => ({ ...p, category: c }))
 );
 
-export const HAS_WORK = ALL_PROJECTS.length > 0;
-
 /** The project a category opens on — the most recent, which leads the list. */
 export function leadProject(c: Category): Project | undefined {
   return c.projects[0];
-}
-
-/** Every image in a category, so hovering its row can run the whole body. */
-export function categoryShots(c: Category): Shot[] {
-  return c.projects.flatMap(
-    (p) => p.shots ?? [{ src: p.cover, width: p.width ?? 4, height: p.height ?? 3 }]
-  );
 }
 
 /** The other projects in a project's category, for the rail. */

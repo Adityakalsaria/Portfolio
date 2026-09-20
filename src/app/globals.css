@@ -127,6 +127,40 @@ a { color: inherit; }
   padding-right: 1.25rem;
 }
 
+/* A status label in the meta column. */
+.pill {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.puff { position: relative; display: inline-block; }
+/* Centred over the pill and larger than it, so the inflated letters have room.
+   Out of the way of the pointer, or the clip would steal the hover. */
+.puff-clip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12rem;
+  height: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+/* The pill is the row's call to action, so it is solid at rest rather than
+   the quiet grey of a status label, and lifts a little when the row is hovered. */
+.pill-link {
+  padding: 0.25rem 0.85rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, opacity 0.15s ease;
+}
+.trow:hover .pill-link { background: color-mix(in srgb, var(--ink) 78%, var(--paper)); }
+
 .cell-meta {
   color: var(--muted);
   text-align: right;
@@ -260,11 +294,30 @@ a { color: inherit; }
 }
 
 .tl-ruler {
+  position: relative;
   /* Tall enough to be an easy hover target; a thin band is hard to hold. */
   padding: 1rem 0;
   /* Leaves vertical panning to the browser and hands us horizontal drags,
      which is the only way to scrub where there is no hover. */
   touch-action: pan-y;
+}
+
+/* One dot per role, hung off the first tick of its span so it stays centred on
+   that tick whatever the spacing. Sits below the track, in the ruler's bottom
+   padding, so nothing moves. Grey at rest; the role under the pointer sets its
+   colour inline. The tick is centred in the track, so 50% is the track's middle
+   whatever height the tick has grown to. */
+.tl-dot {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 2.25rem + 5px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 25%, var(--paper));
+  transform: translateX(-50%);
+  transition: background-color 0.2s ease;
+  pointer-events: none;
 }
 
 /* Every month is on screen at once. Scrolling the strip meant the early
@@ -280,6 +333,7 @@ a { color: inherit; }
 }
 
 .tick {
+  position: relative;
   width: 2px;
   flex-shrink: 0;
   height: 2.5rem;
@@ -399,8 +453,8 @@ a { color: inherit; }
   background: var(--paper);
   box-shadow:
     0 0 0 1px var(--line),
-    0 10px 34px rgb(255 255 255 / 0.9),
-    0 2px 12px rgb(0 0 0 / 0.07);
+    0 14px 44px rgb(0 0 0 / 0.32),
+    0 4px 16px rgb(0 0 0 / 0.2);
 }
 .mode-btn {
   display: grid;
@@ -425,51 +479,10 @@ a { color: inherit; }
 }
 .mode-btn { cursor: pointer; }
 
-/* Gallery images carry the same hairline edge as the preview. Drawn outside
+/* Gallery images carry a hairline edge. Drawn outside
    the box rather than inset, so it rings the image instead of overlapping
    its first row of pixels. */
 .shot { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15); }
-
-/* Hover preview, parked beside the hovered row. */
-.work-preview {
-  position: fixed;
-  z-index: 50;
-  display: none;
-  width: 14rem;
-  overflow: hidden;
-  border-radius: 4px;
-  background: var(--surface);
-  pointer-events: none;
-  transform: translateY(-50%);
-  /* A hairline edge outside the box, so a light image still reads against
-     the page without the ring covering any of it. */
-  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.15);
-  /* Fades on first appearance; position only animates once placed. */
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.work-preview.is-placed {
-  transition:
-    top 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    left 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    aspect-ratio 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@media (min-width: 48rem) {
-  .work-preview { display: block; }
-}
-
-/* Frames are all mounted; the incoming one eases up over the last, which is
-   held opaque beneath it. Shorter than the 280ms step so a fade finishes
-   before the next begins — at 0.6s they overlapped three deep. */
-.preview-frame {
-  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .work-preview,
-  .preview-frame { transition: none; }
-}
 
 /* Three across, so eighteen posts read as a contact sheet. Two on a phone,
    where three would be thumbnails rather than previews. */
@@ -759,6 +772,10 @@ a { color: inherit; }
 .expander-preview {
   position: absolute;
   inset: 0;
+  /* Positioned, so without this it paints over the in-flow full-size image
+     for good and every opened picture stays at the tile's resolution. The
+     frame's transform makes it a stacking context, so -1 stays inside it. */
+  z-index: -1;
 }
 
 /* ── Wall ────────────────────────────────────────────────────────
@@ -850,8 +867,9 @@ a { color: inherit; }
 }
 
 /* Nothing above the work: no header, no band, no column padding. The left
-   panel is the only paper on the page. */
-.doc:has(.mode-switch) { padding-top: 0; padding-bottom: 0; }
+   panel is the only paper on the page. Keyed on the work itself rather than
+   the view switch, which a grid-only project does not have. */
+.doc:has(.mode-switch, .gallery, .wall) { padding-top: 0; padding-bottom: 0; }
 /* The wall runs to the top edge; the grid begins on the Back link's line, so
    its first campaign heading and the index start together. It ends well
    short of the bottom, so the last row is not pinned to the window edge at

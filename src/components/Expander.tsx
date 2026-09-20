@@ -28,6 +28,7 @@ export default function Expander({
   from,
   preview,
   onClose,
+  onStep,
 }: {
   shot: SphereShot;
   from: Rect;
@@ -35,7 +36,14 @@ export default function Expander({
    *  and can be shown while the full-size version is still in flight. */
   preview?: string;
   onClose: () => void;
+  /** Left and right arrows, for stepping to a neighbouring item. The parent
+   *  owns what "next" means — the wall goes by position, the grid by order. */
+  onStep?: (dir: -1 | 1) => void;
 }) {
+  const stepRef = useRef(onStep);
+  useEffect(() => {
+    stepRef.current = onStep;
+  });
   const root = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -124,7 +132,11 @@ export default function Expander({
     p.current.target = 0;
   };
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      else if (e.key === "ArrowLeft") stepRef.current?.(-1);
+      else if (e.key === "ArrowRight") stepRef.current?.(1);
+    };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -148,6 +160,7 @@ export default function Expander({
       >
         {shot.clip ? (
           <video
+            key={shot.clip}
             ref={(el) => {
               video.current = el;
               if (!el) return;

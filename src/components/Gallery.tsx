@@ -88,6 +88,7 @@ export default function Gallery({
 
   const [open, setOpen] = useState<{
     shot: SphereShot;
+    index: number;
     from: Rect;
     preview?: string;
   } | null>(null);
@@ -464,7 +465,7 @@ export default function Gallery({
     };
   }, [mode, shots.length, offsetFor, paint, rearmHover]);
 
-  const openAt = (shot: SphereShot, el: HTMLElement) => {
+  const openAt = (shot: SphereShot, el: HTMLElement, index: number) => {
     if (swallowClick.current) {
       swallowClick.current = false;
       return;
@@ -482,7 +483,26 @@ export default function Gallery({
           : undefined;
     setOpen({
       shot,
+      index,
       preview,
+      from: { x: r.left, y: r.top, width: r.width, height: r.height },
+    });
+  };
+
+  /** Arrow keys while open: the next tile in order, wrapping at the ends. The
+   *  tile is brought into view first so closing lands on it. */
+  const stepOpen = (dir: -1 | 1) => {
+    if (!open) return;
+    const index = (open.index + dir + shots.length) % shots.length;
+    const el = cells.current[index];
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "instant" });
+    const media = el.querySelector("img, video");
+    const r = (media ?? el).getBoundingClientRect();
+    setOpen({
+      shot: shots[index],
+      index,
+      preview: media instanceof HTMLImageElement ? media.currentSrc : undefined,
       from: { x: r.left, y: r.top, width: r.width, height: r.height },
     });
   };
@@ -532,7 +552,7 @@ export default function Gallery({
                 if (e.currentTarget.matches(":focus-visible")) setHover(i);
               }}
               onBlur={() => setHover(-1)}
-              onClick={(e) => openAt(s, e.currentTarget)}
+              onClick={(e) => openAt(s, e.currentTarget, i)}
               aria-label={s.clip ? "Play with sound" : "Open image"}
             >
               {s.clip ? (
@@ -558,6 +578,7 @@ export default function Gallery({
           from={open.from}
           preview={open.preview}
           onClose={() => setOpen(null)}
+          onStep={stepOpen}
         />
       )}
       <span hidden>{width}</span>

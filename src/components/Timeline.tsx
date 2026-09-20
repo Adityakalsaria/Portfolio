@@ -44,10 +44,28 @@ export default function Timeline() {
     [months, step]
   );
 
+  // One dot per role at its first month, hung off that tick so it is centred
+  // on it exactly. Grey until that role is the one under the pointer, then the
+  // employer's colour.
+  const dotAt = useMemo(() => {
+    const at = new Map<number, Entry>();
+    for (const e of EXPERIENCE) {
+      if (!e.from || !e.to || !e.color) continue;
+      const first = ticks.findIndex((m) => m >= e.from! && m <= e.to!);
+      if (first >= 0) at.set(first, e);
+    }
+    return at;
+  }, [ticks]);
+
   const [index, setIndex] = useState(ticks.length - 1);
   const [labelX, setLabelX] = useState<number | null>(null);
   const haptic = useHaptics();
-  const lastRole = useRef<string | null>(null);
+  // Starts as the role already highlighted, so the first crossing off it is
+  // felt. Starting empty made that first move silent.
+  const lastRole = useRef<string | null>(
+    EXPERIENCE.find((e) => e.from && e.to && months[months.length - 1] >= e.from && months[months.length - 1] <= e.to)
+      ?.company ?? null
+  );
 
   const rolesAt = (month: string): Entry[] =>
     EXPERIENCE.filter((e) => e.from && e.to && month >= e.from && month <= e.to);
@@ -181,7 +199,19 @@ export default function Timeline() {
                         : "tick"
                   }
                   style={background ? { background } : undefined}
-                />
+                >
+                  {dotAt.has(i) && (
+                    <span
+                      className="tl-dot"
+                      aria-hidden
+                      style={
+                        roles.includes(dotAt.get(i)!)
+                          ? { background: dotAt.get(i)!.color }
+                          : undefined
+                      }
+                    />
+                  )}
+                </span>
               );
             })}
           </div>

@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { clsx } from "clsx";
+import PuffPill from "./PuffPill";
 
 export type TableItem = {
   key: string;
   title: string;
   meta?: string;
+  /** A small label in the meta column, in place of the text. */
+  pill?: string;
+  /** A clip to play in place of the linked pill on hover; see PuffPill. */
+  pillVideo?: string;
   href?: string;
+  /** Open href in a new tab, for a link that leaves the site. */
+  external?: boolean;
   /** Rendered greyed, for rows that are placeholders rather than entries. */
   quiet?: boolean;
 };
@@ -72,23 +79,35 @@ export default function RowTable({ label, groups, onActive, flat }: Props) {
                 row.rule === "none" ? "rule-none" : "rule-on"
               )}
             >
-              {row.meta}
+              {row.pill ? <PuffPill label={row.pill} video={row.pillVideo} /> : row.meta}
             </span>
           </>
         );
 
+        const hover = {
+          onPointerEnter: (e: React.PointerEvent<HTMLElement>) => onActive?.(row.key, e.currentTarget),
+          onPointerLeave: () => onActive?.(null),
+          onFocus: (e: React.FocusEvent<HTMLElement>) => onActive?.(row.key, e.currentTarget),
+          onBlur: () => onActive?.(null),
+        };
+
         return row.href ? (
-          <Link
-            key={row.key}
-            href={row.href}
-            className="trow"
-            onPointerEnter={(e) => onActive?.(row.key, e.currentTarget)}
-            onPointerLeave={() => onActive?.(null)}
-            onFocus={(e) => onActive?.(row.key, e.currentTarget)}
-            onBlur={() => onActive?.(null)}
-          >
-            {cells}
-          </Link>
+          row.external ? (
+            <a
+              key={row.key}
+              href={row.href}
+              target="_blank"
+              rel="noreferrer"
+              className="trow"
+              {...hover}
+            >
+              {cells}
+            </a>
+          ) : (
+            <Link key={row.key} href={row.href} className="trow" {...hover}>
+              {cells}
+            </Link>
+          )
         ) : (
           <div key={row.key} className="trow">
             {cells}

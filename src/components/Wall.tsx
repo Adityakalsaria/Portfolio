@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image, { getImageProps } from "next/image";
 import type { SphereShot } from "@/lib/work";
 import { useHaptics } from "@/lib/haptics";
 import Expander, { type Rect } from "./Expander";
@@ -33,7 +34,24 @@ const PAD = 0.075;
 const AREA = 0.6;
 /** How far the field leans toward the cursor, in px. */
 const PARALLAX = 44;
+/** Idle drift: how long the wall waits after the last touch before it starts
+ *  moving on its own, how long it takes to reach full speed, and that speed
+ *  in px/s. One direction, slow enough to read as the field breathing rather
+ *  than scrolling. */
+const IDLE_MS = 2500;
+const DRIFT_RAMP = 2;
+const DRIFT = { x: -14, y: -5 };
 
+
+/** Width of a piece in a cell: constant area, fitted inside the padded box so
+ *  there is always clear space around it. Shared by the render and the warm-up,
+ *  which must ask the image optimizer for the same size to hit the same cache. */
+function pieceWidth(aspect: number, cell: number): number {
+  const room = cell * (1 - PAD * 2);
+  const raw = Math.sqrt((room * AREA) ** 2 * aspect);
+  const fit = Math.min(1, room / raw, room / (raw / aspect));
+  return raw * fit;
+}
 
 /** Positive modulo — JS % keeps the sign, which breaks indexing past zero. */
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -82,10 +100,18 @@ export default function Wall({
   const cellRef = useRef(CELL);
   const blur = useRef(0);
   const haptic = useHaptics();
+  /** When the user last touched the wall, the drift's 0–1 ramp, and the timer
+   *  that wakes the frame loop once the idle wait is over (the loop sleeps
+   *  whenever nothing is moving, so something has to start it again). */
+  const lastInput = useRef(0);
+  const driftRamp = useRef(0);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const openRef = useRef(false);
+  const reduced = useRef(false);
 
   const [box, setBox] = useState({ w: 0, h: 0, cell: CELL });
   const [, force] = useState(0);
-  const [open, setOpen] = useState<{ shot: SphereShot; from: Rect; preview?: string } | null>(
+  const [open, setOpen] = useState<{ shot: SphereShot; from: Rect; preview?: string; c: number; r: number } | null>(
     null
   );
 
@@ -138,6 +164,14 @@ export default function Wall({
   // ── the loop ────────────────────────────────────────────────────
   const running = useRef(false);
   const dragging = useRef(false);
+  const paintRef = useRef<() => void>(() => {});
+  /** Any input: hand control back to the user and restart the idle wait. */
+  const poke = useCallback(() => {
+    lastInput.current = performance.now();
+    driftRamp.current = 0;
+    clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => paintRef.current(), IDLE_MS + 50);
+  }, []);
   const paint = useCallback(() => {
     if (running.current) return;
     running.current = true;
@@ -148,6 +182,23 @@ export default function Wall({
       const dt = (now - last) / 1000;
       last = now;
       let moving = dragging.current;
+      // Drift only while nobody is driving: not dragging, nothing opened, and
+      // the idle wait served. Moves the spring's target, so it is eased by the
+      // same spring as everything else and the hand-off back to the user has
+      // nothing to reconcile.
+      const idle =
+        !dragging.current &&
+        !openRef.current &&
+        !reduced.current &&
+        now - lastInput.current > IDLE_MS;
+      driftRamp.current = idle ? Math.min(1, driftRamp.current + dt / DRIFT_RAMP) : 0;
+      if (driftRamp.current > 0) {
+        const k = driftRamp.current * driftRamp.current * (3 - 2 * driftRamp.current);
+        chase.current = TRACK_SPRING;
+        x.current.target += DRIFT.x * k * dt;
+        y.current.target += DRIFT.y * k * dt;
+        moving = true;
+      }
       if (step(x.current, dt, chase.current)) moving = true;
       if (step(y.current, dt, chase.current)) moving = true;
       if (step(leanX.current, dt, LEAN_SPRING)) moving = true;
@@ -182,6 +233,19 @@ export default function Wall({
     };
     requestAnimationFrame(tick);
   }, []);
+  useEffect(() => {
+    paintRef.current = paint;
+  }, [paint]);
+
+  useEffect(() => {
+    openRef.current = open !== null;
+  }, [open]);
+
+  useEffect(() => {
+    reduced.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    poke();
+    return () => clearTimeout(idleTimer.current);
+  }, [poke]);
 
   // ── drag ────────────────────────────────────────────────────────
   const drag = useRef({ id: -1, sx: 0, sy: 0, ox: 0, oy: 0, lx: 0, ly: 0, lt: 0, vx: 0, vy: 0, moved: 0 });
@@ -189,6 +253,7 @@ export default function Wall({
 
   const onDown = (e: React.PointerEvent) => {
     if (open) return;
+    poke();
     swallowClick.current = false;
     const d = drag.current;
     d.id = e.pointerId;
@@ -211,6 +276,7 @@ export default function Wall({
       d.lx = ev.clientX;
       d.ly = ev.clientY;
       d.lt = now;
+      lastInput.current = now;
       d.moved = Math.max(d.moved, Math.hypot(ev.clientX - d.sx, ev.clientY - d.sy));
       // The hand is authoritative: move the target with the value, or the
       // spring pulls back against the drag every frame.
@@ -224,6 +290,7 @@ export default function Wall({
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
       dragging.current = false;
+      poke();
       d.id = -1;
       swallowClick.current = d.moved > 6;
       // Carry the throw. There is nothing to snap to on an endless field, so
@@ -240,6 +307,7 @@ export default function Wall({
   };
 
   const onMove = (e: React.PointerEvent) => {
+    poke();
     if (dragging.current || e.pointerType !== "mouse" || !box.w) return;
     leanX.current.target = (0.5 - e.clientX / box.w) * 2 * PARALLAX;
     leanY.current.target =
@@ -271,6 +339,7 @@ export default function Wall({
       const dy = takeY ? e.deltaY : 0;
       if (!dx && !dy) return;
       e.preventDefault();
+      poke();
       // Move the target and let the spring follow. Applying the delta to the
       // value directly tracked the device 1:1, and a trackpad delivers its
       // deltas in bursts, so the field advanced in steps.
@@ -281,23 +350,93 @@ export default function Wall({
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [paint]);
+  }, [paint, poke]);
 
-  const close = useCallback(() => setOpen(null), []);
+  /**
+   * Warms the rest of the set once the visible pieces are in.
+   *
+   * The wall is endless and every piece comes round again, so whatever is not
+   * on screen now is about to be. After the page has loaded and the browser is
+   * idle, the remaining stills are fetched a few at a time at low priority,
+   * through the same optimizer URL the pieces use so they arrive already
+   * cached and a pan never lands on an empty cell.
+   */
+  useEffect(() => {
+    if (!box.w) return;
+    let stop = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const queue = shots.filter((s) => !s.clip);
+    const next = () => {
+      if (stop) return;
+      for (const s of queue.splice(0, 3)) {
+        const { props } = getImageProps({
+          src: s.src,
+          alt: "",
+          width: s.width,
+          height: s.height,
+          sizes: `${Math.ceil(pieceWidth(s.width / s.height, box.cell))}px`,
+        });
+        const img = new window.Image();
+        img.fetchPriority = "low";
+        img.decoding = "async";
+        img.sizes = props.sizes ?? "";
+        img.srcset = props.srcSet ?? "";
+        img.src = props.src;
+      }
+      if (queue.length) timer = setTimeout(idle, 120);
+    };
+    const idle = () => {
+      if ("requestIdleCallback" in window) window.requestIdleCallback(next, { timeout: 1500 });
+      else next();
+    };
+    const start = () => {
+      timer = setTimeout(idle, 400);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => {
+      stop = true;
+      clearTimeout(timer);
+      window.removeEventListener("load", start);
+    };
+  }, [box.w, box.cell, shots]);
 
-  const openAt = (shot: SphereShot, el: HTMLElement) => {
+  const close = useCallback(() => {
+    setOpen(null);
+    poke();
+  }, [poke]);
+
+  const openAt = (shot: SphereShot, el: HTMLElement, c: number, r: number) => {
     if (swallowClick.current) {
       swallowClick.current = false;
       return;
     }
     const media = el.querySelector("img, video");
-    const r = (media ?? el).getBoundingClientRect();
+    const rect = (media ?? el).getBoundingClientRect();
     haptic("nudge");
     setOpen({
+      c,
+      r,
       shot,
       preview: media instanceof HTMLImageElement ? media.currentSrc : undefined,
-      from: { x: r.left, y: r.top, width: r.width, height: r.height },
+      from: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
     });
+  };
+
+  /**
+   * Arrow keys while open: the piece in the next cell along the row, which is
+   * the one actually beside it on the wall. The field pans a cell the same way
+   * underneath, so the neighbour ends up where the opened piece was and
+   * closing returns to roughly the right place.
+   */
+  const stepOpen = (dir: -1 | 1) => {
+    if (!open) return;
+    const c = open.c + dir;
+    const shot = shots[mod(c * 7 + open.r * 13, shots.length)];
+    setOpen({ ...open, c, shot, preview: undefined });
+    chase.current = CHASE_SPRING;
+    x.current.target -= dir * cellRef.current;
+    paint();
   };
 
   // ── which cells are on screen ───────────────────────────────────
@@ -346,12 +485,14 @@ export default function Wall({
             // is always clear space around it, and the jitter is bounded by
             // whatever room is left — a piece can never cross into its
             // neighbour's.
-            const box = cell * (1 - PAD * 2);
+            const room = cell * (1 - PAD * 2);
             const jr = (n: number) => hash(c + n, r + n * 7) - 0.5;
-            const area = (box * AREA) ** 2;
-            const raw = Math.sqrt(area * aspect);
-            const fit = Math.min(1, box / raw, box / (raw / aspect));
-            const w = raw * fit;
+            const w = pieceWidth(aspect, cell);
+            // On screen now, as against the ring of cells kept around it.
+            // Those load at once and first; the ring waits its turn.
+            const cx = c * cell + ox;
+            const cy = r * cell + oy;
+            const visible = cx + cell > 0 && cx < box.w && cy + cell > 0 && cy < box.h;
             return (
               <button
                 key={`${c}:${r}`}
@@ -367,7 +508,7 @@ export default function Wall({
                   width: cell,
                   height: cell,
                 }}
-                onClick={(e) => openAt(shot, e.currentTarget)}
+                onClick={(e) => openAt(shot, e.currentTarget, c, r)}
                 aria-label="Open image"
               >
                 <span
@@ -375,19 +516,24 @@ export default function Wall({
                   style={{
                     width: w,
                     aspectRatio: aspect,
-                    transform: `translate(${jr(31) * (box - w)}px, ${
-                      jr(57) * (box - w / aspect)
+                    transform: `translate(${jr(31) * (room - w)}px, ${
+                      jr(57) * (room - w / aspect)
                     }px)`,
                   }}
                 >
                   {shot.clip ? (
                     <video src={shot.clip} poster={shot.src} autoPlay loop muted playsInline />
                   ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    // Through the optimizer at the piece's own size: the original
+                    // is up to 3200px wide and a piece is about 200.
+                    <Image
                       src={shot.src}
                       alt=""
-                      loading="lazy"
+                      width={shot.width}
+                      height={shot.height}
+                      sizes={`${Math.ceil(w)}px`}
+                      loading={visible ? "eager" : "lazy"}
+                      fetchPriority={visible ? "high" : "low"}
                       decoding="async"
                       draggable={false}
                     />
@@ -404,6 +550,7 @@ export default function Wall({
           from={open.from}
           preview={open.preview}
           onClose={close}
+          onStep={stepOpen}
         />
       )}
     </>

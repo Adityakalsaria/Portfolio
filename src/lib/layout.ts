@@ -7,16 +7,27 @@ import type { SphereShot } from "./work";
  * nothing. Mirrors --rail-w in globals.css, clamp(17rem, 26vw, 24rem), which
  * cannot be read from here because the layout runs before paint — so the two
  * have to be changed together.
+ *
+ * Clear of the veil too, not just the panel: the veil's edge is blurred, and
+ * its fade runs to twice --veil-blur past the panel, washing out anything
+ * inside it. Mirrors --veil-blur (70px).
  */
+const VEIL_FADE = 140;
 export function railReserve(vw: number): number {
   if (vw < 1184) return 0;
   const panel = Math.min(Math.max(272, vw * 0.26), 384);
-  return panel + 24;
+  return panel + VEIL_FADE;
 }
 
 export type Box = { x: number; y: number; width: number; height: number };
 /** A run of consecutive shots that belong to one campaign. */
-export type Group = { title: string; start: number; count: number };
+export type Group = {
+  title: string;
+  start: number;
+  count: number;
+  /** In the grid, lay the run out as a single row rather than packed columns. */
+  row?: boolean;
+};
 /** Where a group's label sits, and how far its run extends. */
 export type Label = { title: string; x: number; y: number; width: number };
 export type Layout = {
@@ -123,14 +134,17 @@ export function gridLayout(
   let top = 0;
   for (const run of runs) {
     if (run.title) labels.push({ title: run.title, x: left, y: top, width: gridW });
-    const heights = new Array(columns).fill(top + HEAD);
+    // A row run puts every shot on one line, one column each.
+    const cols = run.row ? Math.max(1, run.count) : columns;
+    const w = run.row ? (gridW - gap * (cols - 1)) / cols : colW;
+    const heights = new Array(cols).fill(top + HEAD);
     for (let i = run.start; i < run.start + run.count; i++) {
       const s = shots[i];
       if (!s) continue;
       let col = 0;
-      for (let c = 1; c < columns; c++) if (heights[c] < heights[col]) col = c;
-      const h = colW / (s.width / s.height);
-      boxes[i] = { x: left + col * (colW + gap), y: heights[col], width: colW, height: h };
+      for (let c = 1; c < cols; c++) if (heights[c] < heights[col]) col = c;
+      const h = w / (s.width / s.height);
+      boxes[i] = { x: left + col * (w + gap), y: heights[col], width: w, height: h };
       heights[col] += h + gap;
     }
     top = Math.max(...heights) - gap + gap * 3;

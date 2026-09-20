@@ -10,6 +10,7 @@ import {
 import Showcase from "@/components/Showcase";
 import ProjectNav from "@/components/ProjectNav";
 import { PROFILE } from "@/lib/cv";
+import type { Group } from "@/lib/layout";
 
 export function generateStaticParams() {
   return ALL_PROJECTS.map((p) => ({ slug: p.slug }));
@@ -60,11 +61,11 @@ export default async function ProjectPage({
 
   const sections = project.sections ?? [];
   // Runs over the flat list: each campaign's start and length.
-  const groups = sections.reduce<{ title: string; start: number; count: number }[]>(
+  const groups = sections.reduce<Group[]>(
     (acc, section) => {
       const last = acc.at(-1);
       const start = last ? last.start + last.count : 0;
-      acc.push({ title: section.title, start, count: section.shots.length });
+      acc.push({ title: section.title, start, count: section.shots.length, row: section.row });
       return acc;
     },
     []
@@ -95,6 +96,7 @@ export default async function ProjectPage({
           gridShots={allShots}
           groups={groups}
           title={project.title}
+          gridOnly={project.category.id === "ui"}
         />
 
       </main>

@@ -365,11 +365,293 @@ const KOSH_SECTIONS = [
 /** Flat run of every KOSH image, for the views that do not group. */
 const KOSH_SHOTS = KOSH_SECTIONS.flatMap((s) => s.shots);
 
+const RUDY_SECTIONS = [
+  {
+    title: "App Store screens",
+    row: true,
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-01.6c574e89.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-02.d1066d08.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-03.5116322a.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-04.a434a43c.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-05.793cafc4.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-06.110484ad.webp", width: 414, height: 896 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-07.2bc1a642.webp", width: 414, height: 896 },
+    ],
+  },
+  {
+    title: "Launch",
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-08.cc88c458.webp", width: 1204, height: 686 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-09.448b6aaf.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-10.f2533bd8.webp", width: 1204, height: 713 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-11.d1f711a3.webp", width: 1204, height: 686 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-12.d2202043.webp", width: 2623, height: 875 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-13.a3d2aef4.webp", width: 3200, height: 1801 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-14.1e43edc1.webp", width: 3200, height: 1801 },
+    ],
+  },
+  {
+    title: "Feature posts",
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-15.e8299a5f.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-16.a3c7a651.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-17.f860952d.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-18.688ae77a.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-19.f3dc24c6.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-20.c6297196.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-21.c466bb65.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-22.5d8275fe.webp", width: 1080, height: 1080 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-23.75d52433.webp", width: 1080, height: 1080 },
+    ],
+  },
+  {
+    title: "Instagram",
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-24.c1fb52c9.webp", width: 1080, height: 1350 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-25.e8f2908d.webp", width: 1080, height: 1350 },
+    ],
+  },
+  {
+    title: "Twitter",
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-26.87937818.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-27.28a4e79a.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-28.fd9e1e34.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-29.e62f3a33.webp", width: 1200, height: 1050 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-30.269ded05.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-31.cdaa9a2a.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-32.9844b0e1.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-33.9d247f1c.webp", width: 1200, height: 1200 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-34.c6727252.webp", width: 825, height: 1047 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-35.82ce18c0.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-36.c1846fff.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-37.9597334a.webp", width: 1200, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-38.62209332.webp", width: 1136, height: 675 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-39.c83f999f.webp", width: 1199, height: 675 },
+    ],
+  },
+  {
+    title: "Motion",
+    shots: [
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-40.4ae0d937.webp", width: 3200, height: 1818 },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-41.30c75a0e.webp", width: 2396, height: 1348, video: true, clip: "/work/marketing-assets/uncle-rudy/uncle-rudy-41.30c75a0e.mp4" },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-42.26848a73.webp", width: 1796, height: 1348, video: true, clip: "/work/marketing-assets/uncle-rudy/uncle-rudy-42.26848a73.mp4" },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-43.f509dcca.webp", width: 1080, height: 1080, video: true, clip: "/work/marketing-assets/uncle-rudy/uncle-rudy-43.f509dcca.mp4" },
+      { src: "/work/marketing-assets/uncle-rudy/uncle-rudy-44.91e3c104.webp", width: 1080, height: 1080, video: true, clip: "/work/marketing-assets/uncle-rudy/uncle-rudy-44.91e3c104.mp4" },
+    ],
+  },
+];
+
+/** Flat run of every Uncle Rudy image, for the views that do not group. */
+const RUDY_SHOTS = RUDY_SECTIONS.flatMap((s) => s.shots);
+
+const KOSH_APP_SECTIONS = [
+  {
+    title: "Card",
+    shots: [
+      { src: "/work/ui/kosh-money-app/kosh-app-01.2235fcab.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-02.47aa935f.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-03.7fee3d22.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-04.9f569475.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-05.0fa415a1.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-06.831c76d8.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-07.0b2da5c4.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-08.9df4f2a3.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-09.4ab1954d.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-10.dd8e8327.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-11.35662c25.webp", width: 660, height: 1434 },
+    ],
+  },
+  {
+    title: "Giftcard",
+    shots: [
+      { src: "/work/ui/kosh-money-app/kosh-app-12.36650ac3.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-13.1ae44d5b.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-14.69af5742.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-15.7f7ec2d7.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-16.53012493.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-17.4e072329.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-18.a5a2eb61.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-19.79e99384.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-20.5e612223.webp", width: 402, height: 875 },
+      { src: "/work/ui/kosh-money-app/kosh-app-21.264e7c38.webp", width: 402, height: 875 },
+    ],
+  },
+  {
+    title: "Rewards",
+    shots: [
+      { src: "/work/ui/kosh-money-app/kosh-app-22.3fe76e6f.webp", width: 402, height: 931 },
+      { src: "/work/ui/kosh-money-app/kosh-app-23.244741fd.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-24.f607c1f7.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-25.8e472dcb.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-26.17581190.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-27.8f0288f5.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-28.fac70841.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-29.f4a40a1d.webp", width: 402, height: 568 },
+      { src: "/work/ui/kosh-money-app/kosh-app-30.a95b39a7.webp", width: 402, height: 841 },
+      { src: "/work/ui/kosh-money-app/kosh-app-31.17a654f3.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-32.8511d39e.webp", width: 402, height: 922 },
+      { src: "/work/ui/kosh-money-app/kosh-app-33.2e6b40ff.webp", width: 402, height: 584 },
+      { src: "/work/ui/kosh-money-app/kosh-app-34.155a0dbb.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-35.5788e19c.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-36.9f6a5c93.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-37.7fb13a3e.webp", width: 660, height: 1434 },
+    ],
+  },
+  {
+    title: "User profile",
+    shots: [
+      { src: "/work/ui/kosh-money-app/kosh-app-38.f2975454.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-39.dbcf5e8f.webp", width: 660, height: 1434 },
+    ],
+  },
+  {
+    title: "Wallet",
+    shots: [
+      { src: "/work/ui/kosh-money-app/kosh-app-40.30bb4d50.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-41.ff2f60f3.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-42.accdd8f8.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-43.5f11ceb4.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-44.5f11ceb4.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-45.b5b28e67.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-46.38bd3e88.webp", width: 660, height: 1434 },
+      { src: "/work/ui/kosh-money-app/kosh-app-47.bb4079d1.webp", width: 660, height: 1434 },
+    ],
+  },
+];
+
+/** Flat run of every KOSH app screen, for the views that do not group. */
+const KOSH_APP_SHOTS = KOSH_APP_SECTIONS.flatMap((s) => s.shots);
+
+const BULLX_SHOTS = [
+  { src: "/work/ui/bullx/bullx-01.084c2304.webp", width: 1700, height: 1030 },
+  { src: "/work/ui/bullx/bullx-02.d9a18a3a.webp", width: 1700, height: 1112 },
+  { src: "/work/ui/bullx/bullx-03.55ff034b.webp", width: 1700, height: 1030 },
+  { src: "/work/ui/bullx/bullx-04.a6aa1d9a.webp", width: 2000, height: 1056 },
+  { src: "/work/ui/bullx/bullx-05.3062f6e0.webp", width: 1360, height: 2576 },
+  { src: "/work/ui/bullx/bullx-06.a2c2634a.webp", width: 1716, height: 1344 },
+  { src: "/work/ui/bullx/bullx-07.4af46970.webp", width: 1716, height: 1664 },
+  { src: "/work/ui/bullx/bullx-08.50401c88.webp", width: 812, height: 684 },
+  { src: "/work/ui/bullx/bullx-09.e34da790.webp", width: 812, height: 1264 },
+];
+
+const STACKR_UI_SHOTS = [
+  { src: "/work/ui/stackr-ui/stackr-ui-01.1ce5dc57.webp", width: 1440, height: 1024 },
+];
+
+const GPUNET_SHOTS = [
+  { src: "/work/ui/gpu-net/gpu-net-01.e3bbca3f.webp", width: 1440, height: 1585 },
+  { src: "/work/ui/gpu-net/gpu-net-02.811c2525.webp", width: 1440, height: 1657 },
+  { src: "/work/ui/gpu-net/gpu-net-03.57302d95.webp", width: 1440, height: 1431 },
+];
+
+const POLYGON_UI_SHOTS = [
+  { src: "/work/ui/polygon-ui/polygon-ui-01.29fc2501.webp", width: 1440, height: 1067 },
+  { src: "/work/ui/polygon-ui/polygon-ui-02.466d405e.webp", width: 1440, height: 1081 },
+  { src: "/work/ui/polygon-ui/polygon-ui-03.2f7709a2.webp", width: 1440, height: 768 },
+  { src: "/work/ui/polygon-ui/polygon-ui-04.2f83e0de.webp", width: 1440, height: 768 },
+  { src: "/work/ui/polygon-ui/polygon-ui-05.8ea2d972.webp", width: 1440, height: 810 },
+];
+
+const BRIDGY_SHOTS = [
+  { src: "/work/ui/bridgy/bridgy-01.45aab261.webp", width: 1440, height: 1297 },
+  { src: "/work/ui/bridgy/bridgy-02.cb96bd6d.webp", width: 1440, height: 1297 },
+  { src: "/work/ui/bridgy/bridgy-03.f04fddf0.webp", width: 1440, height: 1297 },
+  { src: "/work/ui/bridgy/bridgy-04.d2bd63b7.webp", width: 1440, height: 1297 },
+  { src: "/work/ui/bridgy/bridgy-05.feb58cef.webp", width: 1440, height: 1270 },
+];
+
+const ICONSCOUT_SECTIONS = [
+  {
+    title: "Reward Program",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-01.453789f5.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/iconscout/iconscout-02.85b10bce.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/iconscout/iconscout-03.bd9cb4ce.webp", width: 2400, height: 1350 },
+      { src: "/work/marketing-assets/iconscout/iconscout-04.3a6b45c4.webp", width: 1800, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-05.d7dd8c56.webp", width: 3200, height: 1600 },
+    ],
+  },
+  {
+    title: "Premium plan offer",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-06.260c80b7.webp", width: 3200, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-07.e8557a4e.webp", width: 1800, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-08.90c2b52e.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/iconscout/iconscout-09.a69af97f.webp", width: 1200, height: 1000 },
+      { src: "/work/marketing-assets/iconscout/iconscout-10.dd720f29.webp", width: 1200, height: 2800 },
+      { src: "/work/marketing-assets/iconscout/iconscout-11.637aa138.webp", width: 3200, height: 297 },
+      { src: "/work/marketing-assets/iconscout/iconscout-12.5d7bb128.webp", width: 640, height: 2400 },
+    ],
+  },
+  {
+    title: "3 Million+ assets",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-13.13825a67.webp", width: 3200, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-14.b093c620.webp", width: 1800, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-15.1c70de6d.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/iconscout/iconscout-16.41aea102.webp", width: 1200, height: 1000 },
+      { src: "/work/marketing-assets/iconscout/iconscout-17.9a812c0c.webp", width: 1200, height: 2800 },
+      { src: "/work/marketing-assets/iconscout/iconscout-18.a64c454b.webp", width: 640, height: 2400 },
+      { src: "/work/marketing-assets/iconscout/iconscout-19.91d9f08a.webp", width: 3200, height: 297 },
+    ],
+  },
+  {
+    title: "Tokyo Olympics 2020",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-20.3d56fc4b.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/iconscout/iconscout-21.635269c3.webp", width: 1800, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-22.a5be393b.webp", width: 2400, height: 1350 },
+      { src: "/work/marketing-assets/iconscout/iconscout-23.1547f788.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/iconscout/iconscout-24.fb841d4d.webp", width: 1800, height: 3200 },
+      { src: "/work/marketing-assets/iconscout/iconscout-25.bbed523d.webp", width: 2160, height: 2160 },
+      { src: "/work/marketing-assets/iconscout/iconscout-26.7ab687f6.webp", width: 2400, height: 1350 },
+    ],
+  },
+  {
+    title: "Announcements",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-27.a2edace7.webp", width: 2896, height: 1334 },
+      { src: "/work/marketing-assets/iconscout/iconscout-28.ff6b80f9.webp", width: 2896, height: 1334 },
+      { src: "/work/marketing-assets/iconscout/iconscout-29.4d79cbc9.webp", width: 3200, height: 1800 },
+      { src: "/work/marketing-assets/iconscout/iconscout-30.f0403579.webp", width: 2896, height: 1334 },
+      { src: "/work/marketing-assets/iconscout/iconscout-31.991cc156.webp", width: 2514, height: 1143 },
+    ],
+  },
+  {
+    title: "Blog covers",
+    shots: [
+      { src: "/work/marketing-assets/iconscout/iconscout-32.3460b00c.webp", width: 3060, height: 1391 },
+      { src: "/work/marketing-assets/iconscout/iconscout-33.e4136119.webp", width: 3060, height: 1410 },
+      { src: "/work/marketing-assets/iconscout/iconscout-34.095a18ab.webp", width: 3060, height: 1410 },
+      { src: "/work/marketing-assets/iconscout/iconscout-35.899d7a21.webp", width: 3060, height: 1410 },
+      { src: "/work/marketing-assets/iconscout/iconscout-36.74037d0b.webp", width: 3060, height: 1410 },
+      { src: "/work/marketing-assets/iconscout/iconscout-37.9c56de86.webp", width: 3060, height: 1410 },
+    ],
+  },
+];
+
+/** Flat run of every IconScout image, for the views that do not group. */
+const ICONSCOUT_SHOTS = ICONSCOUT_SECTIONS.flatMap((s) => s.shots);
+
 export const MANUAL: Category[] = [
   {
     id: "marketing-assets",
     name: "Marketing Assets",
     projects: [
+      {
+        slug: "uncle-rudy",
+        title: "Conscious Engines (Uncle Rudy App)",
+        intro:
+          "Launch and social design for Uncle Rudy — the task app that roasts " +
+          "you. App Store screens, the launch and the posts around it.",
+        sections: RUDY_SECTIONS,
+        shots: RUDY_SHOTS,
+        cover: RUDY_SHOTS[0].src,
+        width: RUDY_SHOTS[0].width,
+        height: RUDY_SHOTS[0].height,
+      },
       {
         slug: "kosh-work",
         title: "KOSH (prev-Copperx)",
@@ -418,6 +700,86 @@ export const MANUAL: Category[] = [
         cover: POLYGON_SHOTS[0].src,
         width: POLYGON_SHOTS[0].width,
         height: POLYGON_SHOTS[0].height,
+      },
+      {
+        slug: "iconscout",
+        title: "IconScout",
+        intro:
+          "Campaign, social and blog design for IconScout — the Reward " +
+          "Program, plan offers, the Tokyo Olympics series and the blog covers.",
+        sections: ICONSCOUT_SECTIONS,
+        shots: ICONSCOUT_SHOTS,
+        cover: ICONSCOUT_SHOTS[0].src,
+        width: ICONSCOUT_SHOTS[0].width,
+        height: ICONSCOUT_SHOTS[0].height,
+      },
+    ],
+  },
+  {
+    id: "ui",
+    name: "UI",
+    projects: [
+      {
+        slug: "kosh-money-app",
+        title: "KOSH money app",
+        intro:
+          "Mobile app screens for KOSH money — the card, gift cards, rewards, " +
+          "profile and wallet.",
+        sections: KOSH_APP_SECTIONS,
+        shots: KOSH_APP_SHOTS,
+        cover: KOSH_APP_SHOTS[0].src,
+        width: KOSH_APP_SHOTS[0].width,
+        height: KOSH_APP_SHOTS[0].height,
+      },
+      {
+        slug: "bullx",
+        title: "BullX",
+        intro:
+          "Desktop UI for BullX — the market view, leaderboard, alerts and the popups around them.",
+        shots: BULLX_SHOTS,
+        cover: BULLX_SHOTS[0].src,
+        width: BULLX_SHOTS[0].width,
+        height: BULLX_SHOTS[0].height,
+      },
+      {
+        slug: "stackr-ui",
+        title: "Stackr",
+        intro:
+          "Explorer UI for Stackr — the latest events table.",
+        shots: STACKR_UI_SHOTS,
+        cover: STACKR_UI_SHOTS[0].src,
+        width: STACKR_UI_SHOTS[0].width,
+        height: STACKR_UI_SHOTS[0].height,
+      },
+      {
+        slug: "gpu-net",
+        title: "GPU.NET",
+        intro:
+          "Staking and subnet voting UI for GPU.NET.",
+        shots: GPUNET_SHOTS,
+        cover: GPUNET_SHOTS[0].src,
+        width: GPUNET_SHOTS[0].width,
+        height: GPUNET_SHOTS[0].height,
+      },
+      {
+        slug: "polygon-ui",
+        title: "Polygon",
+        intro:
+          "Web UI for Polygon — the wallet home and the rewards quests.",
+        shots: POLYGON_UI_SHOTS,
+        cover: POLYGON_UI_SHOTS[0].src,
+        width: POLYGON_UI_SHOTS[0].width,
+        height: POLYGON_UI_SHOTS[0].height,
+      },
+      {
+        slug: "bridgy",
+        title: "Bridgy",
+        intro:
+          "The Bridgy bridge flow for Polygon — route breakdown and transaction history.",
+        shots: BRIDGY_SHOTS,
+        cover: BRIDGY_SHOTS[0].src,
+        width: BRIDGY_SHOTS[0].width,
+        height: BRIDGY_SHOTS[0].height,
       },
     ],
   },
