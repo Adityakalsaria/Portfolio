@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Haptics from "@/components/Haptics";
 import { PROFILE } from "@/lib/cv";
+import { Analytics } from "@vercel/analytics/next";
 
 /**
  * Saans (Displaay), committed so the site builds from a clean checkout — a
@@ -51,6 +52,7 @@ export default function RootLayout({
         <SmoothScroll />
         <Haptics />
         {children}
+        <Analytics />
       </body>
     </html>
   );
