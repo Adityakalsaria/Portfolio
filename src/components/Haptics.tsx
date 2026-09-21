@@ -9,7 +9,8 @@ import { useHaptics } from "@/lib/haptics";
  * One listener rather than a handler on every control: taps are uniform, and
  * scattering them means a new link silently ships without feedback. Fires on
  * pointerdown so it lands at the moment of contact, the way a native tap
- * does, rather than after the click resolves.
+ * does, rather than after the click resolves. (iOS is the exception: see the
+ * listener below.)
  */
 export default function Haptics() {
   const haptic = useHaptics();
@@ -30,7 +31,7 @@ export default function Haptics() {
   }, [haptic]);
 
   useEffect(() => {
-    const onDown = (e: PointerEvent) => {
+    const onDown = (e: MouseEvent) => {
       // Primary button only; a modified click is opening a tab, not tapping.
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
         return;
@@ -42,8 +43,12 @@ export default function Haptics() {
       haptic(20);
     };
 
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
+    // iOS has no navigator.vibrate; the library's switch fallback only
+    // produces a haptic inside a real activation event, which pointerdown is
+    // not. There, wait for click.
+    const type = typeof navigator.vibrate === "function" ? "pointerdown" : "click";
+    document.addEventListener(type, onDown);
+    return () => document.removeEventListener(type, onDown);
   }, [haptic]);
 
   return null;
