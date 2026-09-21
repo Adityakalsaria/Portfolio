@@ -11,7 +11,9 @@ import type { HapticInput } from "web-haptics";
  *
  * `isSupported` only checks that `navigator.vibrate` is a function. Desktop
  * Chrome reports true and then does nothing, because there is no motor — so
- * support alone is not a useful gate.
+ * support alone is not a useful gate. It is also false on iOS Safari, which has
+ * no Vibration API; the library falls back to a hidden switch there, so gating
+ * on it silences every iPhone.
  *
  * The library's audible click is guarded by its own `debug` flag. It is a
  * development aid, not a fallback for motorless devices: without debug there
@@ -78,14 +80,13 @@ function boostAudio() {
 if (DEV) boostAudio();
 
 export function useHaptics() {
-  const { trigger, isSupported } = useWebHaptics({ debug: DEV });
+  const { trigger } = useWebHaptics({ debug: DEV });
 
   return useCallback(
     (input: HapticInput) => {
-      if (!isSupported) return;
       if (!DEV && !window.matchMedia?.("(pointer: coarse)").matches) return;
       trigger(input);
     },
-    [trigger, isSupported]
+    [trigger]
   );
 }
