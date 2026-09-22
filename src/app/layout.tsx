@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Haptics from "@/components/Haptics";
+import { Analytics } from "@vercel/analytics/next";
 import { PROFILE } from "@/lib/cv";
 
 /**
@@ -51,6 +52,7 @@ export default function RootLayout({
         <SmoothScroll />
         <Haptics />
         {children}
+        <Analytics />
       </body>
     </html>
   );
